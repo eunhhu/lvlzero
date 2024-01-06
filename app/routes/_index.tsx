@@ -1,41 +1,41 @@
+
 import type { MetaFunction } from "@remix-run/node";
+import { useEffect, useState } from "react";
+import Login from "./-login";
+import Main from "./-main";
+import {Socket} from "socket.io-client";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "LVL.ZERO" },
+    { name: "description", content: "Casual Tower Defense Game" },
   ];
 };
 
 export default function Index() {
-  return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1>Welcome to Remix</h1>
-      <ul>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
-          >
-            15m Quickstart Blog Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
-          >
-            Deep Dive Jokes App Tutorial
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-            Remix Docs
-          </a>
-        </li>
-      </ul>
-    </div>
-  );
+  const [hydration, setHydration] = useState<boolean>(false)
+  const [globalState, setGlobalState] = useState<string>('login')
+  const [lang, setLang] = useState<string>('en')
+  const [user, setUser] = useState<User>()
+  const [socket, setSocket] = useState<Socket>()
+
+  useEffect(() => {
+    setHydration(true)
+
+    let lang = localStorage.getItem('lang')
+    if(lang){
+      setLang(lang)
+    } else {
+      localStorage.setItem('lang', navigator.language.split('-')[0])
+      setLang(navigator.language.split('-')[0])
+    }
+  }, [])
+
+  return (<>
+    {hydration && <>{
+      globalState == 'login' ? <Login lang={lang} set={setGlobalState} user={user as User} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} /> :
+      globalState == 'main' ? <Main lang={lang} set={setGlobalState} user={user as User} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} />:
+    <></>
+    }</>}
+  </>);
 }

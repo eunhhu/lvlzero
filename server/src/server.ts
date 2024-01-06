@@ -36,7 +36,7 @@ io.on('connection', (socket) => {
             game: new Game()
         }
         rooms.push(room);
-        socket.join(room.name);
+        socket.join(room.ownerID);
         socket.emit('roomCreated', room);
         socket.broadcast.emit('getRooms', rooms);
     })
@@ -46,8 +46,8 @@ io.on('connection', (socket) => {
         if(room){
             if(room.users.length < room.maxUsers){
                 room.users.push({username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0});
-                socket.join(room.name);
-                io.to(room.name).emit('userJoined', room.users);
+                socket.join(room.ownerID);
+                io.to(room.ownerID).emit('userJoined', room.users);
                 socket.broadcast.emit('getRooms', rooms);
             }
         }
@@ -57,7 +57,8 @@ io.on('connection', (socket) => {
         let room = rooms.find(room => room.ownerID === data.ownerId);
         if(room){
             room.users = room.users.filter(user => user.id !== data.user.id);
-            io.to(room.name).emit('userLeft', room.users);
+            io.to(room.ownerID).emit('userLeft', room.users);
+            socket.leave(room.ownerID);
             socket.broadcast.emit('getRooms', rooms);
         }
     });
@@ -67,13 +68,13 @@ io.on('connection', (socket) => {
         let room = rooms.find(room => room.ownerID === socket.id);
         if(room){
             rooms = rooms.filter(room => room.ownerID !== socket.id);
-            io.to(room.name).emit('roomDeleted');
+            io.to(room.ownerID).emit('roomDeleted');
             socket.broadcast.emit('getRooms', rooms);
         }
         room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
         if(room){
             room.users = room.users.filter(user => user.socketId !== socket.id);
-            io.to(room.name).emit('userLeft', room.users);
+            io.to(room.ownerID).emit('userLeft', room.users);
             socket.broadcast.emit('getRooms', rooms);
         }
     });

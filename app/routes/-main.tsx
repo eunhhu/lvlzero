@@ -12,14 +12,12 @@ const Main:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
 
     useEffect(() => {
         if(!user || !socket) return
-        socket.on('connect', () => {
-            socket.emit('user', user)
-        })
     }, [user, socket])
 
     return <div className="cover flex-col" style={{backgroundImage:'url(assets/mainbg.png)'}}>
+        {room?.name}
         {
-            state == 'play' ? <PlayState lang={lang} socket={socket} setRoom={setRoom} /> :
+            state == 'play' ? <PlayState lang={lang} socket={socket} setRoom={setRoom} user={user} /> :
             state == 'units' ? <UnitsState lang={lang} user={user} setUser={setUser} /> :
             state == 'settings' ? <SettingsState lang={lang} /> :
             state == 'profile' ? <ProfileState lang={lang} /> :
@@ -31,6 +29,17 @@ const Main:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
 }
 
 const InRoom:FC = () => {
+    const [once, setOnce] = useState<boolean>(false)
+    const [isFetching, setIsFetching] = useState<boolean>(false)
+
+    useEffect(() => {
+        setOnce(true)
+    }, [])
+
+    useEffect(() => {
+        if(!once) return
+    }, [once])
+    
     return <></>
 }
 
@@ -47,7 +56,7 @@ const StateOptions:FC<{state:string; setState:Dispatch<SetStateAction<string>>; 
     </footer>
 }
 
-const PlayState:FC<{lang:string; socket:Socket; setRoom:Dispatch<SetStateAction<Room|null>>}> = ({lang, socket, setRoom}) => {
+const PlayState:FC<{lang:string; socket:Socket; setRoom:Dispatch<SetStateAction<Room|null>>; user:User;}> = ({lang, socket, setRoom, user}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [rooms, setRooms] = useState<Room[]>([])
     const [search, setSearch] = useState<string>('')
@@ -64,9 +73,8 @@ const PlayState:FC<{lang:string; socket:Socket; setRoom:Dispatch<SetStateAction<
     useEffect(() => {
         if(!once) return
         if(!socket) return
-        console.log('getRooms')
         socket.emit('getRooms')
-        socket.on('getRooms', (list:Room[]) => {
+        socket.once('getRooms', (list:Room[]) => {
             setRooms(list)
         })
     }, [once])
@@ -117,13 +125,12 @@ const PlayState:FC<{lang:string; socket:Socket; setRoom:Dispatch<SetStateAction<
                 </div>
                 <button className="w-full text-3xl"
                 onClick={e => {
-                    socket.emit('createRoom', {name:roomname, maxUsers, private:isPrivate})
-                    socket.on('roomCreated', (res:Room) => {
+                    socket.emit('createRoom', {name:roomname, maxUsers, private:isPrivate, user})
+                    socket.once('roomCreated', (res:Room) => {
                         setCreate(false)
                         setRoomname('')
                         setMaxUsers(2)
                         setIsPrivate(false)
-                        socket.off('roomCreated')
                         setRoom(res)
                     })
                 }}>{lng(lang, 'create')}</button>

@@ -15,8 +15,8 @@ const Main:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     }, [user, socket])
 
     return <div className="cover flex-col" style={{backgroundImage:'url(assets/mainbg.png)'}}>
-        {room?.name}
         {
+            room ? <InRoom room={room} setRoom={setRoom} socket={socket} user={user} /> :
             state == 'play' ? <PlayState lang={lang} socket={socket} setRoom={setRoom} user={user} /> :
             state == 'units' ? <UnitsState lang={lang} user={user} setUser={setUser} /> :
             state == 'settings' ? <SettingsState lang={lang} /> :
@@ -28,7 +28,7 @@ const Main:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     </div>
 }
 
-const InRoom:FC = () => {
+const InRoom:FC<{room:Room; setRoom:Dispatch<SetStateAction<Room|null>>; socket:Socket; user:User}> = ({room, setRoom, socket, user}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [isFetching, setIsFetching] = useState<boolean>(false)
 
@@ -38,9 +38,65 @@ const InRoom:FC = () => {
 
     useEffect(() => {
         if(!once) return
+        socket.on('userJoined', (res:InRoomUser[]) => {
+            setRoom({...room, users:res})
+        })
+        socket.on('userLeft', (res:InRoomUser[]) => {
+            setRoom({...room, users:res})
+        })
+        socket.on('roomDeleted', () => {
+            setRoom(null)
+        })
+        return () => {
+            socket.off('userJoined')
+            socket.off('userLeft')
+            socket.off('roomDeleted')
+        }
     }, [once])
     
-    return <></>
+    return <>
+        <div className="flex flex-col justify-center items-center w-full fixed top-0" style={{height: `calc(100% - 76px)`}}>
+            <div className="w-full flex flex-row gap-2 flex-wrap items-center justify-center overflow-auto p-5" style={{}}>
+                {
+                    room.users.map((v, i) => {
+                        return <div key={i} className="box bg-cover bg-center cursor-pointer"
+                        style={{width:'min(15vw,10vh)', height:'min(15vw,10vh)', backgroundImage:`url(assets/units/auto-turret.png)`}}>
+                            <div className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000077] text-white text-xl font-bold">Auto Turret</div>
+                        </div>
+                    })
+                }
+            </div>
+            <div className="absolute bottom-0 flex flex-row gap-2">
+                {
+                    room.users.map((v, i) => {
+                        return <div key={i} className="box bg-cover bg-center cursor-pointer"
+                        style={{width:'min(15vw,10vh)', height:'min(15vw,10vh)', backgroundImage:`url(assets/units/auto-turret.png)`}}>
+                        </div>
+                    })
+                }
+            </div>
+            <div className="absolute right-0 top-0 box p-2 w-40 text-right">{room.users.length} / {room.maxUsers}</div>
+            <div className="absolute right-0 bottom-0 box p-2 w-40 text-right">{room.ownerName}</div>
+            <button className="box p-2 w-40 text-right"
+            onClick={e => {
+                setIsFetching(true)
+                socket.emit('leaveRoom', {ownerId:room.ownerID, user})
+                socket.once('roomLeft', () => {
+                    setIsFetching(false)
+                    setRoom(null)
+                })
+            }}>Leave</button>
+            <button className="box p-2 w-40 text-right"
+            onClick={e => {
+                setIsFetching(true)
+                socket.emit('startGame')
+                socket.once('gameStarted', () => {
+                    setIsFetching(false)
+                    setRoom(null)
+                })
+            }}>Start</button>
+        </div>
+    </>
 }
 
 const StateOptions:FC<{state:string; setState:Dispatch<SetStateAction<string>>; lang:string}> = ({state, setState, lang}) => {
@@ -87,7 +143,13 @@ const PlayState:FC<{lang:string; socket:Socket; setRoom:Dispatch<SetStateAction<
         </div>
         <div className="w-full h-full overflow-auto flex flex-col gap-2 items-center p-5">
             {rooms.filter(v => v.name.match(search)).map((room, i) => {
-                return !room.private && <div key={i} className="w-full flex flex-row justify-between items-center p-5 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-md">
+                return !room.private && <div key={i} className="w-full flex flex-row justify-between items-center p-5 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-md"
+                onClick={e => {
+                    socket.emit('joinRoom', {ownerId:room.ownerID, user})
+                    socket.once('roomJoined', (res:Room) => {
+                        setRoom(res)
+                    })
+                }}>
                     <div className="flex flex-col justify-center items-start">
                         <div className="text-xl text-white font-bold">{room.name}</div>
                         <div className="text-lg text-white">{room.users.length} / {room.maxUsers}</div>

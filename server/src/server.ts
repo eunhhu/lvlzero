@@ -46,8 +46,9 @@ io.on('connection', (socket) => {
         if(room){
             if(room.users.length < room.maxUsers){
                 room.users.push({username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0});
-                socket.join(room.ownerID);
+                socket.emit('roomJoined', room);
                 io.to(room.ownerID).emit('userJoined', room.users);
+                socket.join(room.ownerID);
                 socket.broadcast.emit('getRooms', rooms);
             }
         }
@@ -56,10 +57,17 @@ io.on('connection', (socket) => {
     socket.on('leaveRoom', (data:{ownerId:string;user:User}) => {
         let room = rooms.find(room => room.ownerID === data.ownerId);
         if(room){
-            room.users = room.users.filter(user => user.id !== data.user.id);
-            io.to(room.ownerID).emit('userLeft', room.users);
-            socket.leave(room.ownerID);
-            socket.broadcast.emit('getRooms', rooms);
+            if(room.ownerID === socket.id){
+                rooms = rooms.filter(room => room.ownerID !== socket.id);
+                io.to(room.ownerID).emit('roomDeleted');
+                io.to(room.ownerID).socketsLeave(room.ownerID);
+                socket.broadcast.emit('getRooms', rooms);
+            } else {
+                room.users = room.users.filter(user => user.id !== data.user.id);
+                io.to(room.ownerID).emit('userLeft', room.users);
+                socket.leave(room.ownerID);
+                socket.broadcast.emit('getRooms', rooms);
+            }
         }
     });
 

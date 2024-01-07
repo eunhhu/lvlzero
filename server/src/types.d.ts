@@ -20,11 +20,18 @@ interface glFCProps{
 
 interface Room{
     name:string;
-    users:{id:string;username:string;socketId:string;coin:number}[];
+    users:InRoomUser[];
     maxUsers:number;
     private:boolean;
     status:string;
     ownerName:string;
     ownerID:string; // socket id
     game:Game;
+}
+
+interface InRoomUser{
+    id:string;
+    username:string;
+    socketId:string;
+    coin:number
 }

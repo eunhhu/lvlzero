@@ -3,7 +3,9 @@ import type { MetaFunction } from "@remix-run/node";
 import { useEffect, useState } from "react";
 import Login from "./-login";
 import Main from "./-main";
+import Play from "./-play";
 import {Socket} from "socket.io-client";
+import { Game } from "server/src/logic";
 
 export const meta: MetaFunction = () => {
   return [
@@ -35,6 +37,7 @@ export default function Index() {
     {hydration && <>{
       globalState == 'login' ? <Login lang={lang} set={setGlobalState} user={user as User} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} /> :
       globalState == 'main' ? <Main lang={lang} set={setGlobalState} user={user as User} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} />:
+      globalState == 'play' ? <Play lang={lang} set={setGlobalState} user={user as User} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} />:
     <></>
     }</>}
   </>);

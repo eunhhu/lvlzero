@@ -32,6 +32,8 @@ interface Room{
 interface InRoomUser{
     id:string;
     username:string;
+    lvl:number;
     socketId:string;
     coin:number
+    ready:boolean;
 }

@@ -5,6 +5,8 @@ import { checkNick, checkPass, sha256 } from "~/data/utils";
 
 const opposite = (state:string) => state === 'login' ? 'register' : 'login'
 
+const socketDomain = process.env.NODE_ENV === 'production' ? 'https://lvlzero.onrender.com' : 'http://192.168.35.156:80'
+
 const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
   const [once, setOnce] = useState<boolean>(false)
     const [state, setState] = useState<string>('login')
@@ -25,7 +27,7 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
         fetch(`/getUser/type/id/value/${userId}`).then(res => res.json()).then((res:{res:User}) => {
           if(res.res){
             setUser(res.res)
-            setSocket(io(process.env.NODE_ENV === 'production' ? 'https://lvlzero.onrender.com' : 'http://localhost:80'))
+            setSocket(io(socketDomain))
             set('main')
           }
         })
@@ -43,7 +45,7 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
                 setIsFetching(false)
                 localStorage.setItem('userId', res.res.id)
                 setUser(res.res)
-                setSocket(io(process.env.NODE_ENV === 'production' ? 'https://lvlzero.onrender.com' : 'http://localhost:80'))
+                setSocket(io(socketDomain))
                 set('main')
               }else{
                 setIsFetching(false)
@@ -57,29 +59,29 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
     }
 
     const register = () => {
-        if(!username) return setError(lng(lang, 'enter username'))
-        if(!password) return setError(lng(lang, 'enter password'))
-        if(!confirmPassword) return setError(lng(lang, 'confirm password'))
-        if(!checkNick(username)) return setError('username must be 3~12 characters long including numbers and alphabets')
-        if(!checkPass(password)) return setError('password must be more than 8 characters long including numbers and alphabets')
-        if(password !== confirmPassword) return setError('passwords do not match')
-        if(isFetching) return
-        setIsFetching(true)
-        fetch(`/createUser/username/${username}/password/${password}`).then(res => {
-          return res.json()
-        }).then((res:{res:User}) => {
-          if(res.res){
-            setIsFetching(false)
-            localStorage.setItem('userId', res.res.id)
-            setUser(res.res)
-            setSocket(io(process.env.NODE_ENV === 'production' ? 'https://lvlzero.onrender.com' : 'http://localhost:80'))
-            set('main')
-          }else{
-            setError(lng(lang, 'name already exists'))
-            setIsFetching(false)
-          }
-        })
-      }
+      if(!username) return setError(lng(lang, 'enter username'))
+      if(!password) return setError(lng(lang, 'enter password'))
+      if(!confirmPassword) return setError(lng(lang, 'confirm password'))
+      if(!checkNick(username)) return setError('username must be 3~12 characters long including numbers and alphabets')
+      if(!checkPass(password)) return setError('password must be more than 8 characters long including numbers and alphabets')
+      if(password !== confirmPassword) return setError('passwords do not match')
+      if(isFetching) return
+      setIsFetching(true)
+      fetch(`/createUser/username/${username}/password/${password}`).then(res => {
+        return res.json()
+      }).then((res:{res:User}) => {
+        if(res.res){
+          setIsFetching(false)
+          localStorage.setItem('userId', res.res.id)
+          setUser(res.res)
+          setSocket(io(socketDomain))
+          set('main')
+        } else {
+          setError(lng(lang, 'name already exists'))
+          setIsFetching(false)
+        }
+      })
+    }
 
     return (<>
         {

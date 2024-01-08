@@ -43,8 +43,6 @@ button, input, textarea, select, .box{
     border-radius: 10px;
     color: #fff;
     text-shadow: 0 0 4px #fff;
-    font-size: 16px;
-    font-weight: bold;
     box-shadow: inset 0 0 5px #fff;
     transition: all 0.2s ease-in-out;
     border: 3px solid #fff;
@@ -52,6 +50,8 @@ button, input, textarea, select, .box{
 button, input, textarea, select{
     background-color: transparent;
     padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .noshadow{

@@ -11,7 +11,7 @@ const io = new Server(httpServer, {
     cors: {
         origin: '*',
         methods: ['GET', 'POST'],
-        allowedHeaders: ['my-custom-header']
+        allowedHeaders: ['Access-Control-Allow-Origin'],
     }
 });
 
@@ -24,10 +24,15 @@ let rooms:Room[] = [];
 io.on('connection', (socket) => {
     console.log('a user connected');
 
+    socket.on('getRooms', () => {
+        socket.emit('getRooms', rooms);
+        console.log(rooms);
+    })
+
     socket.on('createRoom', (data:{name:string;maxUsers:number;private:boolean;user:User}) => {
         let room:Room = {
             name: data.name,
-            users: [{username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0}],
+            users: [{username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0, lvl: data.user.lvl, ready: false}],
             maxUsers: data.maxUsers,
             private: data.private,
             status: 'waiting',
@@ -45,7 +50,7 @@ io.on('connection', (socket) => {
         let room = rooms.find(room => room.ownerID === data.ownerId);
         if(room){
             if(room.users.length < room.maxUsers){
-                room.users.push({username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0});
+                room.users.push({username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0, lvl: data.user.lvl, ready: false});
                 socket.emit('roomJoined', room);
                 io.to(room.ownerID).emit('userJoined', room.users);
                 socket.join(room.ownerID);
@@ -68,8 +73,32 @@ io.on('connection', (socket) => {
                 socket.leave(room.ownerID);
                 socket.broadcast.emit('getRooms', rooms);
             }
+            socket.emit('roomLeft');
         }
     });
+
+    socket.on('startGame', (ownerId:string) => {
+        let room = rooms.find(room => room.ownerID === ownerId);
+        if(room){
+            room.status = 'playing';
+            io.to(room.ownerID).emit('gameStarted');
+        }
+        socket.broadcast.emit('getRooms', rooms);
+    })
+
+    socket.on('ready', (ownerId:string) => {
+        let room = rooms.find(room => room.ownerID === ownerId);
+        if(room){
+            let user = room.users.find(user => user.socketId === socket.id);
+            if(user){
+                user.ready = true;
+                if(room.users.every(user => user.ready)){
+                    io.to(room.ownerID).emit('gameInit', room.game);
+                    room.game
+                }
+            }
+        }
+    })
 
     socket.on('disconnect', () => {
         console.log("a user disconnected");

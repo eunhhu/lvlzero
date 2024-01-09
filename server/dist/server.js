@@ -24,7 +24,6 @@ io.on('connection', (socket) => {
     console.log('a user connected');
     socket.on('getRooms', () => {
         socket.emit('getRooms', rooms);
-        console.log(rooms);
     });
     socket.on('createRoom', (data) => {
         let room = {
@@ -80,15 +79,16 @@ io.on('connection', (socket) => {
         }
         socket.broadcast.emit('getRooms', rooms);
     });
-    socket.on('ready', (ownerId) => {
-        let room = rooms.find(room => room.ownerID === ownerId);
+    socket.on('ready', (user) => {
+        let room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
         if (room) {
             let user = room.users.find(user => user.socketId === socket.id);
+            console.log(user, socket.id, room.users);
             if (user) {
                 user.ready = true;
                 if (room.users.every(user => user.ready)) {
                     io.to(room.ownerID).emit('gameInit', room.game);
-                    room.game;
+                    room.game.startWave();
                 }
             }
         }

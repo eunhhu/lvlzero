@@ -1,9 +1,13 @@
 export class Game{
     wave:number = 0;
     size:number = 20;
+    health:number = 100;
     path:[number, number][] = [];
     units:Unit[] = [];
     enemies:Enemy[] = [];
+
+    endTimer:number = 0;
+    endTimerMax:number = 10000;
 
     constructor(){
         const gridSize = 20;
@@ -46,6 +50,10 @@ export class Game{
         this.enemies.push(enemy);
     }
 
+    endWave(){
+        this.endTimer = this.endTimerMax;
+    }
+
     moveEnemies(){
         this.enemies.forEach(enemy => {
             enemy.move(this.path);
@@ -60,12 +68,22 @@ export class Game{
 
     checkEnemies(){
         this.enemies = this.enemies.filter(enemy => enemy.health > 0);
+        if(this.enemies.length === 0){
+            this.endWave();
+        }
     }
 
     tick(delta:number){
-        this.moveEnemies();
-        this.attackUnits();
-        this.checkEnemies();
+        if(this.endTimer > 0){
+            this.endTimer -= delta;
+            if(this.endTimer <= 0){
+                this.startWave();
+            }
+        } else {
+            this.moveEnemies();
+            this.attackUnits();
+            this.checkEnemies();
+        }
     }
 }
 

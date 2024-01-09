@@ -26,7 +26,6 @@ io.on('connection', (socket) => {
 
     socket.on('getRooms', () => {
         socket.emit('getRooms', rooms);
-        console.log(rooms);
     })
 
     socket.on('createRoom', (data:{name:string;maxUsers:number;private:boolean;user:User}) => {
@@ -86,15 +85,16 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('getRooms', rooms);
     })
 
-    socket.on('ready', (ownerId:string) => {
-        let room = rooms.find(room => room.ownerID === ownerId);
+    socket.on('ready', (user:User) => {
+        let room:Room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
         if(room){
             let user = room.users.find(user => user.socketId === socket.id);
+            console.log(user, socket.id, room.users);
             if(user){
                 user.ready = true;
                 if(room.users.every(user => user.ready)){
                     io.to(room.ownerID).emit('gameInit', room.game);
-                    room.game
+                    room.game.startWave();
                 }
             }
         }
@@ -102,7 +102,7 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log("a user disconnected");
-        let room = rooms.find(room => room.ownerID === socket.id);
+        let room:Room = rooms.find(room => room.ownerID === socket.id);
         if(room){
             rooms = rooms.filter(room => room.ownerID !== socket.id);
             io.to(room.ownerID).emit('roomDeleted');

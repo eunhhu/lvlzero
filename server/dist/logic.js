@@ -4,9 +4,12 @@ exports.Enemy = exports.Unit = exports.Game = void 0;
 class Game {
     wave = 0;
     size = 20;
+    health = 100;
     path = [];
     units = [];
     enemies = [];
+    endTimer = 0;
+    endTimerMax = 10000;
     constructor() {
         const gridSize = 20;
         const visited = Array.from({ length: gridSize }, () => Array(gridSize).fill(false));
@@ -39,6 +42,9 @@ class Game {
         enemy.speed = 0.1;
         this.enemies.push(enemy);
     }
+    endWave() {
+        this.endTimer = this.endTimerMax;
+    }
     moveEnemies() {
         this.enemies.forEach(enemy => {
             enemy.move(this.path);
@@ -51,11 +57,22 @@ class Game {
     }
     checkEnemies() {
         this.enemies = this.enemies.filter(enemy => enemy.health > 0);
+        if (this.enemies.length === 0) {
+            this.endWave();
+        }
     }
     tick(delta) {
-        this.moveEnemies();
-        this.attackUnits();
-        this.checkEnemies();
+        if (this.endTimer > 0) {
+            this.endTimer -= delta;
+            if (this.endTimer <= 0) {
+                this.startWave();
+            }
+        }
+        else {
+            this.moveEnemies();
+            this.attackUnits();
+            this.checkEnemies();
+        }
     }
 }
 exports.Game = Game;

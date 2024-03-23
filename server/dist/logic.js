@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Enemy = exports.Unit = exports.Game = void 0;
+exports.Game = void 0;
+const events_1 = require("events");
 class Game {
     wave = 0;
     size = 20;
@@ -8,10 +9,18 @@ class Game {
     path = [];
     units = [];
     enemies = [];
-    endTimer = 0;
-    endTimerMax = 10000;
+    projectiles = [];
+    loop;
+    spawnInterval;
+    event = new events_1.EventEmitter();
+    enemySpawnQueue = [];
+    enemySpawnInterval = 1000;
+    waitingTimer = 0;
+    waitingTimerMax = 10000;
+    status = "waiting";
+    lastTick = Date.now();
     constructor() {
-        const gridSize = 20;
+        const gridSize = this.size;
         const visited = Array.from({ length: gridSize }, () => Array(gridSize).fill(false));
         let currentColumn = Math.floor(Math.random() * (gridSize - 1)) + 1;
         let currentRow = 0;
@@ -35,116 +44,229 @@ class Game {
             visited[currentRow][currentColumn] = true;
         }
     }
-    startWave() {
-        this.wave++;
-        let enemy = new Enemy(this.path[0][0], this.path[0][1]);
-        enemy.health = this.wave;
-        enemy.speed = 0.1;
-        this.enemies.push(enemy);
+    on(event, listener) {
+        this.event.on(event, listener);
     }
-    endWave() {
-        this.endTimer = this.endTimerMax;
+    off(event, listener) {
+        this.event.off(event, listener);
     }
-    moveEnemies() {
-        this.enemies.forEach(enemy => {
-            enemy.move(this.path);
-        });
+    emit(event, ...args) {
+        this.event.emit(event, ...args);
     }
-    attackUnits() {
-        this.units.forEach(unit => {
-            unit.attack(this.enemies);
-        });
+    getInitData() {
+        return {
+            wave: this.wave,
+            health: this.health,
+            size: this.size,
+            path: this.path
+        };
     }
-    checkEnemies() {
-        this.enemies = this.enemies.filter(enemy => enemy.health > 0);
-        if (this.enemies.length === 0) {
-            this.endWave();
-        }
+    getTickData() {
+        return {
+            wave: this.wave,
+            health: this.health,
+            units: this.units.map(unit => unit.getTickData()),
+            enemies: this.enemies.map(enemy => enemy.getTickData()),
+            projectiles: this.projectiles.map(projectile => projectile.getTickData())
+        };
+    }
+    gameOver() {
+        clearInterval(this.loop);
+        this.status = "waiting";
+        this.emit('gameOver');
     }
     tick(delta) {
-        if (this.endTimer > 0) {
-            this.endTimer -= delta;
-            if (this.endTimer <= 0) {
-                this.startWave();
+        if (this.status === "waiting") {
+            this.waitingTimer -= delta;
+            if (this.waitingTimer <= 0) {
+                this.startWave(this.enemySpawnQueue);
             }
         }
         else {
-            this.moveEnemies();
-            this.attackUnits();
-            this.checkEnemies();
-        }
-    }
-}
-exports.Game = Game;
-class Unit {
-    x = 0;
-    y = 0;
-    damage = 1;
-    range = 1;
-    rate = 1;
-    curRate = 0;
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-    attack(enemies) {
-        if (enemies.length === 0)
-            return;
-        let closestEnemy = enemies.reduce((prev, curr) => {
-            let prevDist = Math.sqrt(Math.pow(prev.x - this.x, 2) + Math.pow(prev.y - this.y, 2));
-            let currDist = Math.sqrt(Math.pow(curr.x - this.x, 2) + Math.pow(curr.y - this.y, 2));
-            return prevDist < currDist ? prev : curr;
-        });
-        if (closestEnemy) {
-            let dist = Math.sqrt(Math.pow(closestEnemy.x - this.x, 2) + Math.pow(closestEnemy.y - this.y, 2));
-            if (dist <= this.range) {
-                if (this.curRate === this.rate) {
-                    closestEnemy.health -= this.damage;
-                    this.curRate = 0;
+            // 적 이동
+            this.enemies.forEach(enemy => {
+                // 예시 목적으로 단순화된 경로 이동 구현
+                if (this.path.length > 0)
+                    enemy.move(this.path);
+            });
+            // 유닛 및 발사체 업데이트
+            this.units.forEach(unit => unit.tick(this.enemies, this.projectiles, this.path));
+            this.projectiles.forEach((projectile, index) => {
+                projectile.tick(this.enemies);
+                if (projectile.isOutOfBounds(this.size)) {
+                    this.projectiles.splice(index, 1); // 화면 밖으로 나간 발사체 제거
                 }
-                else {
-                    this.curRate++;
-                }
+            });
+            // 게임 오버 조건 검사
+            if (this.health <= 0) {
+                this.gameOver();
             }
+            // 적이 모두 제거되었는지 확인
+            if (this.enemies.length === 0 && this.enemySpawnQueue.length === 0) {
+                this.status = "waiting";
+                this.waitingTimer = this.waitingTimerMax;
+            }
+            // 적이 목적지에 도달하면 체력 감소
+            this.enemies.forEach((enemy, index) => {
+                if (enemy.x === this.path[this.path.length - 1][0] && enemy.y === this.path[this.path.length - 1][1]) {
+                    this.health -= 10;
+                    this.enemies.splice(index, 1);
+                }
+            });
         }
     }
-}
-exports.Unit = Unit;
-class Enemy {
-    x = 0;
-    y = 0;
-    health = 1;
-    speed = 1;
-    pathIndex = 0;
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-    move(path) {
-        if (this.pathIndex < path.length - 1) {
-            // 현재 위치와 다음 위치 사이의 거리 계산
-            const [nextX, nextY] = path[this.pathIndex + 1];
-            const dx = nextX - this.x;
-            const dy = nextY - this.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < this.speed) {
-                // 다음 경로 점에 도달하면, 인덱스 업데이트
-                this.pathIndex++;
-                this.x = nextX;
-                this.y = nextY;
-                if (this.pathIndex < path.length - 1) {
-                    // 추가적으로 이동해야 할 거리가 있는 경우
-                    this.move(path);
+    startWave(enemies) {
+        this.status = "started";
+        this.enemySpawnQueue = enemies;
+        const spawnEnemy = () => {
+            if (this.enemySpawnQueue.length > 0) {
+                const enemy = this.enemySpawnQueue.shift();
+                if (enemy) {
+                    this.enemies.push(enemy);
                 }
             }
             else {
-                // 경로를 따라 선형적으로 이동
-                const ratio = this.speed / distance;
-                this.x += dx * ratio;
-                this.y += dy * ratio;
+                clearInterval(this.spawnInterval);
+                // 모든 적이 제거되었을 때 새로운 웨이브를 시작하거나 게임을 종료하기 위한 조건을 여기에 추가할 수 있습니다.
+            }
+        };
+        // 정해진 간격으로 대기열에서 적을 생성
+        const spawnInterval = setInterval(spawnEnemy, this.enemySpawnInterval);
+        this.spawnInterval = spawnInterval;
+    }
+    placeUnit(x, y, unitType) {
+        // 유닛을 배치하는 예시 메서드, 실제 구현은 유닛 유형과 게임 로직에 따라 달라질 것입니다
+        if (this.units.some(unit => unit.x === x && unit.y === y)) {
+            return this.emit('unitPlacementFailed', 'A unit already exists at the specified location');
+        }
+        const newUnit = new Unit(x, y, 10, 1000, 5, 5, unitType, 1);
+        this.units.push(newUnit);
+        this.emit('unitPlaced', newUnit);
+    }
+    removeUnit(x, y) {
+        const index = this.units.findIndex(unit => unit.x === x && unit.y === y);
+        if (index !== -1) {
+            const removedUnit = this.units.splice(index, 1)[0];
+            this.emit('unitRemoved', removedUnit);
+        }
+        else {
+            this.emit('unitRemovalFailed', 'No unit found at the specified location');
+        }
+    }
+    run() {
+        const runTick = () => {
+            const now = Date.now();
+            const delta = now - this.lastTick;
+            this.lastTick = now;
+            this.tick(delta);
+            this.emit('tick', this.getTickData());
+        };
+        this.loop = setInterval(runTick, 50);
+    }
+}
+exports.Game = Game;
+class Enemy {
+    x;
+    y;
+    speed;
+    health;
+    type;
+    constructor(x, y, speed, health, type) {
+        this.x = x;
+        this.y = y;
+        this.speed = speed;
+        this.health = health;
+        this.type = type;
+    }
+    // Method to move the enemy along the path
+    move(path) {
+        // Implementation will be simplified for the purpose of this example
+        const nextPosition = path.shift();
+        if (nextPosition) {
+            [this.x, this.y] = nextPosition;
+        }
+    }
+    takeDamage(damage) {
+        this.health -= damage;
+    }
+    getTickData() {
+        return { x: this.x, y: this.y, health: this.health, type: this.type };
+    }
+}
+class Unit {
+    x;
+    y;
+    damage;
+    rate;
+    range;
+    bulletSpeed;
+    type;
+    lvl;
+    cooldown = 0; // To manage firing rate
+    constructor(x, y, damage, rate, range, bulletSpeed, type, lvl) {
+        this.x = x;
+        this.y = y;
+        this.damage = damage;
+        this.rate = rate;
+        this.range = range;
+        this.bulletSpeed = bulletSpeed;
+        this.type = type;
+        this.lvl = lvl;
+    }
+    tick(enemies, projectiles, path) {
+        if (this.cooldown > 0) {
+            this.cooldown -= 50; // Assuming tick is called every 50 ms
+            return;
+        }
+        // Find the closest enemy within range
+        const target = enemies.find(enemy => {
+            const distance = Math.hypot(this.x - enemy.x, this.y - enemy.y);
+            return distance <= this.range;
+        });
+        if (target) {
+            // Calculate angle towards target
+            const angle = Math.atan2(target.y - this.y, target.x - this.x);
+            projectiles.push(new Projectile(this.x, this.y, angle, this.damage, this.bulletSpeed, this.type));
+            this.cooldown = this.rate;
+        }
+    }
+    getTickData() {
+        return { x: this.x, y: this.y, type: this.type, lvl: this.lvl };
+    }
+}
+class Projectile {
+    x;
+    y;
+    angle;
+    damage;
+    speed;
+    type;
+    constructor(x, y, angle, damage, speed, type) {
+        this.x = x;
+        this.y = y;
+        this.angle = angle;
+        this.damage = damage;
+        this.speed = speed;
+        this.type = type;
+    }
+    tick(enemies) {
+        // Move the projectile
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+        // Check collision with enemies
+        for (let enemy of enemies) {
+            if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 1 /* assuming size of hitbox */) {
+                enemy.takeDamage(this.damage);
+                // Assuming projectile is destroyed on hit, otherwise implement logic for that
+                break;
             }
         }
     }
+    getTickData() {
+        return { x: this.x, y: this.y, angle: this.angle, type: this.type };
+    }
+    isOutOfBounds(size) {
+        return this.x < 0 || this.x > size || this.y < 0 || this.y > size;
+    }
 }
-exports.Enemy = Enemy;
 //# sourceMappingURL=logic.js.map

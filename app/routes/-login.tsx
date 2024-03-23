@@ -5,7 +5,7 @@ import { checkNick, checkPass, sha256 } from "~/data/utils";
 
 const opposite = (state:string) => state === 'login' ? 'register' : 'login'
 
-const socketDomain = process.env.NODE_ENV === 'production' ? 'https://lvlzero.onrender.com' : 'http://192.168.35.156:80'
+const socketDomain = process.env.NODE_ENV === 'production' ? 'https://lvlzero.onrender.com' : 'http://172.30.15.77:80'
 
 const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
   const [once, setOnce] = useState<boolean>(false)
@@ -20,15 +20,22 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
       setOnce(true)
     }, [])
 
+    const tryLogin = async (user:User) => {
+      let socket = io(socketDomain)
+      socket.on('connect', () => {
+        setUser(user)
+        setSocket(socket)
+        set('main')
+      })
+    }
+
     useEffect(() => {
       if(!once) return
       let userId = localStorage.getItem('userId')
       if(userId){
         fetch(`/getUser/type/id/value/${userId}`).then(res => res.json()).then((res:{res:User}) => {
           if(res.res){
-            setUser(res.res)
-            setSocket(io(socketDomain))
-            set('main')
+            tryLogin(res.res)
           }
         })
       }
@@ -45,8 +52,6 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
                 setIsFetching(false)
                 localStorage.setItem('userId', res.res.id)
                 setUser(res.res)
-                setSocket(io(socketDomain))
-                set('main')
               }else{
                 setIsFetching(false)
                 setError(lng(lang, 'invalid password'))

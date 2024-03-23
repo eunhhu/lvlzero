@@ -87,8 +87,14 @@ io.on('connection', (socket) => {
             if (user) {
                 user.ready = true;
                 if (room.users.every(user => user.ready)) {
-                    io.to(room.ownerID).emit('gameInit', room.game);
-                    room.game.startWave();
+                    io.to(room.ownerID).emit('gameInit', room.game.getInitData());
+                    room.game.run();
+                    room.game.on('tick', (tickData) => {
+                        io.to(room.ownerID).emit('gameUpdate', tickData);
+                    });
+                    room.game.on('gameOver', () => {
+                        io.to(room.ownerID).emit('gameOver');
+                    });
                 }
             }
         }

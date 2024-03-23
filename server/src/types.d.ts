@@ -37,3 +37,39 @@ interface InRoomUser{
     coin:number
     ready:boolean;
 }
+
+interface GameInitData{
+    wave:number;
+    health:number;
+    path:[number, number][];
+    size:number;
+}
+
+interface GameTickData{
+    wave:number;
+    health:number;
+    units:UnitData[];
+    enemies:EnemyData[];
+    projectiles:ProjectileData[];
+}
+
+interface UnitData{
+    x:number;
+    y:number;
+    type:string;
+    lvl:number;
+}
+
+interface EnemyData{
+    x:number;
+    y:number;
+    health:number;
+    type:string;
+}
+
+interface ProjectileData{
+    x:number;
+    y:number;
+    angle:number;
+    type:string;
+}

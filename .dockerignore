@@ -6,5 +6,4 @@ server/node_modules
 /public/build
 .env
 
-server/dist
 server/.env

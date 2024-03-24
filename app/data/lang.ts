@@ -252,6 +252,10 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "en":"Waiting For Players",
         "ko":"플레이어 대기중"
     },
+    "playing":{
+        "en":"Playing",
+        "ko":"진행중"
+    },
 }
 
 export function lng(lang:string, key:string){

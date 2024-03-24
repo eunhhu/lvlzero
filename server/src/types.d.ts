@@ -23,7 +23,7 @@ interface Room{
     users:InRoomUser[];
     maxUsers:number;
     private:boolean;
-    status:string;
+    status:string; // waiting, playing
     ownerName:string;
     ownerID:string; // socket id
     game:Game;

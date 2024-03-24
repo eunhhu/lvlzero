@@ -5,7 +5,6 @@ import Login from "./-login";
 import Main from "./-main";
 import Play from "./-play";
 import {Socket} from "socket.io-client";
-import { Game } from "server/src/logic";
 
 export const meta: MetaFunction = () => {
   return [

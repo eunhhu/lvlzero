@@ -5,7 +5,7 @@ import { checkNick, checkPass, sha256 } from "~/data/utils";
 
 const opposite = (state:string) => state === 'login' ? 'register' : 'login'
 
-const socketDomain = process.env.NODE_ENV === 'production' ? 'https://lvlzero.onrender.com' : 'http://172.30.15.77:80'
+const socketDomain = process.env.NODE_ENV === 'production' ? 'https://lvlzero.onrender.com' : 'http://127.0.0.1:80'
 
 const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
   const [once, setOnce] = useState<boolean>(false)

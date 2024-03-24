@@ -96,21 +96,35 @@ export class Game{
         if (this.status === "waiting") {
             this.waitingTimer -= delta;
             if (this.waitingTimer <= 0) {
-                this.startWave(this.enemySpawnQueue);
+                this.startWave([new Enemy(0, 0, 0.1, 10, "basic", this.path)]);
             }
         } else {
             // 적 이동
             this.enemies.forEach(enemy => {
                 // 예시 목적으로 단순화된 경로 이동 구현
-                if (this.path.length > 0) enemy.move(this.path);
+                enemy.move();
             });
 
             // 유닛 및 발사체 업데이트
-            this.units.forEach(unit => unit.tick(this.enemies, this.projectiles, this.path));
+            this.units.forEach(unit => unit.tick(this.enemies, this.projectiles));
             this.projectiles.forEach((projectile, index) => {
-                projectile.tick(this.enemies);
+                projectile.tick(this.enemies, this.projectiles);
                 if (projectile.isOutOfBounds(this.size)) {
                     this.projectiles.splice(index, 1); // 화면 밖으로 나간 발사체 제거
+                }
+            });
+
+            // 적이 모두 제거되었는지 확인
+            if (this.enemies.length === 0 && this.enemySpawnQueue.length === 0) {
+                this.status = "waiting";
+                this.waitingTimer = this.waitingTimerMax;
+            }
+            
+            // 적이 목적지에 도달하면 체력 감소
+            this.enemies.forEach((enemy, index) => {
+                if (enemy.path.length === 0) {
+                    this.health -= enemy.health;
+                    this.enemies.splice(index, 1);
                 }
             });
 
@@ -118,20 +132,6 @@ export class Game{
             if (this.health <= 0) {
                 this.gameOver();
             }
-
-            // 적이 모두 제거되었는지 확인
-            if (this.enemies.length === 0 && this.enemySpawnQueue.length === 0) {
-                this.status = "waiting";
-                this.waitingTimer = this.waitingTimerMax;
-            }
-
-            // 적이 목적지에 도달하면 체력 감소
-            this.enemies.forEach((enemy, index) => {
-                if (enemy.x === this.path[this.path.length - 1][0] && enemy.y === this.path[this.path.length - 1][1]) {
-                    this.health -= 10;
-                    this.enemies.splice(index, 1);
-                }
-            });
         }
     }
 
@@ -195,24 +195,38 @@ class Enemy {
     speed: number;
     health: number;
     type: string;
+
+    path: [number, number][] = [];
+    event:EventEmitter = new EventEmitter();
   
-    constructor(x: number, y: number, speed: number, health: number, type: string) {
+    constructor(x: number, y: number, speed: number, health: number, type: string, path: [number, number][]) {
         this.x = x;
         this.y = y;
         this.speed = speed;
         this.health = health;
         this.type = type;
+        this.path = [...path];
     }
   
     // Method to move the enemy along the path
-    move(path: [number, number][]): void {
-        // Implementation will be simplified for the purpose of this example
-        const nextPosition = path.shift();
-        if (nextPosition) {
-            [this.x, this.y] = nextPosition;
+    move(): void {
+        if (this.path.length === 0) return;
+
+        const [nextX, nextY] = this.path[0];
+        const dx = nextX - this.x;
+        const dy = nextY - this.y;
+        const distance = Math.hypot(dx, dy);
+
+        if (distance <= this.speed) {
+            this.x = nextX;
+            this.y = nextY;
+            this.path.shift();
+        } else {
+            this.x += (dx / distance) * this.speed;
+            this.y += (dy / distance) * this.speed;
         }
     }
-  
+
     takeDamage(damage: number): void {
         this.health -= damage;
     }
@@ -233,6 +247,8 @@ class Unit {
     lvl: number;
     cooldown: number = 0; // To manage firing rate
 
+    event:EventEmitter = new EventEmitter();
+
     constructor(x: number, y: number, damage: number, rate: number, range: number, bulletSpeed:number, type: string, lvl: number) {
         this.x = x;
         this.y = y;
@@ -244,7 +260,7 @@ class Unit {
         this.lvl = lvl;
     }
 
-    tick(enemies: Enemy[], projectiles: Projectile[], path: [number, number][]): void {
+    tick(enemies: Enemy[], projectiles: Projectile[]): void {
         if (this.cooldown > 0) {
             this.cooldown -= 50; // Assuming tick is called every 50 ms
             return;
@@ -286,18 +302,27 @@ class Projectile {
         this.type = type;
     }
 
-    tick(enemies: Enemy[]): void {
-    // Move the projectile
-    this.x += Math.cos(this.angle) * this.speed;
-    this.y += Math.sin(this.angle) * this.speed;
+    tick(enemies: Enemy[], projectiles: Projectile[]): void {
+        // Move the projectile
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
 
-    // Check collision with enemies
+        // Check collision with enemies
         for (let enemy of enemies) {
             if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 1 /* assuming size of hitbox */) {
                 enemy.takeDamage(this.damage);
                 // Assuming projectile is destroyed on hit, otherwise implement logic for that
+                this.dispose(projectiles);
                 break;
             }
+        }
+    }
+
+    dispose(projectiles:Projectile[]): void {
+        // Implement logic to dispose of the projectile
+        const index = projectiles.indexOf(this);
+        if (index !== -1) {
+            projectiles.splice(index, 1);
         }
     }
 

@@ -79,28 +79,23 @@ class Game {
         if (this.status === "waiting") {
             this.waitingTimer -= delta;
             if (this.waitingTimer <= 0) {
-                this.startWave(this.enemySpawnQueue);
+                this.startWave([new Enemy(0, 0, 0.1, 10, "basic", this.path)]);
             }
         }
         else {
             // 적 이동
             this.enemies.forEach(enemy => {
                 // 예시 목적으로 단순화된 경로 이동 구현
-                if (this.path.length > 0)
-                    enemy.move(this.path);
+                enemy.move();
             });
             // 유닛 및 발사체 업데이트
-            this.units.forEach(unit => unit.tick(this.enemies, this.projectiles, this.path));
+            this.units.forEach(unit => unit.tick(this.enemies, this.projectiles));
             this.projectiles.forEach((projectile, index) => {
-                projectile.tick(this.enemies);
+                projectile.tick(this.enemies, this.projectiles);
                 if (projectile.isOutOfBounds(this.size)) {
                     this.projectiles.splice(index, 1); // 화면 밖으로 나간 발사체 제거
                 }
             });
-            // 게임 오버 조건 검사
-            if (this.health <= 0) {
-                this.gameOver();
-            }
             // 적이 모두 제거되었는지 확인
             if (this.enemies.length === 0 && this.enemySpawnQueue.length === 0) {
                 this.status = "waiting";
@@ -108,11 +103,15 @@ class Game {
             }
             // 적이 목적지에 도달하면 체력 감소
             this.enemies.forEach((enemy, index) => {
-                if (enemy.x === this.path[this.path.length - 1][0] && enemy.y === this.path[this.path.length - 1][1]) {
-                    this.health -= 10;
+                if (enemy.path.length === 0) {
+                    this.health -= enemy.health;
                     this.enemies.splice(index, 1);
                 }
             });
+            // 게임 오버 조건 검사
+            if (this.health <= 0) {
+                this.gameOver();
+            }
         }
     }
     startWave(enemies) {
@@ -171,19 +170,32 @@ class Enemy {
     speed;
     health;
     type;
-    constructor(x, y, speed, health, type) {
+    path = [];
+    event = new events_1.EventEmitter();
+    constructor(x, y, speed, health, type, path) {
         this.x = x;
         this.y = y;
         this.speed = speed;
         this.health = health;
         this.type = type;
+        this.path = [...path];
     }
     // Method to move the enemy along the path
-    move(path) {
-        // Implementation will be simplified for the purpose of this example
-        const nextPosition = path.shift();
-        if (nextPosition) {
-            [this.x, this.y] = nextPosition;
+    move() {
+        if (this.path.length === 0)
+            return;
+        const [nextX, nextY] = this.path[0];
+        const dx = nextX - this.x;
+        const dy = nextY - this.y;
+        const distance = Math.hypot(dx, dy);
+        if (distance <= this.speed) {
+            this.x = nextX;
+            this.y = nextY;
+            this.path.shift();
+        }
+        else {
+            this.x += (dx / distance) * this.speed;
+            this.y += (dy / distance) * this.speed;
         }
     }
     takeDamage(damage) {
@@ -203,6 +215,7 @@ class Unit {
     type;
     lvl;
     cooldown = 0; // To manage firing rate
+    event = new events_1.EventEmitter();
     constructor(x, y, damage, rate, range, bulletSpeed, type, lvl) {
         this.x = x;
         this.y = y;
@@ -213,7 +226,7 @@ class Unit {
         this.type = type;
         this.lvl = lvl;
     }
-    tick(enemies, projectiles, path) {
+    tick(enemies, projectiles) {
         if (this.cooldown > 0) {
             this.cooldown -= 50; // Assuming tick is called every 50 ms
             return;
@@ -249,7 +262,7 @@ class Projectile {
         this.speed = speed;
         this.type = type;
     }
-    tick(enemies) {
+    tick(enemies, projectiles) {
         // Move the projectile
         this.x += Math.cos(this.angle) * this.speed;
         this.y += Math.sin(this.angle) * this.speed;
@@ -258,8 +271,16 @@ class Projectile {
             if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 1 /* assuming size of hitbox */) {
                 enemy.takeDamage(this.damage);
                 // Assuming projectile is destroyed on hit, otherwise implement logic for that
+                this.dispose(projectiles);
                 break;
             }
+        }
+    }
+    dispose(projectiles) {
+        // Implement logic to dispose of the projectile
+        const index = projectiles.indexOf(this);
+        if (index !== -1) {
+            projectiles.splice(index, 1);
         }
     }
     getTickData() {

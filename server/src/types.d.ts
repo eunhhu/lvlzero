@@ -34,7 +34,7 @@ interface InRoomUser{
     username:string;
     lvl:number;
     socketId:string;
-    coin:number
+    coin:number;
     ready:boolean;
 }
 

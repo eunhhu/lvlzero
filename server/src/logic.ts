@@ -5,6 +5,7 @@ export class Game{
     size:number = 20;
     health:number = 100;
     path:[number, number][] = [];
+    level:number = 1;
 
     units:Unit[] = [];
     enemies:Enemy[] = [];
@@ -23,35 +24,36 @@ export class Game{
     lastTick: number = Date.now();
 
     constructor(){
-        const gridSize = this.size;
-        const visited: boolean[][] = Array.from({ length: gridSize }, () => Array(gridSize).fill(false));
+        this.generatePath();
+    }
 
-        let currentColumn = Math.floor(Math.random() * (gridSize-1)) + 1;
-        let currentRow = 0;
+    generatePath() {
+        let visited = Array.from({ length: this.size }, () => Array(this.size).fill(false));
+        let [x, y] = [0, 0]; // 시작 위치
+        visited[x][y] = true;
+        this.path.push([x, y]);
 
-        this.path.push([currentRow, currentColumn]);
-        visited[currentRow][currentColumn] = true;
+        const directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]; // 동, 남, 서, 북
 
-        while (currentRow < gridSize - 1) {
-            const possibleMoves: [number, number][] = [
-                [currentRow + 1, currentColumn],
-                [currentRow, currentColumn - 1],
-                [currentRow, currentColumn + 1],
-            ];
-
-            const validMoves: [number, number][] = possibleMoves.filter(([row, column]) => {
-                return row >= 0 && column >= 0 && row < gridSize && column < gridSize && !visited[row][column];
+        while (!(x === this.size - 1 && y === this.size - 1)) {
+            const validDirections = directions.filter(([dx, dy]) => {
+                const [nx, ny] = [x + dx*2, y + dy*2]; // 최소 2칸 이동 확인
+                return nx >= 0 && ny >= 0 && nx < this.size && ny < this.size && !visited[nx][ny];
             });
 
-            if (validMoves.length === 0) {
-                break;
+            if (validDirections.length === 0) {
+                throw new Error("No valid path found. Consider adjusting the algorithm or parameters.");
             }
 
-            const nextMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-            [currentRow, currentColumn] = nextMove;
-
-            this.path.push(nextMove);
-            visited[currentRow][currentColumn] = true;
+            const [dx, dy] = validDirections[Math.floor(Math.random() * validDirections.length)];
+            // 최소 2칸 이동하며, 그 사이의 경로도 방문 처리
+            for (let step = 1; step <= 2; step++) {
+                x += dx;
+                y += dy;
+                visited[x][y] = true;
+                this.path.push([x, y]);
+                if (x === this.size - 1 && y === this.size - 1) break; // 목표 도달 확인
+            }
         }
     }
 
@@ -198,7 +200,7 @@ class Enemy {
 
     path: [number, number][] = [];
     event:EventEmitter = new EventEmitter();
-  
+
     constructor(x: number, y: number, speed: number, health: number, type: string, path: [number, number][]) {
         this.x = x;
         this.y = y;

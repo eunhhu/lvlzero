@@ -88,6 +88,9 @@ io.on('connection', (socket) => {
                 user.ready = true;
                 if (room.users.every(user => user.ready)) {
                     io.to(room.ownerID).emit('gameInit', room.game.getInitData());
+                    let avg = room.users.reduce((a, b) => a + b.lvl, 0) / room.users.length;
+                    room.users.forEach(user => user.coin += 500);
+                    room.game.start();
                     room.game.run();
                     room.game.on('tick', (tickData) => {
                         io.to(room.ownerID).emit('gameUpdate', tickData);

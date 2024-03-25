@@ -7,6 +7,7 @@ class Game {
     size = 20;
     health = 100;
     path = [];
+    level = 1;
     units = [];
     enemies = [];
     projectiles = [];
@@ -20,28 +21,32 @@ class Game {
     status = "waiting";
     lastTick = Date.now();
     constructor() {
-        const gridSize = this.size;
-        const visited = Array.from({ length: gridSize }, () => Array(gridSize).fill(false));
-        let currentColumn = Math.floor(Math.random() * (gridSize - 1)) + 1;
-        let currentRow = 0;
-        this.path.push([currentRow, currentColumn]);
-        visited[currentRow][currentColumn] = true;
-        while (currentRow < gridSize - 1) {
-            const possibleMoves = [
-                [currentRow + 1, currentColumn],
-                [currentRow, currentColumn - 1],
-                [currentRow, currentColumn + 1],
-            ];
-            const validMoves = possibleMoves.filter(([row, column]) => {
-                return row >= 0 && column >= 0 && row < gridSize && column < gridSize && !visited[row][column];
+        this.generatePath();
+    }
+    generatePath() {
+        let visited = Array.from({ length: this.size }, () => Array(this.size).fill(false));
+        let [x, y] = [0, 0]; // 시작 위치
+        visited[x][y] = true;
+        this.path.push([x, y]);
+        const directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]; // 동, 남, 서, 북
+        while (!(x === this.size - 1 && y === this.size - 1)) {
+            const validDirections = directions.filter(([dx, dy]) => {
+                const [nx, ny] = [x + dx * 2, y + dy * 2]; // 최소 2칸 이동 확인
+                return nx >= 0 && ny >= 0 && nx < this.size && ny < this.size && !visited[nx][ny];
             });
-            if (validMoves.length === 0) {
-                break;
+            if (validDirections.length === 0) {
+                throw new Error("No valid path found. Consider adjusting the algorithm or parameters.");
             }
-            const nextMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-            [currentRow, currentColumn] = nextMove;
-            this.path.push(nextMove);
-            visited[currentRow][currentColumn] = true;
+            const [dx, dy] = validDirections[Math.floor(Math.random() * validDirections.length)];
+            // 최소 2칸 이동하며, 그 사이의 경로도 방문 처리
+            for (let step = 1; step <= 2; step++) {
+                x += dx;
+                y += dy;
+                visited[x][y] = true;
+                this.path.push([x, y]);
+                if (x === this.size - 1 && y === this.size - 1)
+                    break; // 목표 도달 확인
+            }
         }
     }
     on(event, listener) {

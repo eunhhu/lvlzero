@@ -256,6 +256,70 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "en":"Playing",
         "ko":"진행중"
     },
+    "owner":{
+        "en":"Owner",
+        "ko":"방장"
+    },
+    "status":{
+        "en":"Status",
+        "ko":"상태"
+    },
+    "join":{
+        "en":"Join",
+        "ko":"참가"
+    },
+    "leave":{
+        "en":"Leave",
+        "ko":"나가기"
+    },
+    "start":{
+        "en":"Start",
+        "ko":"시작"
+    },
+    "ready":{
+        "en":"Ready",
+        "ko":"준비"
+    },
+    "waiting timer":{
+        "en":"Waiting Timer",
+        "ko":"대기 시간"
+    },
+    "health":{
+        "en":"Health",
+        "ko":"체력"
+    },
+    "wave":{
+        "en":"Wave",
+        "ko":"웨이브"
+    },
+    "coin":{
+        "en":"Coin",
+        "ko":"코인"
+    },
+    "waitingfornextwave":{
+        "en":"Waiting for next wave",
+        "ko":"다음 웨이브 대기중"
+    },
+    "gameover":{
+        "en":"Game Over",
+        "ko":"게임 오버"
+    },
+    "wavecomplete":{
+        "en":"Wave Complete",
+        "ko":"웨이브 클리어"
+    },
+    "wavestarted":{
+        "en":"Wave Started",
+        "ko":"웨이브 시작"
+    },
+    "gamecomplete":{
+        "en":"Game Complete",
+        "ko":"게임 클리어"
+    },
+    "skipwave":{
+        "en":"Skip Wave",
+        "ko":"웨이브 스킵"
+    },
 }
 
 export function lng(lang:string, key:string){

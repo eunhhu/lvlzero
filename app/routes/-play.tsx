@@ -34,7 +34,12 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     const [units, setUnits] = useState<UnitData[]>([])
     const [enemies, setEnemies] = useState<EnemyData[]>([])
     const [projectiles, setProjectiles] = useState<ProjectileData[]>([])
-    const [selectedUnit, setSelectedUnit] = useState<UnitData|null>(null)
+    const [waiting, setWaiting] = useState<number>(0)
+    const [health, setHealth] = useState<number>(0)
+    const [wave, setWave] = useState<number>(0)
+    const [coin, setCoin] = useState<number>(0)
+    const [titleEvent, setTitleEvent] = useState<string>('')
+    const [selectedPos, setSelectedPos] = useState<[number, number]>([0, 0])
 
     useEffect(() => {
         setOnce(true)
@@ -47,17 +52,47 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         socket.on('gameInit', (game:GameInitData) => {
             setGame(game)
         })
+        socket.on('usersUpdate', (users:InRoomUser[]) => {
+            setCoin(users.find(u => u.socketId === socket.id)?.coin || 0)
+        })
+        socket.on('coinUpdate', (coin:number) => {
+            setCoin(coin)
+        })
         socket.on('gameUpdate', (tickData:GameTickData) => {
-            console.log(tickData)
             setUnits(tickData.units)
             setEnemies(tickData.enemies)
             setProjectiles(tickData.projectiles)
+            setHealth(tickData.health)
+            setWaiting(tickData.waitingTimer)
         })
         socket.on('roomDeleted', () => {
             set('main')
         })
+        socket.on('gameOver', (wave:number) => {
+            setWave(wave)
+            set('main')
+        })
+        socket.on('waveComplete', (wave:number) => {
+            setWave(wave)
+            setTitleEvent('wavecomplete')
+        })
+        socket.on('waveStarted', (wave:number) => {
+            setWave(wave)
+            setTitleEvent('wavestarted')
+        })
+        socket.on('gameComplete', () => {
+            setTitleEvent('gamecomplete')
+            set('main')
+        })
         return () => {
             socket.off('gameInit')
+            socket.off('userInit')
+            socket.off('gameUpdate')
+            socket.off('roomDeleted')
+            socket.off('gameOver')
+            socket.off('waveComplete')
+            socket.off('waveStarted')
+            socket.off('gameComplete')
         }
     }, [once, socket])
 
@@ -65,6 +100,14 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         if(!game) return
         setTileSize(Math.min(width, height) / game.size)
     }, [game, width, height])
+
+    useEffect(() => {
+        if(titleEvent){
+            setTimeout(() => {
+                setTitleEvent('')
+            }, 2000);
+        }
+    }, [titleEvent])
 
     return (<>
         {game ? <><Stage width={width} height={height}>
@@ -79,10 +122,11 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                     return (
                         <Sprite
                         key={index}
-                        x={unit.x * tileSize - game.size * tileSize/2}
-                        y={unit.y * tileSize - game.size * tileSize/2}
+                        x={unit.x * tileSize - game.size * tileSize/2 + tileSize/2}
+                        y={unit.y * tileSize - game.size * tileSize/2 + tileSize/2}
                         texture={PIXI.Texture.from(`assets/units/${unit.type}.png`)}
                         scale={tileSize / 256}
+                        anchor={0.5}
                         />
                     );
                 })}
@@ -90,10 +134,11 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                     return (
                         <Sprite
                         key={index}
-                        x={enemy.x * tileSize - game.size * tileSize/2}
-                        y={enemy.y * tileSize - game.size * tileSize/2}
-                        texture={PIXI.Texture.from(`assets/enemies/${enemy.type}.png`)}
-                        scale={tileSize / 256}
+                        x={enemy.x * tileSize - game.size * tileSize/2 + tileSize/2}
+                        y={enemy.y * tileSize - game.size * tileSize/2 + tileSize/2}
+                        texture={PIXI.Texture.from(`assets/enemies/${enemy.type}.webp`)}
+                        scale={tileSize / 1024}
+                        anchor={0.5}
                         />
                     );
                 })}
@@ -101,15 +146,28 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                     return (
                         <Sprite
                         key={index}
-                        x={projectile.x * tileSize - game.size * tileSize/2}
-                        y={projectile.y * tileSize - game.size * tileSize/2}
-                        texture={PIXI.Texture.from('assets/tiles/grass.png')}
+                        x={projectile.x * tileSize - game.size * tileSize/2 + tileSize/2}
+                        y={projectile.y * tileSize - game.size * tileSize/2 + tileSize/2}
+                        angle={projectile.angle}
+                        texture={PIXI.Texture.from(`assets/projectiles/${projectile.type}.png`)}
                         scale={tileSize / 256}
+                        anchor={0.5}
                         />
                     );
                 })}
             </Container>
-        </Stage></>:
+        </Stage>
+        {titleEvent && <div className="absolute w-full h-full flex justify-center items-center text-white text-4xl top-0 left-0 right-0 text-center font-semibold">
+            {lng(lang, titleEvent)}
+        </div>}
+        <div className="absolute text-white right-0 top-0 flex flex-col font-semibold p-2 gap-2 box text-right">
+            <div>{lng(lang, 'wave')} : {wave}</div>
+            <div>{lng(lang, 'waitingfornextwave')} : {Math.floor(waiting/1000)}s <button className="noshadow p-1"
+            onClick={e => {socket.emit('skipWave')}}>{lng(lang, 'skipwave')}</button></div>
+            <div>{lng(lang, 'health')} : {health}</div>
+            <div>{lng(lang, 'coin')} : {coin}</div>
+        </div>
+        </>:
         <div className="cover" style={{backgroundImage: `url(assets/tiles/grass.png)`}}>
             <div className="absolute bottom-0 right-0 text-white text-2xl font-bold">{lng(lang, 'loading')}</div>
         </div>

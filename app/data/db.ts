@@ -104,3 +104,54 @@ export const units = [
         buy: 3300
     }
 ]
+
+export const enemies = [
+    {
+        type: 'goblin',
+        health: 100,
+        speed: 0.1,
+        coin: 10
+    },
+    {
+        type: 'orc',
+        health: 200,
+        speed: 0.05,
+        coin: 20
+    },
+    {
+        type: 'ogre',
+        health: 300,
+        speed: 0.05,
+        coin: 30
+    },
+    {
+        type: 'troll',
+        health: 400,
+        speed: 0.1,
+        coin: 40
+    },
+    {
+        type: 'giant',
+        health: 500,
+        speed: 0.05,
+        coin: 50
+    },
+    {
+        type: 'dragon',
+        health: 1000,
+        speed: 0.04,
+        coin: 100
+    },
+    {
+        type: 'demon',
+        health: 2000,
+        speed: 0.02,
+        coin: 200
+    },
+    {
+        type: 'god',
+        health: 5000,
+        speed: 0.01,
+        coin: 500
+    }
+]

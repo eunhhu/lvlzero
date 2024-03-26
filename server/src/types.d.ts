@@ -39,18 +39,16 @@ interface InRoomUser{
 }
 
 interface GameInitData{
-    wave:number;
-    health:number;
     path:[number, number][];
     size:number;
 }
 
 interface GameTickData{
-    wave:number;
     health:number;
     units:UnitData[];
     enemies:EnemyData[];
     projectiles:ProjectileData[];
+    waitingTimer:number;
 }
 
 interface UnitData{

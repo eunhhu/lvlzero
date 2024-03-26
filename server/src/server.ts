@@ -2,6 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { Game } from './logic';
+import { units } from './db';
 
 const PORT = 3002;
 
@@ -98,16 +99,80 @@ io.on('connection', (socket) => {
                     io.to(room.ownerID).emit('gameInit', room.game.getInitData());
                     let avg = room.users.reduce((a, b) => a + b.lvl, 0) / room.users.length;
                     room.users.forEach(user => user.coin += 500);
-                    room.game.start();
-                    room.game.run();
+                    io.to(room.ownerID).emit('usersUpdate', room.users);
+                    room.game.start(avg);
                     room.game.on('tick', (tickData:GameTickData) => {
                         io.to(room.ownerID).emit('gameUpdate', tickData);
                     })
-                    room.game.on('gameOver', () => {
-                        io.to(room.ownerID).emit('gameOver');
+                    room.game.on('waveComplete', (wave:number) => {
+                        room.users.forEach(user => user.coin += 100);
+                        io.to(room.ownerID).emit('usersUpdate', room.users);
+                        io.to(room.ownerID).emit('waveComplete', wave);
+                    })
+                    room.game.on('waveStarted', (wave:number) => {
+                        io.to(room.ownerID).emit('waveStarted', wave);
+                    })
+                    room.game.on('gameOver', (wave:number) => {
+                        io.to(room.ownerID).emit('gameOver', wave);
+                    })
+                    room.game.on('gameComplete', () => {
+                        io.to(room.ownerID).emit('gameComplete');
                     })
                 }
             }
+        }
+    })
+
+    socket.on('placeUnit', (data:{x:number, y:number, type:string}) => {
+        let room:Room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+        if(room){
+            let user = room.users.find(user => user.socketId === socket.id);
+            if(user){
+                if(user.coin >= units.find(unit => unit.type === data.type).cost){
+                    user.coin -= units.find(unit => unit.type === data.type).cost;
+                    socket.emit('coinUpdate', user.coin);
+                    let unit = room.game.placeUnit(data.x, data.y, data.type);
+                    if(unit){
+                        io.to(room.ownerID).emit('unitPlaced', unit);
+                    }
+                }
+            }
+        }
+    })
+
+    socket.on('upgradeUnit', (data:{x:number, y:number}) => {
+        let room:Room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+        if(room){
+            let user = room.users.find(user => user.socketId === socket.id);
+            if(user){
+                let unit = room.game.upgradeUnit(data.x, data.y);
+                if(unit){
+                    user.coin -= unit.cost / 10;
+                    socket.emit('coinUpdate', user.coin);
+                    io.to(room.ownerID).emit('unitUpgraded', unit);
+                }
+            }
+        }
+    })
+
+    socket.on('sellUnit', (data:{x:number, y:number}) => {
+        let room:Room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+        if(room){
+            let user = room.users.find(user => user.socketId === socket.id);
+            if(user){
+                let unit = room.game.sellUnit(data.x, data.y);
+                if(unit){
+                    user.coin += unit.cost / 2;
+                    io.to(room.ownerID).emit('unitSold', unit);
+                }
+            }
+        }
+    })
+
+    socket.on('skipWave', () => {
+        let room:Room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+        if(room){
+            room.game.skipWave();
         }
     })
 

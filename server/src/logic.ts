@@ -3,9 +3,10 @@ import { EventEmitter } from "events";
 export class Game{
     wave:number = 0;
     size:number = 20;
-    health:number = 100;
+    health:number = 1000;
     path:[number, number][] = [];
     level:number = 1;
+    maxWave:number = 10;
 
     units:Unit[] = [];
     enemies:Enemy[] = [];
@@ -60,7 +61,11 @@ export class Game{
         this.path.push([...cur]);
     }
 
-    start(){
+    start(level:number){
+        this.lastTick = Date.now();
+        this.level = level;
+        this.status = "waiting";
+        this.waitingTimer = this.waitingTimerMax * 2;
         this.run();
     }
 
@@ -78,8 +83,6 @@ export class Game{
 
     getInitData():GameInitData{
         return {
-            wave: this.wave,
-            health: this.health,
             size: this.size,
             path: this.path
         }
@@ -87,25 +90,31 @@ export class Game{
 
     getTickData():GameTickData{
         return {
-            wave: this.wave,
             health: this.health,
             units: this.units.map(unit => unit.getTickData()),
             enemies: this.enemies.map(enemy => enemy.getTickData()),
-            projectiles: this.projectiles.map(projectile => projectile.getTickData())
+            projectiles: this.projectiles.map(projectile => projectile.getTickData()),
+            waitingTimer: this.waitingTimer
         }
     }
 
     gameOver(){
         clearInterval(this.loop);
         this.status = "waiting";
-        this.emit('gameOver');
+        this.emit('gameOver', this.wave);
+    }
+
+    gameComplete(){
+        clearInterval(this.loop);
+        this.status = "waiting";
+        this.emit('gameComplete');
     }
 
     tick(delta: number) {
         if (this.status === "waiting") {
             this.waitingTimer -= delta;
             if (this.waitingTimer <= 0) {
-                this.startWave([new Enemy(0, 0, 0.1, 10, "basic", this.path)]);
+                this.startWave([new Enemy(0, 0, 0.1, 10, "basic", this.path), new Enemy(0, 0, 0.1, 10, "basic", this.path), new Enemy(0, 0, 0.1, 10, "basic", this.path), new Enemy(0, 0, 0.1, 10, "basic", this.path)]);
             }
         } else {
             // 적 이동
@@ -125,10 +134,14 @@ export class Game{
 
             // 적이 모두 제거되었는지 확인
             if (this.enemies.length === 0 && this.enemySpawnQueue.length === 0) {
+                this.emit('waveComplete', this.wave);
                 this.status = "waiting";
                 this.waitingTimer = this.waitingTimerMax;
+                if (this.wave >= this.maxWave) {
+                    this.gameComplete();
+                }
             }
-            
+
             // 적이 목적지에 도달하면 체력 감소
             this.enemies.forEach((enemy, index) => {
                 if (enemy.path.length === 0) {
@@ -145,8 +158,10 @@ export class Game{
     }
 
     startWave(enemies: Enemy[]) {
+        this.wave++;
         this.status = "started";
         this.enemySpawnQueue = enemies;
+        this.emit('waveStarted', this.wave);
 
         const spawnEnemy = () => {
             if (this.enemySpawnQueue.length > 0) {
@@ -173,15 +188,31 @@ export class Game{
         const newUnit = new Unit(x, y, 10, 1000, 5, 5, unitType, 1);
         this.units.push(newUnit);
         this.emit('unitPlaced', newUnit);
+        return newUnit;
     }
 
-    removeUnit(x: number, y: number) {
+    sellUnit(x: number, y: number) {
         const index = this.units.findIndex(unit => unit.x === x && unit.y === y);
         if (index !== -1) {
-            const removedUnit = this.units.splice(index, 1)[0];
-            this.emit('unitRemoved', removedUnit);
-        } else {
-            this.emit('unitRemovalFailed', 'No unit found at the specified location');
+            const unit = this.units[index];
+            this.units.splice(index, 1);
+            this.emit('unitSold', unit);
+            return unit;
+        }
+    }
+
+    upgradeUnit(x: number, y: number) {
+        const unit = this.units.find(unit => unit.x === x && unit.y === y);
+        if (unit) {
+            unit.lvl++;
+            this.emit('unitUpgraded', unit);
+            return unit;
+        }
+    }
+
+    skipWave() {
+        if(this.status === "waiting"){
+            this.waitingTimer = 0;
         }
     }
 

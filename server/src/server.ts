@@ -3,6 +3,8 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { Game } from './logic';
 
+const PORT = 3002;
+
 const app = express();
 
 const httpServer = createServer(app); // Note: Non-null assertion (!) is used here for simplicity.
@@ -131,6 +133,6 @@ io.on('connection', (socket) => {
     })
 });
 
-httpServer.listen(80, () => {
-    console.log(`Server listening on *:80`);
+httpServer.listen(PORT, () => {
+    console.log(`Server listening on *:${PORT}`);
 });

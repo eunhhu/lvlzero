@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const logic_1 = require("./logic");
+const PORT = 3002;
 const app = (0, express_1.default)();
 const httpServer = (0, http_1.createServer)(app); // Note: Non-null assertion (!) is used here for simplicity.
 const io = new socket_io_1.Server(httpServer, {
@@ -122,7 +123,7 @@ io.on('connection', (socket) => {
         socket.emit('command', JSON.stringify(response));
     });
 });
-httpServer.listen(80, () => {
-    console.log(`Server listening on *:80`);
+httpServer.listen(PORT, () => {
+    console.log(`Server listening on *:${PORT}`);
 });
 //# sourceMappingURL=server.js.map

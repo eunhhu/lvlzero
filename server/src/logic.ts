@@ -28,33 +28,40 @@ export class Game{
     }
 
     generatePath() {
-        let visited = Array.from({ length: this.size }, () => Array(this.size).fill(false));
-        let [x, y] = [0, 0]; // 시작 위치
-        visited[x][y] = true;
-        this.path.push([x, y]);
+        let cur:[number, number] = [0, 0];
+        this.path.push([...cur]);
+        cur = [1, 0];
+        this.path.push([...cur]);
+        cur = [1, 1];
+        this.path.push([...cur]);
 
-        const directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]; // 동, 남, 서, 북
+        let g = 0
 
-        while (!(x === this.size - 1 && y === this.size - 1)) {
-            const validDirections = directions.filter(([dx, dy]) => {
-                const [nx, ny] = [x + dx*2, y + dy*2]; // 최소 2칸 이동 확인
-                return nx >= 0 && ny >= 0 && nx < this.size && ny < this.size && !visited[nx][ny];
-            });
-
-            if (validDirections.length === 0) {
-                throw new Error("No valid path found. Consider adjusting the algorithm or parameters.");
+        while (cur[0] < this.size - 2 || cur[1] < this.size - 2) {
+            if (cur[0] < this.size - 2 && cur[1] < this.size - 2) {
+                if (Math.random() < (g ? 0.4 : 0.6)) {
+                    g = 0
+                    cur[0]++;
+                } else {
+                    g = 1
+                    cur[1]++;
+                }
+            } else if (cur[0] < this.size - 2) {
+                cur[0]++;
+            } else {
+                cur[1]++;
             }
-
-            const [dx, dy] = validDirections[Math.floor(Math.random() * validDirections.length)];
-            // 최소 2칸 이동하며, 그 사이의 경로도 방문 처리
-            for (let step = 1; step <= 2; step++) {
-                x += dx;
-                y += dy;
-                visited[x][y] = true;
-                this.path.push([x, y]);
-                if (x === this.size - 1 && y === this.size - 1) break; // 목표 도달 확인
-            }
+            this.path.push([...cur]);
         }
+
+        cur = [this.size - 1, this.size - 2];
+        this.path.push([...cur]);
+        cur = [this.size - 1, this.size - 1];
+        this.path.push([...cur]);
+    }
+
+    start(){
+        this.run();
     }
 
     on(event:string, listener:(...args: any[]) => void){
@@ -229,12 +236,23 @@ class Enemy {
         }
     }
 
-    takeDamage(damage: number): void {
+    takeDamage(damage: number, enemies:Enemy[]): void {
         this.health -= damage;
+        if (this.health <= 0) {
+            this.dispose(enemies);
+        }
     }
-  
+
     getTickData(): EnemyData{
         return { x: this.x, y: this.y, health: this.health, type: this.type };
+    }
+
+    dispose(enemies: Enemy[]): void {
+        // Implement logic to dispose of the enemy
+        const index = enemies.indexOf(this);
+        if (index !== -1) {
+            enemies.splice(index, 1);
+        }
     }
 }
 
@@ -312,7 +330,7 @@ class Projectile {
         // Check collision with enemies
         for (let enemy of enemies) {
             if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 1 /* assuming size of hitbox */) {
-                enemy.takeDamage(this.damage);
+                enemy.takeDamage(this.damage, enemies);
                 // Assuming projectile is destroyed on hit, otherwise implement logic for that
                 this.dispose(projectiles);
                 break;

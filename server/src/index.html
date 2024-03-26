@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f1f1f1;
+        }
+        .log {
+            width: 50%;
+            height: 50%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+            overflow-y: auto;
+            background: #fff;
+        }
+        input {
+            width: 50%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="log"></div>
+    <input type="text" name="" id="">
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        socket.on('connect', () => {
+            addText('Connected to server');
+        });
+
+        socket.on('disconnect', () => {
+            addText('Disconnected from server');
+        });
+
+        socket.on('command', (data) => {
+            addText(data);
+        });
+
+        const log = document.querySelector('.log');
+        const input = document.querySelector('input');
+        input.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                socket.emit('command', input.value);
+                input.value = '';
+            }
+        });
+
+        function addText(text) {
+            log.innerHTML += `<div>${text}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+    </script>
+</body>
+</html>

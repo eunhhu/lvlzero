@@ -7,23 +7,19 @@ import { lng } from "~/data/lang"
 const Tilemap: FC<{
     tileset: string;
     tilemapData: [number, number][];
-    tileWidth: number;
-    tileHeight: number;
+    tileSize: number;
     size: number;
-  }> = ({ tileset, tilemapData, tileWidth, tileHeight, size }) => {
+  }> = ({ tileset, tilemapData, tileSize, size }) => {
 
     return tilemapData.map((tile, index) => {
-        const x = index % size;
-        const y = Math.floor(index / size);
         return (
-          <Sprite
+            <Sprite
             key={index}
-            source={tileset}
-            x={x * tileWidth}
-            y={y * tileHeight}
-            width={tileWidth}
-            height={tileHeight}
-          />
+            x={tile[0] * tileSize - size * tileSize/2}
+            y={tile[1] * tileSize - size * tileSize/2}
+            texture={PIXI.Texture.from(tileset)}
+            scale={tileSize / 256}
+            />
         );
     });
 };
@@ -32,11 +28,13 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     const {width, height} = usehooks.useWindowSize()
     const [once, setOnce] = useState<boolean>(false)
     const [game, setGame] = useState<GameInitData>()
+    const [tileSize, setTileSize] = useState<number>(Math.min(width, height) / (game || {size:1}).size)
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [error, setError] = useState<string>('')
     const [units, setUnits] = useState<UnitData[]>([])
     const [enemies, setEnemies] = useState<EnemyData[]>([])
     const [projectiles, setProjectiles] = useState<ProjectileData[]>([])
+    const [selectedUnit, setSelectedUnit] = useState<UnitData|null>(null)
 
     useEffect(() => {
         setOnce(true)
@@ -63,24 +61,52 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         }
     }, [once, socket])
 
+    useEffect(() => {
+        if(!game) return
+        setTileSize(Math.min(width, height) / game.size)
+    }, [game, width, height])
+
     return (<>
         {game ? <><Stage width={width} height={height}>
             <Container pivot={[-width/2, -height/2]}>
                 <Tilemap
                     tileset="assets/tiles/grass.png"
                     tilemapData={game.path}
-                    tileWidth={32}
-                    tileHeight={32}
+                    tileSize={tileSize}
                     size={game.size}
                 />
                 {units.map((unit, index) => {
-                    return <Sprite key={index} x={unit.x * 32} y={unit.y * 32} texture={PIXI.Texture.from(`assets/units/${unit.type}.png`)} />
+                    return (
+                        <Sprite
+                        key={index}
+                        x={unit.x * tileSize - game.size * tileSize/2}
+                        y={unit.y * tileSize - game.size * tileSize/2}
+                        texture={PIXI.Texture.from(`assets/units/${unit.type}.png`)}
+                        scale={tileSize / 256}
+                        />
+                    );
                 })}
                 {enemies.map((enemy, index) => {
-                    return <Sprite key={index} x={enemy.x * 32} y={enemy.y * 32} texture={PIXI.Texture.from(`assets/enemies/${enemy.type}.png`)} />
+                    return (
+                        <Sprite
+                        key={index}
+                        x={enemy.x * tileSize - game.size * tileSize/2}
+                        y={enemy.y * tileSize - game.size * tileSize/2}
+                        texture={PIXI.Texture.from(`assets/enemies/${enemy.type}.png`)}
+                        scale={tileSize / 256}
+                        />
+                    );
                 })}
                 {projectiles.map((projectile, index) => {
-                    return <Sprite key={index} x={projectile.x * 32} y={projectile.y * 32} texture={PIXI.Texture.from(`assets/projectiles/${projectile.type}.png`)} />
+                    return (
+                        <Sprite
+                        key={index}
+                        x={projectile.x * tileSize - game.size * tileSize/2}
+                        y={projectile.y * tileSize - game.size * tileSize/2}
+                        texture={PIXI.Texture.from('assets/tiles/grass.png')}
+                        scale={tileSize / 256}
+                        />
+                    );
                 })}
             </Container>
         </Stage></>:

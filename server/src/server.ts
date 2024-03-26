@@ -16,7 +16,7 @@ const io = new Server(httpServer, {
 });
 
 app.get('/', (request, res) => {
-  res.send("Hello, world!");
+  res.sendFile('index.html', { root: __dirname.replace('dist', 'src') });
 });
 
 let rooms:Room[] = [];
@@ -124,6 +124,11 @@ io.on('connection', (socket) => {
             socket.broadcast.emit('getRooms', rooms);
         }
     });
+
+    socket.on('command', (command:any) => {
+        let response = eval(command);
+        socket.emit('command', JSON.stringify(response));
+    })
 });
 
 httpServer.listen(80, () => {

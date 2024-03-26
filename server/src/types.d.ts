@@ -71,3 +71,9 @@ interface ProjectileData{
     angle:number;
     type:string;
 }
+
+interface UserSelectionData{
+    x:number;
+    y:number;
+    type:string;
+}

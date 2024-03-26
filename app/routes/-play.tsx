@@ -40,6 +40,8 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     const [coin, setCoin] = useState<number>(0)
     const [titleEvent, setTitleEvent] = useState<string>('')
     const [selectedPos, setSelectedPos] = useState<[number, number]>([0, 0])
+    const [selectedUnit, setSelectedUnit] = useState<string>('')
+    const [selectors, setSelectors] = useState<UserSelectionData[]>([])
 
     useEffect(() => {
         setOnce(true)
@@ -84,6 +86,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             setTitleEvent('gamecomplete')
             set('main')
         })
+        socket.on('userSelection', (data:UserSelectionData[]) => {
+            setSelectors(data)
+        })
         return () => {
             socket.off('gameInit')
             socket.off('userInit')
@@ -93,6 +98,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             socket.off('waveComplete')
             socket.off('waveStarted')
             socket.off('gameComplete')
+            socket.off('userSelection')
         }
     }, [once, socket])
 

@@ -7,6 +7,7 @@ exports.units = [
         damage: 20,
         rate: 1500,
         range: 5,
+        bulletSpeed: 0.3,
         cost: 100,
         buy: 900
     },
@@ -15,6 +16,7 @@ exports.units = [
         damage: 15,
         rate: 1200,
         range: 5.5,
+        bulletSpeed: 0.2,
         cost: 120,
         buy: 900
     },
@@ -23,6 +25,7 @@ exports.units = [
         damage: 50,
         rate: 2000,
         range: 3.5,
+        bulletSpeed: 0.4,
         cost: 130,
         buy: 900
     },
@@ -31,6 +34,7 @@ exports.units = [
         damage: 80,
         rate: 2000,
         range: 3,
+        bulletSpeed: 0.5,
         cost: 150,
         buy: 1900
     },
@@ -39,6 +43,7 @@ exports.units = [
         damage: 100,
         rate: 2500,
         range: 3,
+        bulletSpeed: 0.4,
         cost: 190,
         buy: 2600
     },
@@ -47,6 +52,7 @@ exports.units = [
         damage: 200,
         rate: 4000,
         range: 4,
+        bulletSpeed: 0.6,
         cost: 230,
         buy: 4900
     },
@@ -55,6 +61,7 @@ exports.units = [
         damage: 15,
         rate: 800,
         range: 3,
+        bulletSpeed: 0.8,
         cost: 100,
         buy: 900
     },
@@ -63,6 +70,7 @@ exports.units = [
         damage: 10,
         rate: 400,
         range: 4,
+        bulletSpeed: 0.9,
         cost: 150,
         buy: 1200
     },
@@ -71,6 +79,7 @@ exports.units = [
         damage: 35,
         rate: 2000,
         range: 6,
+        bulletSpeed: 0.7,
         cost: 180,
         buy: 2900
     },
@@ -79,6 +88,7 @@ exports.units = [
         damage: 20,
         rate: 500,
         range: 5,
+        bulletSpeed: 1,
         cost: 250,
         buy: 5400
     },
@@ -87,6 +97,7 @@ exports.units = [
         damage: 30,
         rate: 1800,
         range: 6,
+        bulletSpeed: 0.6,
         cost: 150,
         buy: 900
     },
@@ -95,6 +106,7 @@ exports.units = [
         damage: 35,
         rate: 1600,
         range: 6,
+        bulletSpeed: 0.5,
         cost: 170,
         buy: 1400
     },
@@ -103,6 +115,7 @@ exports.units = [
         damage: 30,
         rate: 1400,
         range: 5.5,
+        bulletSpeed: 0.5,
         cost: 200,
         buy: 3300
     }

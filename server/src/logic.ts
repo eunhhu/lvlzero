@@ -1,4 +1,5 @@
 import { EventEmitter } from "events";
+import { units } from "./db";
 
 export class Game{
     wave:number = 0;
@@ -114,19 +115,19 @@ export class Game{
         if (this.status === "waiting") {
             this.waitingTimer -= delta;
             if (this.waitingTimer <= 0) {
-                this.startWave([new Enemy(0, 0, 0.1, 10, "basic", this.path), new Enemy(0, 0, 0.1, 10, "basic", this.path), new Enemy(0, 0, 0.1, 10, "basic", this.path), new Enemy(0, 0, 0.1, 10, "basic", this.path)]);
+                this.startWave([new Enemy(0, 0, 0.4, 100, "basic", this.path), new Enemy(0, 0, 0.4, 100, "basic", this.path), new Enemy(0, 0, 0.4, 100, "basic", this.path), new Enemy(0, 0, 0.4, 100, "basic", this.path)]);
             }
         } else {
             // 적 이동
             this.enemies.forEach(enemy => {
                 // 예시 목적으로 단순화된 경로 이동 구현
-                enemy.move();
+                enemy.move(delta);
             });
 
             // 유닛 및 발사체 업데이트
-            this.units.forEach(unit => unit.tick(this.enemies, this.projectiles));
+            this.units.forEach(unit => unit.tick(delta, this.enemies, this.projectiles));
             this.projectiles.forEach((projectile, index) => {
-                projectile.tick(this.enemies, this.projectiles);
+                projectile.tick(delta, this.enemies, this.projectiles);
                 if (projectile.isOutOfBounds(this.size)) {
                     this.projectiles.splice(index, 1); // 화면 밖으로 나간 발사체 제거
                 }
@@ -135,6 +136,7 @@ export class Game{
             // 적이 모두 제거되었는지 확인
             if (this.enemies.length === 0 && this.enemySpawnQueue.length === 0) {
                 this.emit('waveComplete', this.wave);
+                this.projectiles = [];
                 this.status = "waiting";
                 this.waitingTimer = this.waitingTimerMax;
                 if (this.wave >= this.maxWave) {
@@ -185,7 +187,9 @@ export class Game{
         if (this.units.some(unit => unit.x === x && unit.y === y)) {
             return this.emit('unitPlacementFailed', 'A unit already exists at the specified location');
         }
-        const newUnit = new Unit(x, y, 10, 1000, 5, 5, unitType, 1);
+
+        const unitData = units.find(unit => unit.type === unitType);
+        const newUnit = new Unit(x, y, unitData.damage, unitData.rate, unitData.range, unitData.bulletSpeed, unitType, 1);
         this.units.push(newUnit);
         this.emit('unitPlaced', newUnit);
         return newUnit;
@@ -225,7 +229,7 @@ export class Game{
             this.emit('tick', this.getTickData());
         };
 
-        this.loop = setInterval(runTick, 50);
+        this.loop = setInterval(runTick, 10);
     }
 }
 
@@ -249,7 +253,7 @@ class Enemy {
     }
   
     // Method to move the enemy along the path
-    move(): void {
+    move(delta:number): void {
         if (this.path.length === 0) return;
 
         const [nextX, nextY] = this.path[0];
@@ -257,13 +261,15 @@ class Enemy {
         const dy = nextY - this.y;
         const distance = Math.hypot(dx, dy);
 
-        if (distance <= this.speed) {
+        const speed = this.speed * delta / 100;
+
+        if (distance <= speed) {
             this.x = nextX;
             this.y = nextY;
             this.path.shift();
         } else {
-            this.x += (dx / distance) * this.speed;
-            this.y += (dy / distance) * this.speed;
+            this.x += (dx / distance) * speed;
+            this.y += (dy / distance) * speed;
         }
     }
 
@@ -311,12 +317,12 @@ class Unit {
         this.lvl = lvl;
     }
 
-    tick(enemies: Enemy[], projectiles: Projectile[]): void {
+    tick(delta:number, enemies: Enemy[], projectiles: Projectile[]): void {
         if (this.cooldown > 0) {
-            this.cooldown -= 50; // Assuming tick is called every 50 ms
+            this.cooldown -= delta;
             return;
         }
-
+        
         // Find the closest enemy within range
         const target = enemies.find(enemy => {
             const distance = Math.hypot(this.x - enemy.x, this.y - enemy.y);
@@ -353,10 +359,11 @@ class Projectile {
         this.type = type;
     }
 
-    tick(enemies: Enemy[], projectiles: Projectile[]): void {
+    tick(delta:number, enemies: Enemy[], projectiles: Projectile[]): void {
         // Move the projectile
-        this.x += Math.cos(this.angle) * this.speed;
-        this.y += Math.sin(this.angle) * this.speed;
+        const speed = this.speed * delta / 100;
+        this.x += Math.cos(this.angle) * speed;
+        this.y += Math.sin(this.angle) * speed;
 
         // Check collision with enemies
         for (let enemy of enemies) {

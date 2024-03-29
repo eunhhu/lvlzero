@@ -18,7 +18,8 @@ const Tilemap: FC<{
             x={tile[0] * tileSize - size * tileSize/2}
             y={tile[1] * tileSize - size * tileSize/2}
             texture={PIXI.Texture.from(tileset)}
-            scale={tileSize / 256}
+            width={tileSize}
+            height={tileSize}
             />
         );
     });
@@ -39,7 +40,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     const [wave, setWave] = useState<number>(0)
     const [coin, setCoin] = useState<number>(0)
     const [titleEvent, setTitleEvent] = useState<string>('')
-    const [selectedPos, setSelectedPos] = useState<[number, number]>([0, 0])
+    const [selectedPos, setSelectedPos] = useState<[number, number]>([-1, -1])
     const [selectedUnit, setSelectedUnit] = useState<string>('')
     const [selectors, setSelectors] = useState<UserSelectionData[]>([])
 
@@ -87,7 +88,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             set('main')
         })
         socket.on('userSelection', (data:UserSelectionData[]) => {
-            setSelectors(data)
+            setSelectors(data.filter(d => d.x != selectedPos[0] && d.y != selectedPos[1]))
         })
         return () => {
             socket.off('gameInit')
@@ -101,6 +102,25 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             socket.off('userSelection')
         }
     }, [once, socket])
+
+    useEffect(() => {
+        if(!game) return
+        const click = (e:MouseEvent) => {
+            if((e.target as HTMLElement).nodeName == "CANVAS"){
+                let x = Math.floor((e.clientX - width/2) / tileSize + game.size/2)
+                let y = Math.floor((e.clientY - height/2) / tileSize + game.size/2)
+                if(x < 0 || x >= game.size || y < 0 || y >= game.size) return setSelectedPos([-1, -1]);
+                if(selectors.find(s => s.x == x && s.y == y)) return;
+                if(game.path.find(p => p[0] == x && p[1] == y)) return;
+                setSelectedPos([x, y])
+                setSelectedUnit('')
+            }
+        }
+        document.addEventListener('click', click)
+        return () => {
+            document.removeEventListener('click', click)
+        }
+    }, [game, width, height, tileSize, selectors])
 
     useEffect(() => {
         if(!game) return
@@ -131,7 +151,8 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                         x={unit.x * tileSize - game.size * tileSize/2 + tileSize/2}
                         y={unit.y * tileSize - game.size * tileSize/2 + tileSize/2}
                         texture={PIXI.Texture.from(`assets/units/${unit.type}.png`)}
-                        scale={tileSize / 256}
+                        width={tileSize}
+                        height={tileSize}
                         anchor={0.5}
                         />
                     );
@@ -143,7 +164,8 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                         x={enemy.x * tileSize - game.size * tileSize/2 + tileSize/2}
                         y={enemy.y * tileSize - game.size * tileSize/2 + tileSize/2}
                         texture={PIXI.Texture.from(`assets/enemies/${enemy.type}.webp`)}
-                        scale={tileSize / 1024}
+                        width={tileSize}
+                        height={tileSize}
                         anchor={0.5}
                         />
                     );
@@ -155,8 +177,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                         x={projectile.x * tileSize - game.size * tileSize/2 + tileSize/2}
                         y={projectile.y * tileSize - game.size * tileSize/2 + tileSize/2}
                         angle={projectile.angle}
-                        texture={PIXI.Texture.from(`assets/projectiles/${projectile.type}.png`)}
-                        scale={tileSize / 256}
+                        texture={PIXI.Texture.from(`assets/projectiles/basic.png`)}
+                        width={tileSize}
+                        height={tileSize}
                         anchor={0.5}
                         />
                     );
@@ -166,6 +189,11 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         {titleEvent && <div className="absolute w-full h-full flex justify-center items-center text-white text-4xl top-0 left-0 right-0 text-center font-semibold">
             {lng(lang, titleEvent)}
         </div>}
+        <div className="absolute border-2 border-white" style={{width:tileSize, height:tileSize,
+        left:selectedPos[0] * tileSize + width/2 - (game.size * tileSize)/2,
+        top:selectedPos[1] * tileSize + height/2 - (game.size * tileSize)/2,
+        backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center',
+        backgroundImage: selectedUnit ? `url("assets/units/${selectedUnit}.png")` : ''}}></div>
         <div className="absolute text-white right-0 top-0 flex flex-col font-semibold p-2 gap-2 box text-right">
             <div>{lng(lang, 'wave')} : {wave}</div>
             <div>{lng(lang, 'waitingfornextwave')} : {Math.floor(waiting/1000)}s <button className="noshadow p-1"
@@ -173,6 +201,17 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             <div>{lng(lang, 'health')} : {health}</div>
             <div>{lng(lang, 'coin')} : {coin}</div>
         </div>
+        {selectedPos[0] != -1 && <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-2 gap-2 box">
+            {user.equipped.map((unit, index) => {
+                return <button key={index} className="noshadow p-1" onClick={e => {
+                    setSelectedUnit(unit)
+                }}>{lng(lang, unit)}</button>
+            })}
+            <button className="noshadow p-1" onClick={e => {
+                setSelectedPos([-1, -1])
+                socket.emit('placeUnit', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit})
+            }}>{lng(lang, 'place')}</button>
+        </div>}
         </>:
         <div className="cover" style={{backgroundImage: `url(assets/tiles/grass.png)`}}>
             <div className="absolute bottom-0 right-0 text-white text-2xl font-bold">{lng(lang, 'loading')}</div>

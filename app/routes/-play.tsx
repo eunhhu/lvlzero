@@ -14,12 +14,12 @@ const Tilemap: FC<{
     return tilemapData.map((tile, index) => {
         return (
             <Sprite
-            key={index}
-            x={tile[0] * tileSize - size * tileSize/2}
-            y={tile[1] * tileSize - size * tileSize/2}
-            texture={PIXI.Texture.from(tileset)}
-            width={tileSize}
-            height={tileSize}
+                key={index}
+                x={tile[0] * tileSize - size * tileSize/2}
+                y={tile[1] * tileSize - size * tileSize/2}
+                texture={PIXI.Texture.from(tileset)}
+                width={tileSize}
+                height={tileSize}
             />
         );
     });
@@ -147,40 +147,40 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                 {units.map((unit, index) => {
                     return (
                         <Sprite
-                        key={index}
-                        x={unit.x * tileSize - game.size * tileSize/2 + tileSize/2}
-                        y={unit.y * tileSize - game.size * tileSize/2 + tileSize/2}
-                        texture={PIXI.Texture.from(`assets/units/${unit.type}.png`)}
-                        width={tileSize}
-                        height={tileSize}
-                        anchor={0.5}
+                            key={index}
+                            x={unit.x * tileSize - game.size * tileSize/2 + tileSize/2}
+                            y={unit.y * tileSize - game.size * tileSize/2 + tileSize/2}
+                            texture={PIXI.Texture.from(`assets/units/${unit.type}.png`)}
+                            width={tileSize}
+                            height={tileSize}
+                            anchor={0.5}
                         />
                     );
                 })}
                 {enemies.map((enemy, index) => {
                     return (
                         <Sprite
-                        key={index}
-                        x={enemy.x * tileSize - game.size * tileSize/2 + tileSize/2}
-                        y={enemy.y * tileSize - game.size * tileSize/2 + tileSize/2}
-                        texture={PIXI.Texture.from(`assets/enemies/${enemy.type}.webp`)}
-                        width={tileSize}
-                        height={tileSize}
-                        anchor={0.5}
+                            key={index}
+                            x={enemy.x * tileSize - game.size * tileSize/2 + tileSize/2}
+                            y={enemy.y * tileSize - game.size * tileSize/2 + tileSize/2}
+                            texture={PIXI.Texture.from(`assets/enemies/${enemy.type}.webp`)}
+                            width={tileSize}
+                            height={tileSize}
+                            anchor={0.5}
                         />
                     );
                 })}
                 {projectiles.map((projectile, index) => {
                     return (
                         <Sprite
-                        key={index}
-                        x={projectile.x * tileSize - game.size * tileSize/2 + tileSize/2}
-                        y={projectile.y * tileSize - game.size * tileSize/2 + tileSize/2}
-                        angle={projectile.angle}
-                        texture={PIXI.Texture.from(`assets/projectiles/basic.png`)}
-                        width={tileSize}
-                        height={tileSize}
-                        anchor={0.5}
+                            key={index}
+                            x={projectile.x * tileSize - game.size * tileSize/2 + tileSize/2}
+                            y={projectile.y * tileSize - game.size * tileSize/2 + tileSize/2}
+                            angle={projectile.angle}
+                            texture={PIXI.Texture.from(`assets/projectiles/basic.png`)}
+                            width={tileSize}
+                            height={tileSize}
+                            anchor={0.5}
                         />
                     );
                 })}

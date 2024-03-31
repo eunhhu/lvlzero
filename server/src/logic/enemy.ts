@@ -9,6 +9,7 @@ export class Enemy {
 
     path: [number, number][] = [];
     event:EventEmitter = new EventEmitter();
+    status:string[] = [];
 
     constructor(x: number, y: number, speed: number, health: number, type: string, path: [number, number][]) {
         this.x = x;
@@ -18,7 +19,7 @@ export class Enemy {
         this.type = type;
         this.path = [...path];
     }
-  
+
     // Method to move the enemy along the path
     move(delta:number): void {
         if (this.path.length === 0) return;

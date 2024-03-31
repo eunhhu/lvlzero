@@ -10,6 +10,7 @@ class Enemy {
     type;
     path = [];
     event = new events_1.EventEmitter();
+    status = [];
     constructor(x, y, speed, health, type, path) {
         this.x = x;
         this.y = y;

@@ -140,7 +140,10 @@ io.on('connection', (socket) => {
             if (user) {
                 let unit = room.game.upgradeUnit(data.x, data.y);
                 if (unit) {
-                    user.coin -= unit.cost / 10;
+                    let cost = unit.upgradeCost[unit.lvl - 1];
+                    if (user.coin < cost)
+                        return;
+                    user.coin -= cost;
                     socket.emit('coinUpdate', user.coin);
                     io.to(room.ownerID).emit('unitUpgraded', unit);
                 }

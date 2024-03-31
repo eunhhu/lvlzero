@@ -37,22 +37,32 @@ export class Unit {
             this.cooldown -= delta;
             return;
         }
-        
+
         // Find the closest enemy within range
         const target = enemies.find(enemy => {
             const distance = Math.hypot(this.x - enemy.x, this.y - enemy.y);
-            return distance <= this.range[this.lvl];
+            return distance <= this.getCurStat().range;
         });
 
         if (target) {
             // Calculate angle towards target
             const angle = Math.atan2(target.y - this.y, target.x - this.x);
-            projectiles.push(new Projectile(this.x, this.y, angle, this.damage[this.lvl], this.bulletSpeed[this.lvl], this.type));
-            this.cooldown = this.rate[this.lvl];
+            projectiles.push(new Projectile(this.x, this.y, angle, this.getCurStat().damage, this.getCurStat().bulletSpeed, this.type));
+            this.cooldown = this.getCurStat().rate;
         }
     }
 
     getTickData(): IUnitData{
         return { x: this.x, y: this.y, type: this.type, lvl: this.lvl };
+    }
+
+    getCurStat() {
+        return {
+            damage: this.damage[this.lvl-1],
+            rate: this.rate[this.lvl-1],
+            range: this.range[this.lvl-1],
+            bulletSpeed: this.bulletSpeed[this.lvl-1],
+            upgradeCost: this.upgradeCost[this.lvl-1]
+        }
     }
 }

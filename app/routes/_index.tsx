@@ -17,7 +17,7 @@ export default function Index() {
   const [hydration, setHydration] = useState<boolean>(false)
   const [globalState, setGlobalState] = useState<string>('login')
   const [lang, setLang] = useState<string>('en')
-  const [user, setUser] = useState<User>()
+  const [user, setUser] = useState<IUser>()
   const [socket, setSocket] = useState<Socket>()
 
   useEffect(() => {
@@ -34,9 +34,9 @@ export default function Index() {
 
   return (<>
     {hydration && <>{
-      globalState == 'login' ? <Login lang={lang} set={setGlobalState} user={user as User} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} /> :
-      globalState == 'main' ? <Main lang={lang} set={setGlobalState} user={user as User} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} />:
-      globalState == 'play' ? <Play lang={lang} set={setGlobalState} user={user as User} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} />:
+      globalState == 'login' ? <Login lang={lang} set={setGlobalState} user={user as IUser} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} /> :
+      globalState == 'main' ? <Main lang={lang} set={setGlobalState} user={user as IUser} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} />:
+      globalState == 'play' ? <Play lang={lang} set={setGlobalState} user={user as IUser} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} />:
     <></>
     }</>}
   </>);

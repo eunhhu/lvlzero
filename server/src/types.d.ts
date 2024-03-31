@@ -1,12 +1,17 @@
-interface User{
+interface IUser{
     id: string;
     username: string;
     password: string;
     gold: number;
     lvl: number;
     exp: number;
+    admin: boolean;
     unlocked: string[];
     equipped: string[];
+    avatar: string;
+    win: number;
+    lose: number;
+    lastPvp: number;
 }
 
 interface glFCProps{
@@ -18,9 +23,9 @@ interface glFCProps{
     setSocket:React.Dispatch<React.SetStateAction<SocketIOClient.Socket>>
 }
 
-interface Room{
+interface IRoom{
     name:string;
-    users:InRoomUser[];
+    users:IInRoomUser[];
     maxUsers:number;
     private:boolean;
     status:string; // waiting, playing
@@ -29,7 +34,7 @@ interface Room{
     game:Game;
 }
 
-interface InRoomUser{
+interface IInRoomUser{
     id:string;
     username:string;
     lvl:number;
@@ -38,12 +43,13 @@ interface InRoomUser{
     ready:boolean;
 }
 
-interface GameInitData{
+interface IGameInitData{
     path:[number, number][];
     size:number;
+    maxWave:number;
 }
 
-interface GameTickData{
+interface IGameTickData{
     health:number;
     units:UnitData[];
     enemies:EnemyData[];
@@ -51,29 +57,49 @@ interface GameTickData{
     waitingTimer:number;
 }
 
-interface UnitData{
+interface IUnitData{
     x:number;
     y:number;
     type:string;
     lvl:number;
 }
 
-interface EnemyData{
+interface IEnemyData{
     x:number;
     y:number;
     health:number;
     type:string;
 }
 
-interface ProjectileData{
+interface IProjectileData{
     x:number;
     y:number;
     angle:number;
     type:string;
 }
 
-interface UserSelectionData{
+interface IUserSelectionData{
     x:number;
     y:number;
     type:string;
+}
+
+interface IUnit{
+    type:string;
+    damage: number[];
+    rate: number[];
+    range: number[];
+    bulletSpeed: number[];
+    cost: number;
+    upgradeCost: number[];
+    buy: number;
+    tags: string[];
+}
+
+interface IEnemy{
+    type:string;
+    health:number;
+    speed:number;
+    coin:number;
+    tags:string[];
 }

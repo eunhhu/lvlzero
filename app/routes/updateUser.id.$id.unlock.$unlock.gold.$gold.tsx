@@ -6,7 +6,7 @@ export const loader:LoaderFunction = async ({params}) => {
   let res = null;
   const user = await getUser('id', id as string);
   let sub:{} = {gold: user.gold - parseInt(gold as string)}
-  let upd:{} = unlock == 'slot' ? {equipped: user.equipped.map((v, i) => i == user.equipped.indexOf('l') ? '' : v)} :
+  let upd:{} = unlock == 'slot' ? {equipped: user.equipped.map((v:string, i:number) => i == user.equipped.indexOf('l') ? '' : v)} :
   {unlocked: [...user.unlocked, unlock as string]}
   upd = {...upd, ...sub}
   res = await updateUser(id as string, upd);

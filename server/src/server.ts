@@ -1,7 +1,7 @@
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { Game } from './logic';
+import { Game } from './logic/game';
 import { units } from './db';
 
 const PORT = 3002;
@@ -22,7 +22,7 @@ app.get('/', (request, res) => {
   res.sendFile('index.html', { root: __dirname.replace('dist', 'src') });
 });
 
-let rooms:Room[] = [];
+let rooms:IRoom[] = [];
 
 io.on('connection', (socket) => {
     console.log('a user connected');
@@ -31,8 +31,8 @@ io.on('connection', (socket) => {
         socket.emit('getRooms', rooms);
     })
 
-    socket.on('createRoom', (data:{name:string;maxUsers:number;private:boolean;user:User}) => {
-        let room:Room = {
+    socket.on('createRoom', (data:{name:string;maxUsers:number;private:boolean;user:IUser}) => {
+        let room:IRoom = {
             name: data.name,
             users: [{username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0, lvl: data.user.lvl, ready: false}],
             maxUsers: data.maxUsers,
@@ -48,7 +48,7 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('getRooms', rooms);
     })
 
-    socket.on('joinRoom', (data:{ownerId:string;user:User}) => {
+    socket.on('joinRoom', (data:{ownerId:string;user:IUser}) => {
         let room = rooms.find(room => room.ownerID === data.ownerId);
         if(room){
             if(room.users.length < room.maxUsers){
@@ -61,7 +61,7 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('leaveRoom', (data:{ownerId:string;user:User}) => {
+    socket.on('leaveRoom', (data:{ownerId:string;user:IUser}) => {
         let room = rooms.find(room => room.ownerID === data.ownerId);
         if(room){
             if(room.ownerID === socket.id){
@@ -88,8 +88,8 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('getRooms', rooms);
     })
 
-    socket.on('ready', (user:User) => {
-        let room:Room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+    socket.on('ready', (user:IUser) => {
+        let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
         if(room){
             let user = room.users.find(user => user.socketId === socket.id);
             console.log(user, socket.id, room.users);
@@ -101,7 +101,7 @@ io.on('connection', (socket) => {
                     room.users.forEach(user => user.coin += 500);
                     io.to(room.ownerID).emit('usersUpdate', room.users);
                     room.game.start(avg);
-                    room.game.on('tick', (tickData:GameTickData) => {
+                    room.game.on('tick', (tickData:IGameTickData) => {
                         io.to(room.ownerID).emit('gameUpdate', tickData);
                     })
                     room.game.on('waveComplete', (wave:number) => {
@@ -112,11 +112,13 @@ io.on('connection', (socket) => {
                     room.game.on('waveStarted', (wave:number) => {
                         io.to(room.ownerID).emit('waveStarted', wave);
                     })
-                    room.game.on('gameOver', (wave:number) => {
-                        io.to(room.ownerID).emit('gameOver', wave);
+                    room.game.on('gameOver', (level:number, wave:number) => {
+                        io.to(room.ownerID).emit('gameOver', level, wave);
+                        rooms = rooms.filter(r => r.ownerID !== room.ownerID);
                     })
-                    room.game.on('gameComplete', () => {
-                        io.to(room.ownerID).emit('gameComplete');
+                    room.game.on('gameComplete', (level:number) => {
+                        io.to(room.ownerID).emit('gameComplete', level);
+                        rooms = rooms.filter(r => r.ownerID !== room.ownerID);
                     })
                 }
             }
@@ -124,7 +126,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('placeUnit', (data:{x:number, y:number, type:string}) => {
-        let room:Room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+        let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
         if(room){
             let user = room.users.find(user => user.socketId === socket.id);
             if(user){
@@ -141,7 +143,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('upgradeUnit', (data:{x:number, y:number}) => {
-        let room:Room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+        let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
         if(room){
             let user = room.users.find(user => user.socketId === socket.id);
             if(user){
@@ -156,7 +158,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('sellUnit', (data:{x:number, y:number}) => {
-        let room:Room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+        let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
         if(room){
             let user = room.users.find(user => user.socketId === socket.id);
             if(user){
@@ -170,15 +172,22 @@ io.on('connection', (socket) => {
     })
 
     socket.on('skipWave', () => {
-        let room:Room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+        let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
         if(room){
             room.game.skipWave();
         }
     })
 
+    socket.on('gameCommand', (command:string) => {
+        let room:IRoom = rooms.find(room => room.ownerID === socket.id);
+        if(room){
+            room.game.command(command);
+        }
+    })
+
     socket.on('disconnect', () => {
         console.log("a user disconnected");
-        let room:Room = rooms.find(room => room.ownerID === socket.id);
+        let room:IRoom = rooms.find(room => room.ownerID === socket.id);
         if(room){
             rooms = rooms.filter(room => room.ownerID !== socket.id);
             io.to(room.ownerID).emit('roomDeleted');

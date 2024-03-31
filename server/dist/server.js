@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
-const logic_1 = require("./logic");
+const game_1 = require("./logic/game");
 const db_1 = require("./db");
 const PORT = 3002;
 const app = (0, express_1.default)();
@@ -36,7 +36,7 @@ io.on('connection', (socket) => {
             status: 'waiting',
             ownerName: data.user.username,
             ownerID: socket.id,
-            game: new logic_1.Game()
+            game: new game_1.Game()
         };
         rooms.push(room);
         socket.join(room.ownerID);
@@ -105,11 +105,13 @@ io.on('connection', (socket) => {
                     room.game.on('waveStarted', (wave) => {
                         io.to(room.ownerID).emit('waveStarted', wave);
                     });
-                    room.game.on('gameOver', (wave) => {
-                        io.to(room.ownerID).emit('gameOver', wave);
+                    room.game.on('gameOver', (level, wave) => {
+                        io.to(room.ownerID).emit('gameOver', level, wave);
+                        rooms = rooms.filter(r => r.ownerID !== room.ownerID);
                     });
-                    room.game.on('gameComplete', () => {
-                        io.to(room.ownerID).emit('gameComplete');
+                    room.game.on('gameComplete', (level) => {
+                        io.to(room.ownerID).emit('gameComplete', level);
+                        rooms = rooms.filter(r => r.ownerID !== room.ownerID);
                     });
                 }
             }
@@ -162,6 +164,12 @@ io.on('connection', (socket) => {
         let room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
         if (room) {
             room.game.skipWave();
+        }
+    });
+    socket.on('gameCommand', (command) => {
+        let room = rooms.find(room => room.ownerID === socket.id);
+        if (room) {
+            room.game.command(command);
         }
     });
     socket.on('disconnect', () => {

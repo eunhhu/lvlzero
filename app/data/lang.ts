@@ -320,6 +320,14 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "en":"Skip Wave",
         "ko":"웨이브 스킵"
     },
+    "nextwave":{
+        "en":"Next Wave",
+        "ko":"다음 웨이브"
+    },
+    "place":{
+        "en":"Place",
+        "ko":"배치"
+    },
 }
 
 export function lng(lang:string, key:string){

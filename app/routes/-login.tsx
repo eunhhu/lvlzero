@@ -20,7 +20,7 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
       setOnce(true)
     }, [])
 
-    const tryLogin = async (user:User) => {
+    const tryLogin = async (user:IUser) => {
       let socket = io(socketDomain)
       socket.on('connect', () => {
         setUser(user)
@@ -33,7 +33,7 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
       if(!once) return
       let userId = localStorage.getItem('userId')
       if(userId){
-        fetch(`/getUser/type/id/value/${userId}`).then(res => res.json()).then((res:{res:User}) => {
+        fetch(`/getUser/type/id/value/${userId}`).then(res => res.json()).then((res:{res:IUser}) => {
           if(res.res){
             tryLogin(res.res)
           }
@@ -46,7 +46,7 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
         if(!password) return setError(lng(lang, 'enter password'))
         if(isFetching) return
         setIsFetching(true)
-        fetch(`/getUser/type/username/value/${username}`).then(res => res.json()).then((res:{res:User}) => {
+        fetch(`/getUser/type/username/value/${username}`).then(res => res.json()).then((res:{res:IUser}) => {
             if(res.res){
               if(res.res.password === sha256(password)){
                 setIsFetching(false)
@@ -74,7 +74,7 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
       setIsFetching(true)
       fetch(`/createUser/username/${username}/password/${password}`).then(res => {
         return res.json()
-      }).then((res:{res:User}) => {
+      }).then((res:{res:IUser}) => {
         if(res.res){
           setIsFetching(false)
           localStorage.setItem('userId', res.res.id)

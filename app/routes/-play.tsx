@@ -1,8 +1,9 @@
-import { Stage, Container, Sprite } from "@pixi/react"
+import { Stage, Container, Sprite, Graphics } from "@pixi/react"
 import { FC, useEffect, useRef, useState } from "react"
 import * as usehooks from "usehooks-ts"
 import * as PIXI from 'pixi.js';
 import { lng } from "~/data/lang"
+import { units as AllUnits } from "~/data/db";
 
 const Tilemap: FC<{
     tileset: string;
@@ -28,13 +29,13 @@ const Tilemap: FC<{
 const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     const {width, height} = usehooks.useWindowSize()
     const [once, setOnce] = useState<boolean>(false)
-    const [game, setGame] = useState<GameInitData>()
+    const [game, setGame] = useState<IGameInitData>()
     const [tileSize, setTileSize] = useState<number>(Math.min(width, height) / (game || {size:1}).size)
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [error, setError] = useState<string>('')
-    const [units, setUnits] = useState<UnitData[]>([])
-    const [enemies, setEnemies] = useState<EnemyData[]>([])
-    const [projectiles, setProjectiles] = useState<ProjectileData[]>([])
+    const [units, setUnits] = useState<IUnitData[]>([])
+    const [enemies, setEnemies] = useState<IEnemyData[]>([])
+    const [projectiles, setProjectiles] = useState<IProjectileData[]>([])
     const [waiting, setWaiting] = useState<number>(0)
     const [health, setHealth] = useState<number>(0)
     const [wave, setWave] = useState<number>(0)
@@ -42,7 +43,8 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     const [titleEvent, setTitleEvent] = useState<string>('')
     const [selectedPos, setSelectedPos] = useState<[number, number]>([-1, -1])
     const [selectedUnit, setSelectedUnit] = useState<string>('')
-    const [selectors, setSelectors] = useState<UserSelectionData[]>([])
+    const [selectors, setSelectors] = useState<IUserSelectionData[]>([])
+    const [text, setText] = useState<string>('')
 
     useEffect(() => {
         setOnce(true)
@@ -51,17 +53,19 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     useEffect(() => {
         if(!once) return
         if(!socket) return
+        let _game:IGameInitData;
         socket.emit('ready', user.id)
-        socket.on('gameInit', (game:GameInitData) => {
+        socket.on('gameInit', (game:IGameInitData) => {
             setGame(game)
+            _game = game
         })
-        socket.on('usersUpdate', (users:InRoomUser[]) => {
+        socket.on('usersUpdate', (users:IInRoomUser[]) => {
             setCoin(users.find(u => u.socketId === socket.id)?.coin || 0)
         })
         socket.on('coinUpdate', (coin:number) => {
             setCoin(coin)
         })
-        socket.on('gameUpdate', (tickData:GameTickData) => {
+        socket.on('gameUpdate', (tickData:IGameTickData) => {
             setUnits(tickData.units)
             setEnemies(tickData.enemies)
             setProjectiles(tickData.projectiles)
@@ -69,10 +73,6 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             setWaiting(tickData.waitingTimer)
         })
         socket.on('roomDeleted', () => {
-            set('main')
-        })
-        socket.on('gameOver', (wave:number) => {
-            setWave(wave)
             set('main')
         })
         socket.on('waveComplete', (wave:number) => {
@@ -83,11 +83,25 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             setWave(wave)
             setTitleEvent('wavestarted')
         })
-        socket.on('gameComplete', () => {
-            setTitleEvent('gamecomplete')
-            set('main')
+        socket.on('gameOver', (level:number, wave:number) => {
+            setTitleEvent('gameover')
+            fetch(`/updateUser/id/${user.id}/level/${level}/wave/${wave}/maxwave/${_game.maxWave}/clear/false`).then(res => res.json()).then((res:{res:IUser}) => {
+                setUser(res.res)
+                set('main')
+            }).catch(e => {
+                console.log(e)
+            })
         })
-        socket.on('userSelection', (data:UserSelectionData[]) => {
+        socket.on('gameComplete', (level:number) => {
+            setTitleEvent('gamecomplete')
+            fetch(`/updateUser/id/${user.id}/level/${level}/wave/${_game.maxWave}/maxwave/${_game.maxWave}/clear/true`).then(res => res.json()).then((res:{res:IUser}) => {
+                setUser(res.res)
+                set('main')
+            }).catch(e => {
+                console.log(e)
+            })
+        })
+        socket.on('userSelection', (data:IUserSelectionData[]) => {
             setSelectors(data.filter(d => d.x != selectedPos[0] && d.y != selectedPos[1]))
         })
         return () => {
@@ -158,7 +172,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                     );
                 })}
                 {enemies.map((enemy, index) => {
-                    return (
+                    return <>
                         <Sprite
                             key={index}
                             x={enemy.x * tileSize - game.size * tileSize/2 + tileSize/2}
@@ -168,7 +182,17 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                             height={tileSize}
                             anchor={0.5}
                         />
-                    );
+                        <Graphics draw={g => {
+                            g.clear();
+                            g.lineStyle(2, 0x000000, 1);
+                            g.beginFill(0xFF0000);
+                            g.drawRect(enemy.x * tileSize - game.size * tileSize/2 + tileSize/2 - tileSize/2, enemy.y * tileSize - game.size * tileSize/2, tileSize, 5);
+                            g.endFill();
+                            g.beginFill(0x00FF00);
+                            g.drawRect(enemy.x * tileSize - game.size * tileSize/2 + tileSize/2 - tileSize/2, enemy.y * tileSize - game.size * tileSize/2, tileSize * (enemy.health / 100), 5);
+                            g.endFill();
+                        }} />
+                    </>
                 })}
                 {projectiles.map((projectile, index) => {
                     return (
@@ -201,16 +225,46 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             <div>{lng(lang, 'health')} : {health}</div>
             <div>{lng(lang, 'coin')} : {coin}</div>
         </div>
-        {selectedPos[0] != -1 && <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-2 gap-2 box">
-            {user.equipped.map((unit, index) => {
-                return <button key={index} className="noshadow p-1" onClick={e => {
+        {selectedPos[0] != -1 && !selectedUnit && <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-2 gap-2 box w-38">
+            {user.equipped.map((unit:string, index:number) => {
+                let myUnit = AllUnits.find(v => v.type == unit) || {cost:0}
+                const canBuy = coin - myUnit.cost >= 0
+                return <button key={index} className={`noshadow p-1 flex flex-col items-center justify-between ${!canBuy ? "text-red-700" : "text-white"}`}
+                onClick={e => {
                     setSelectedUnit(unit)
-                }}>{lng(lang, unit)}</button>
+                }}>
+                    <div className="flex flex-row items-center justify-between gap-3">
+                        <img src={`assets/units/${unit}.png`} className="w-8 h-8 rounded-md" />
+                        <div>{lng(lang, unit)}</div>
+                    </div>
+                    <div>{myUnit.cost}c</div>
+                </button>
             })}
-            <button className="noshadow p-1" onClick={e => {
-                setSelectedPos([-1, -1])
+        </div>}
+        {selectedPos[0] != -1 && selectedUnit && <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-2 gap-2 box w-38">
+            <div className="flex flex-row items-center justify-between gap-3">
+                <img src={`assets/units/${selectedUnit}.png`} className="w-8 h-8 rounded-md" />
+                <div>{lng(lang, selectedUnit)}</div>
+            </div>
+            <div className="p-2">{lng(lang, 'damage')} {AllUnits.find(v => v.type == selectedUnit)?.damage[0]}</div>
+            <div className="p-2">{lng(lang, 'range')} {AllUnits.find(v => v.type == selectedUnit)?.range[0]}m</div>
+            <div className="p-2">{lng(lang, 'rate')} {(AllUnits.find(v => v.type == selectedUnit)?.rate as number[])[0]/1000}s</div>
+            <div className="p-2">{lng(lang, 'cost')} {AllUnits.find(v => v.type == selectedUnit)?.cost}c</div>
+            <button className="noshadow p-1 text-white" onClick={e => {
+                setSelectedUnit('')
+            }}>{lng(lang, 'cancel')}</button>
+            <button className={`noshadow p-1 ${coin - (AllUnits.find(v => v.type == selectedUnit)?.cost as number) >= 0 ? 'text-white' : 'text-red-700'}`}
+            onClick={e => {
                 socket.emit('placeUnit', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit})
+                setSelectedUnit('')
             }}>{lng(lang, 'place')}</button>
+        </div>}
+        {user.admin && <div className="absolute text-white right-0 bottom-0 flex flex-col font-semibold p-2 gap-2 box">
+            <input className="noshadow p-1" type="text" value={text} onChange={e => setText(e.target.value)} />
+            <button className="noshadow p-1 text-white" onClick={e => {
+                socket.emit('gameCommand', text)
+                setText('')
+            }}>Admin</button>
         </div>}
         </>:
         <div className="cover" style={{backgroundImage: `url(assets/tiles/grass.png)`}}>

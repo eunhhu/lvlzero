@@ -1,6 +1,4 @@
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
-import { Socket, io } from "socket.io-client";
-import { units } from "~/data/db";
 import { lng } from "~/data/lang";
 import InRoom from "./main/-inRoom";
 import PlayState from "./main/-play";

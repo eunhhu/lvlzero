@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.enemies = exports.units = void 0;
+exports.levels = exports.enemies = exports.units = void 0;
 exports.units = [
     {
         type: 'stone-catapult',
@@ -202,6 +202,13 @@ exports.enemies = [
         speed: 0.01,
         coin: 500,
         tags: []
+    }
+];
+exports.levels = [
+    {
+        enemies: [
+            ['goblin', 'goblin', 'goblin', 'goblin'],
+        ]
     }
 ];
 //# sourceMappingURL=db.js.map

@@ -76,6 +76,7 @@ io.on('connection', (socket) => {
     socket.on('startGame', (ownerId, lvl) => {
         let room = rooms.find(room => room.ownerID === ownerId);
         if (room) {
+            room.game.init(lvl);
             room.status = 'playing';
             io.to(room.ownerID).emit('gameStarted');
         }
@@ -92,7 +93,7 @@ io.on('connection', (socket) => {
                     let avg = room.users.reduce((a, b) => a + b.lvl, 0) / room.users.length;
                     room.users.forEach(user => user.coin += 500);
                     io.to(room.ownerID).emit('usersUpdate', room.users);
-                    room.game.start(avg);
+                    room.game.start();
                     room.game.on('tick', (tickData) => {
                         io.to(room.ownerID).emit('gameUpdate', tickData);
                     });

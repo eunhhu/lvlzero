@@ -59,22 +59,21 @@ class Game {
         cur = [this.size - 1, this.size - 1];
         this.path.push([...cur]);
     }
-    init() {
+    init(lvl = 1) {
         this.lastTick = Date.now();
-        this.level = 1;
+        this.level = lvl;
+        console.log('init', lvl);
+        this.maxWave = db_1.levels[lvl - 1].enemies.length;
         this.health = 1000;
         this.units = [];
         this.enemies = [];
         this.projectiles = [];
         this.wave = 0;
         this.status = "waiting";
-        this.waitingTimer = this.waitingTimerMax;
-    }
-    start(level) {
-        this.lastTick = Date.now();
-        this.level = level;
-        this.status = "waiting";
         this.waitingTimer = this.waitingTimerMax * 2;
+    }
+    start() {
+        this.lastTick = Date.now();
         this.run();
     }
     on(event, listener) {
@@ -116,7 +115,13 @@ class Game {
         if (this.status === "waiting") {
             this.waitingTimer -= delta;
             if (this.waitingTimer <= 0) {
-                this.startWave([new enemy_1.Enemy(0, 0, 0.4, 100, "basic", this.path), new enemy_1.Enemy(0, 0, 0.4, 100, "basic", this.path), new enemy_1.Enemy(0, 0, 0.4, 100, "basic", this.path), new enemy_1.Enemy(0, 0, 0.4, 100, "basic", this.path)]);
+                const enems = db_1.levels[this.level - 1].enemies[this.wave].map((enemyType) => {
+                    const enemyData = db_1.enemies.find(enemy => enemy.type === enemyType);
+                    if (!enemyData)
+                        return new enemy_1.Enemy(0, 0, 0.05, 100, 'basic', this.path);
+                    return new enemy_1.Enemy(0, 0, enemyData.speed, enemyData.health, enemyType, this.path);
+                });
+                this.startWave(enems);
             }
         }
         else {

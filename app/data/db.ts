@@ -147,35 +147,35 @@ export const units:IUnit[] = [
 export const enemies:IEnemy[] = [
     {
         type: 'goblin',
-        health: 100,
+        health: 50,
         speed: 0.1,
         coin: 10,
         tags: []
     },
     {
         type: 'orc',
-        health: 200,
-        speed: 0.05,
+        health: 100,
+        speed: 0.08,
         coin: 20,
         tags: []
     },
     {
         type: 'ogre',
-        health: 300,
-        speed: 0.05,
+        health: 200,
+        speed: 0.07,
         coin: 30,
         tags: []
     },
     {
         type: 'troll',
         health: 400,
-        speed: 0.1,
+        speed: 0.08,
         coin: 40,
         tags: []
     },
     {
         type: 'giant',
-        health: 500,
+        health: 800,
         speed: 0.05,
         coin: 50,
         tags: []

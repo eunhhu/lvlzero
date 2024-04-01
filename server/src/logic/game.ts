@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { units } from '../db';
+import { levels, units, enemies } from '../db';
 import { Unit } from './unit';
 import { Enemy } from './enemy';
 import { Projectile } from './projectile';
@@ -65,23 +65,22 @@ export class Game{
         this.path.push([...cur]);
     }
 
-    init(){
+    init(lvl:number = 1){
         this.lastTick = Date.now();
-        this.level = 1;
+        this.level = lvl;
+        console.log('init', lvl);
+        this.maxWave = levels[lvl - 1].enemies.length;
         this.health = 1000;
         this.units = [];
         this.enemies = [];
         this.projectiles = [];
         this.wave = 0;
         this.status = "waiting";
-        this.waitingTimer = this.waitingTimerMax;
+        this.waitingTimer = this.waitingTimerMax * 2;
     }
 
-    start(level:number){
+    start(){
         this.lastTick = Date.now();
-        this.level = level;
-        this.status = "waiting";
-        this.waitingTimer = this.waitingTimerMax * 2;
         this.run();
     }
 
@@ -131,9 +130,14 @@ export class Game{
         if (this.status === "waiting") {
             this.waitingTimer -= delta;
             if (this.waitingTimer <= 0) {
-                this.startWave([new Enemy(0, 0, 0.4, 100, "basic", this.path), new Enemy(0, 0, 0.4, 100, "basic", this.path), new Enemy(0, 0, 0.4, 100, "basic", this.path), new Enemy(0, 0, 0.4, 100, "basic", this.path)]);
+                const enems:Enemy[] = levels[this.level - 1].enemies[this.wave].map((enemyType:string) => {
+                    const enemyData = enemies.find(enemy => enemy.type === enemyType);
+                    if (!enemyData) return new Enemy(0, 0, 0.05, 100, 'basic', this.path);
+                    return new Enemy(0, 0, enemyData.speed, enemyData.health, enemyType, this.path);
+                });
+                this.startWave(enems);
             }
-        } else {
+        } else { 
             // 적 이동
             this.enemies.forEach(enemy => {
                 // 예시 목적으로 단순화된 경로 이동 구현

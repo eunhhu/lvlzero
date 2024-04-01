@@ -81,7 +81,7 @@ const InRoom:FC<{room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|null>>; socke
                         {room.ownerID == socket.id && <button className="box p-2 w-40"
                         onClick={e => {
                             setIsFetching(true)
-                            socket.emit('startGame', room.ownerID, lvl)
+                            socket.emit('startGame', room.ownerID, lvl+1)
                         }}>Start</button>}
                         <button className="box p-2 w-40"
                         onClick={e => {

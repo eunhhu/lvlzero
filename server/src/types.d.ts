@@ -17,8 +17,8 @@ interface IUser{
 interface glFCProps{
     lang:string,
     set:React.Dispatch<React.SetStateAction<string>>,
-    user:User,
-    setUser:React.Dispatch<React.SetStateAction<User>>
+    user:IUser,
+    setUser:React.Dispatch<React.SetStateAction<IUser>>
     socket:SocketIOClient.Socket,
     setSocket:React.Dispatch<React.SetStateAction<SocketIOClient.Socket>>
 }
@@ -41,6 +41,7 @@ interface IInRoomUser{
     socketId:string;
     coin:number;
     ready:boolean;
+    selection:IUserSelectionData;
 }
 
 interface IGameInitData{
@@ -102,4 +103,8 @@ interface IEnemy{
     speed:number;
     coin:number;
     tags:string[];
+}
+
+interface ILevel{
+    enemies:string[][];
 }

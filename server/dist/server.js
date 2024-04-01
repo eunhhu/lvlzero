@@ -30,7 +30,7 @@ io.on('connection', (socket) => {
     socket.on('createRoom', (data) => {
         let room = {
             name: data.name,
-            users: [{ username: data.user.username, id: data.user.id, socketId: socket.id, coin: 0, lvl: data.user.lvl, ready: false }],
+            users: [{ username: data.user.username, id: data.user.id, socketId: socket.id, coin: 0, lvl: data.user.lvl, ready: false, selection: { x: -1, y: -1, type: '' } }],
             maxUsers: data.maxUsers,
             private: data.private,
             status: 'waiting',
@@ -47,7 +47,7 @@ io.on('connection', (socket) => {
         let room = rooms.find(room => room.ownerID === data.ownerId);
         if (room) {
             if (room.users.length < room.maxUsers) {
-                room.users.push({ username: data.user.username, id: data.user.id, socketId: socket.id, coin: 0, lvl: data.user.lvl, ready: false });
+                room.users.push({ username: data.user.username, id: data.user.id, socketId: socket.id, coin: 0, lvl: data.user.lvl, ready: false, selection: { x: -1, y: -1, type: '' } });
                 socket.emit('roomJoined', room);
                 io.to(room.ownerID).emit('userJoined', room.users);
                 socket.join(room.ownerID);
@@ -73,7 +73,7 @@ io.on('connection', (socket) => {
             socket.emit('roomLeft');
         }
     });
-    socket.on('startGame', (ownerId) => {
+    socket.on('startGame', (ownerId, lvl) => {
         let room = rooms.find(room => room.ownerID === ownerId);
         if (room) {
             room.status = 'playing';
@@ -85,7 +85,6 @@ io.on('connection', (socket) => {
         let room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
         if (room) {
             let user = room.users.find(user => user.socketId === socket.id);
-            console.log(user, socket.id, room.users);
             if (user) {
                 user.ready = true;
                 if (room.users.every(user => user.ready)) {
@@ -108,14 +107,29 @@ io.on('connection', (socket) => {
                     room.game.on('gameOver', (level, wave) => {
                         io.to(room.ownerID).emit('gameOver', level, wave);
                         rooms = rooms.filter(r => r.ownerID !== room.ownerID);
+                        socket.emit('getRooms', rooms);
+                        socket.broadcast.emit('getRooms', rooms);
                     });
                     room.game.on('gameComplete', (level) => {
                         io.to(room.ownerID).emit('gameComplete', level);
                         rooms = rooms.filter(r => r.ownerID !== room.ownerID);
+                        socket.emit('getRooms', rooms);
+                        socket.broadcast.emit('getRooms', rooms);
                     });
                 }
             }
         }
+    });
+    socket.on('userSelect', (data) => {
+        let room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+        if (!room)
+            return;
+        let user = room.users.find(user => user.socketId === socket.id);
+        if (!user)
+            return;
+        user.selection = data;
+        let selectors = room.users.map(v => v.selection);
+        io.to(room.ownerID).emit('userSelection', selectors);
     });
     socket.on('placeUnit', (data) => {
         let room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
@@ -138,11 +152,15 @@ io.on('connection', (socket) => {
         if (room) {
             let user = room.users.find(user => user.socketId === socket.id);
             if (user) {
-                let unit = room.game.upgradeUnit(data.x, data.y);
+                const unit = room.game.findUnit(data.x, data.y);
+                if (!unit)
+                    return;
+                const unitData = db_1.units.find(v => v.type == unit.type);
                 if (unit) {
-                    let cost = unit.upgradeCost[unit.lvl - 1];
+                    const cost = unitData.upgradeCost[unit.lvl - 1];
                     if (user.coin < cost)
                         return;
+                    room.game.upgradeUnit(data.x, data.y);
                     user.coin -= cost;
                     socket.emit('coinUpdate', user.coin);
                     io.to(room.ownerID).emit('unitUpgraded', unit);
@@ -155,9 +173,16 @@ io.on('connection', (socket) => {
         if (room) {
             let user = room.users.find(user => user.socketId === socket.id);
             if (user) {
-                let unit = room.game.sellUnit(data.x, data.y);
+                const unit = room.game.findUnit(data.x, data.y);
+                if (!unit)
+                    return;
+                const unitData = db_1.units.find(v => v.type == unit.type);
                 if (unit) {
-                    user.coin += unit.cost / 2;
+                    const allUpgCosts = unit.lvl == 1 ? 0 : unit.lvl == 2 ? unitData.upgradeCost[0] : unitData.upgradeCost.slice(0, unit.lvl - 1).reduce((a, b) => a + b);
+                    const sellCost = Math.round((unitData.cost + allUpgCosts) / 2);
+                    room.game.sellUnit(data.x, data.y);
+                    user.coin += sellCost;
+                    socket.emit('coinUpdate', user.coin);
                     io.to(room.ownerID).emit('unitSold', unit);
                 }
             }

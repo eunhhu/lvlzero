@@ -137,6 +137,10 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     }, [game, width, height, tileSize, selectors])
 
     useEffect(() => {
+        socket.emit('userSelect', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit})
+    }, [selectedPos, selectedUnit])
+
+    useEffect(() => {
         if(!game) return
         setTileSize(Math.min(width, height) / game.size)
     }, [game, width, height])
@@ -213,20 +217,29 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         {titleEvent && <div className="absolute w-full h-full flex justify-center items-center text-white text-4xl top-0 left-0 right-0 text-center font-semibold">
             {lng(lang, titleEvent)}
         </div>}
-        <div className="absolute border-2 border-white" style={{width:tileSize, height:tileSize,
+        <div className="absolute border-2 border-yellow-300" style={{width:tileSize, height:tileSize,
         left:selectedPos[0] * tileSize + width/2 - (game.size * tileSize)/2,
         top:selectedPos[1] * tileSize + height/2 - (game.size * tileSize)/2,
         backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center',
-        backgroundImage: selectedUnit ? `url("assets/units/${selectedUnit}.png")` : ''}}></div>
+        backgroundImage: selectedUnit ? `url("assets/units/${selectedUnit}.png")` : '', opacity:'0.5'}}></div>
+        {selectors.map((v, i) => {
+            return <div key={i} className="absolute border-2 border-white" style={{width:tileSize, height:tileSize,
+            left:v.x * tileSize + width/2 - (game.size * tileSize)/2,
+            top:v.y * tileSize + height/2 - (game.size * tileSize)/2,
+            backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center',
+            backgroundImage: v.type ? `url("assets/units/${v.type}.png")` : '', opacity:'0.5'}}></div>
+        })}
         <div className="absolute text-white right-0 top-0 flex flex-col font-semibold p-2 gap-2 box text-right">
-            <div>{lng(lang, 'wave')} : {wave}</div>
+            <div>{lng(lang, 'wave')} : {wave} / {game.maxWave}</div>
             <div>{lng(lang, 'waitingfornextwave')} : {Math.floor(waiting/1000)}s <button className="noshadow p-1"
             onClick={e => {socket.emit('skipWave')}}>{lng(lang, 'skipwave')}</button></div>
             <div>{lng(lang, 'health')} : {health}</div>
-            <div>{lng(lang, 'coin')} : {coin}</div>
+            <div>{lng(lang, 'coin')} : {coin}c</div>
         </div>
-        {selectedPos[0] != -1 && !selectedUnit && <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-2 gap-2 box w-38">
+        {selectedPos[0] != -1 && !selectedUnit && !units.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) &&
+        <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-2 gap-2 box w-38">
             {user.equipped.map((unit:string, index:number) => {
+                if(unit == 'l') return null;
                 let myUnit = AllUnits.find(v => v.type == unit) || {cost:0}
                 const canBuy = coin - myUnit.cost >= 0
                 return <button key={index} className={`noshadow p-1 flex flex-col items-center justify-between ${!canBuy ? "text-red-700" : "text-white"}`}
@@ -241,24 +254,63 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                 </button>
             })}
         </div>}
-        {selectedPos[0] != -1 && selectedUnit && <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-2 gap-2 box w-38">
-            <div className="flex flex-row items-center justify-between gap-3">
-                <img src={`assets/units/${selectedUnit}.png`} className="w-8 h-8 rounded-md" />
-                <div>{lng(lang, selectedUnit)}</div>
+        {selectedPos[0] != -1 && selectedUnit && !units.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) && [''].map((_v, i) => {
+            const canPlace = coin >= (AllUnits.find(v => v.type == selectedUnit)?.cost as number)
+            return <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-2 gap-2 box w-38">
+                <div className="flex flex-row items-center justify-between gap-3">
+                    <img src={`assets/units/${selectedUnit}.png`} className="w-8 h-8 rounded-md" />
+                    <div>{lng(lang, selectedUnit)}</div>
+                </div>
+                <div className="p-2">{lng(lang, 'damage')} {AllUnits.find(v => v.type == selectedUnit)?.damage[0]}</div>
+                <div className="p-2">{lng(lang, 'rate')} {(AllUnits.find(v => v.type == selectedUnit)?.rate as number[])[0]/1000}s</div>
+                <div className="p-2">{lng(lang, 'range')} {AllUnits.find(v => v.type == selectedUnit)?.range[0]}m</div>
+                <div className="p-2">{lng(lang, 'bulletSpeed')} {AllUnits.find(v => v.type == selectedUnit)?.bulletSpeed[0]}</div>
+                <div className="p-2">{lng(lang, 'cost')} {AllUnits.find(v => v.type == selectedUnit)?.cost}c</div>
+                <button className="noshadow p-1 text-white" onClick={e => {
+                    setSelectedUnit('')
+                }}>{lng(lang, 'cancel')}</button>
+                <button disabled={!canPlace} className={`noshadow p-1 ${canPlace ? 'text-white' : 'text-red-700'}`}
+                onClick={e => {
+                    socket.emit('placeUnit', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit})
+                    setSelectedUnit('')
+                }}>{lng(lang, 'place')}</button>
             </div>
-            <div className="p-2">{lng(lang, 'damage')} {AllUnits.find(v => v.type == selectedUnit)?.damage[0]}</div>
-            <div className="p-2">{lng(lang, 'range')} {AllUnits.find(v => v.type == selectedUnit)?.range[0]}m</div>
-            <div className="p-2">{lng(lang, 'rate')} {(AllUnits.find(v => v.type == selectedUnit)?.rate as number[])[0]/1000}s</div>
-            <div className="p-2">{lng(lang, 'cost')} {AllUnits.find(v => v.type == selectedUnit)?.cost}c</div>
-            <button className="noshadow p-1 text-white" onClick={e => {
-                setSelectedUnit('')
-            }}>{lng(lang, 'cancel')}</button>
-            <button className={`noshadow p-1 ${coin - (AllUnits.find(v => v.type == selectedUnit)?.cost as number) >= 0 ? 'text-white' : 'text-red-700'}`}
-            onClick={e => {
-                socket.emit('placeUnit', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit})
-                setSelectedUnit('')
-            }}>{lng(lang, 'place')}</button>
-        </div>}
+        })}
+        {selectedPos[0] != -1 && !selectedUnit && units.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) && [''].map((_v, i) => {
+            const selected = units.find(v => v.x == selectedPos[0] && v.y == selectedPos[1])
+            if(!selected) return null;
+            const thisUnit = AllUnits.find(v => v.type == selected.type)
+            if(!thisUnit) return null;
+            const isMaxLvl = thisUnit.upgradeCost.length < selected.lvl;
+            const upgCost = thisUnit.upgradeCost[selected.lvl-1];
+            const canUpgrade = coin >= upgCost;
+            const allUpgCosts = selected.lvl == 1 ? 0 : selected.lvl == 2 ? thisUnit.upgradeCost[0] : thisUnit.upgradeCost.slice(0, selected.lvl-1).reduce((a, b) => a + b)
+            const sellCost = Math.round((thisUnit.cost + allUpgCosts)/2);
+            return <>
+                <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-2 gap-2 box w-38">
+                    <div className="flex flex-row items-center justify-between gap-3">
+                        <img src={`assets/units/${selected.type}.png`} className="w-8 h-8 rounded-md" />
+                        <div>Lv.{selected.lvl}</div>
+                        <div>{lng(lang, selected.type)}</div>
+                    </div>
+                    <div className="p-2">{lng(lang, 'damage')} {thisUnit.damage[selected.lvl-1]}
+                    {!isMaxLvl && ` -> ${thisUnit.damage[selected.lvl]}`}</div>
+                    <div className="p-2">{lng(lang, 'rate')} {(thisUnit.rate as number[])[selected.lvl-1]/1000}s
+                    {!isMaxLvl && ` -> ${(thisUnit.rate as number[])[selected.lvl]/1000}s`}</div>
+                    <div className="p-2">{lng(lang, 'range')} {thisUnit.range[selected.lvl-1]}m
+                    {!isMaxLvl && ` -> ${thisUnit.range[selected.lvl]}m`}</div>
+                    <div className="p-2">{lng(lang, 'bulletSpeed')} {thisUnit.bulletSpeed[selected.lvl-1]}
+                    {!isMaxLvl && ` -> ${thisUnit.bulletSpeed[selected.lvl]}`}</div>
+                    <button className="noshadow p-1" onClick={e => {
+                        socket.emit('sellUnit', {x:selected.x, y:selected.y})
+                    }}>{lng(lang, "sell")} - {sellCost}c</button>
+                    {!isMaxLvl && <button disabled={!canUpgrade} className={`noshadow p-1 ${!canUpgrade && "text-red-700"}`}
+                    onClick={e => {
+                        socket.emit('upgradeUnit', {x:selected.x, y:selected.y})
+                    }}>{lng(lang, "upgrade")} - {upgCost}c</button>}
+                </div>
+            </>
+        })}
         {user.admin && <div className="absolute text-white right-0 bottom-0 flex flex-col font-semibold p-2 gap-2 box">
             <input className="noshadow p-1" type="text" value={text} onChange={e => setText(e.target.value)} />
             <button className="noshadow p-1 text-white" onClick={e => {
@@ -268,7 +320,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         </div>}
         </>:
         <div className="cover" style={{backgroundImage: `url(assets/tiles/grass.png)`}}>
-            <div className="absolute bottom-0 right-0 text-white text-2xl font-bold">{lng(lang, 'loading')}</div>
+            <div className="absolute bottom-0 right-0 text-white text-2xl font-bold">{lng(lang, 'waiting for players')}...</div>
         </div>
         }
     </>)

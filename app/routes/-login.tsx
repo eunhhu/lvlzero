@@ -33,6 +33,7 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
       if(!once) return
       let userId = localStorage.getItem('userId')
       if(userId){
+        setIsFetching(true)
         fetch(`/getUser/type/id/value/${userId}`).then(res => res.json()).then((res:{res:IUser}) => {
           if(res.res){
             tryLogin(res.res)
@@ -49,9 +50,8 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
         fetch(`/getUser/type/username/value/${username}`).then(res => res.json()).then((res:{res:IUser}) => {
             if(res.res){
               if(res.res.password === sha256(password)){
-                setIsFetching(false)
                 localStorage.setItem('userId', res.res.id)
-                setUser(res.res)
+                tryLogin(res.res)
               }else{
                 setIsFetching(false)
                 setError(lng(lang, 'invalid password'))
@@ -76,11 +76,8 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
         return res.json()
       }).then((res:{res:IUser}) => {
         if(res.res){
-          setIsFetching(false)
           localStorage.setItem('userId', res.res.id)
-          setUser(res.res)
-          setSocket(io(socketDomain))
-          set('main')
+          tryLogin(res.res)
         } else {
           setError(lng(lang, 'name already exists'))
           setIsFetching(false)
@@ -95,7 +92,7 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
                 <input type="password" name="" id="" placeholder={lng(lang, 'password')} value={password} onChange={e => {setError('');setPassword(e.target.value)}}/>
                 {state === 'register' && <input type="password" name="" id=""
                 placeholder={lng(lang, 'confirm password')} value={confirmPassword} onChange={e => {setError('');setConfirmPassword(e.target.value)}}/> }
-                <button onClick={e => {
+                <button disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} onClick={e => {
                     if (state === 'login') login()
                     else register()
                 }}>{lng(lang, state)}</button>

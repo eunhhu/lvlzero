@@ -328,6 +328,38 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "en":"Place",
         "ko":"배치"
     },
+    "winrate":{
+        "en":"Win Rate",
+        "ko":"승률"
+    },
+    "edit":{
+        "en":"Edit",
+        "ko":"수정"
+    },
+    "bulletSpeed":{
+        "en":"Bullet Speed",
+        "ko":"총알 속도"
+    },
+    "room list":{
+        "en":"Room List",
+        "ko":"방 리스트"
+    },
+    "waiting for players":{
+        "en":"Waiting For Players",
+        "ko":"플레이어 기다리는 중"
+    },
+    "sell":{
+        "en":"Sell",
+        "ko":"판매"
+    },
+    "upgrade":{
+        "en":"Upgrade",
+        "ko":"업그레이드"
+    },
+    "upgradeCost":{
+        "en":"Upgrade Cost",
+        "ko":"업그레이드 가격"
+    },
 }
 
 export function lng(lang:string, key:string){

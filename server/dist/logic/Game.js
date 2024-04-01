@@ -104,13 +104,13 @@ class Game {
     }
     gameOver() {
         clearInterval(this.loop);
-        this.init();
         this.emit('gameOver', this.level, this.wave);
+        this.init();
     }
     gameComplete() {
         clearInterval(this.loop);
-        this.init();
         this.emit('gameComplete', this.level);
+        this.init();
     }
     tick(delta) {
         if (this.status === "waiting") {
@@ -198,12 +198,15 @@ class Game {
         }
     }
     upgradeUnit(x, y) {
-        const unit = this.units.find(unit => unit.x === x && unit.y === y);
+        let unit = this.units.find(unit => unit.x === x && unit.y === y);
         if (unit) {
             unit.lvl++;
             this.emit('unitUpgraded', unit);
             return unit;
         }
+    }
+    findUnit(x, y) {
+        return this.units.find(unit => unit.x === x && unit.y === y);
     }
     skipWave() {
         if (this.status === "waiting") {
@@ -218,7 +221,7 @@ class Game {
             this.tick(delta);
             this.emit('tick', this.getTickData());
         };
-        this.loop = setInterval(runTick, 10);
+        this.loop = setInterval(runTick, 1000 / 60);
     }
     command(command) {
         const params = command.split(' ');
@@ -243,6 +246,9 @@ class Game {
                 break;
             case 'skipWave':
                 this.skipWave();
+                break;
+            case 'setWave':
+                this.wave = +params[1];
                 break;
             case 'gameOver':
                 this.gameOver();

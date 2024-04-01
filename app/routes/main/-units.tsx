@@ -2,13 +2,36 @@ import {FC, Dispatch, SetStateAction, useEffect, useState} from 'react'
 import { lng } from '~/data/lang'
 import { units } from '~/data/db'
 
-const outAttrs = ['type', 'buy']
+const outAttrs = ['type', 'buy', 'tags']
+const suffix:{[key:string]:string} = {
+    "range":"m",
+    "rate":"s",
+    "cost":"c",
+    "upgradeCost":"c"
+}
 
 const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser>>}> = ({lang, user, setUser}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [selected, setSelected] = useState<string>('')
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [error, setError] = useState<string>('')
+    const [lvl, setLvl] = useState<number>(0)
+
+    const displayValue = (attrs:{[key:string]:any}, key:string):string => {
+        let result = key == 'cost' ? attrs[key] : attrs[key][lvl];
+        if(key == 'rate') result = `${(+result) / 1000}`;
+        const suf = Object.entries(suffix).find(v => v[0] == key);
+        if(suf) result += suf[1];
+        return `${result}`;
+    }
+
+    const changeLvl = (n:number) => {
+        if(n < 0 && lvl < 1) return;
+        const unit = units.find(v => v.type == selected);
+        if(!unit) return;
+        if(n > 0 && lvl >= unit.upgradeCost.length) return;
+        setLvl(lvl + n)
+    }
 
     useEffect(() => {
         setOnce(true)
@@ -18,6 +41,7 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
         if(!once) return
         // here
     }, [once])
+
     return <div className="flex flex-col justify-center items-center w-full fixed top-0" style={{height: `calc(100% - 76px)`}}>
         <div className="w-full flex flex-row gap-2 flex-wrap items-center justify-center overflow-auto p-5" style={{}}>
             {
@@ -52,17 +76,22 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
         }}>
             <div className="box bg-[#000000aa] flex flex-col" style={{width:'80%', height:'70%'}}>
                 <div className="w-full h-full flex flex-col justify-center items-center">
-                    <div className="text-4xl text-white font-bold w-full text-center p-5">{lng(lang, selected)}</div>
+                    <div className="text-4xl text-white font-bold w-full text-center p-5 flex flex-row items-center justify-around">
+                        {selected != 'l' && <button className='pt-0 pb-0 pr-3 pl-3 text-lg' onClick={e => changeLvl(-1)}>&lt;</button>}
+                        <div>{selected != 'l' && `Lv.${lvl+1}`} {lng(lang, selected)}</div>
+                        {selected != 'l' && <button className='pt-0 pb-0 pr-3 pl-3 text-lg' onClick={e => changeLvl(1)}>&gt;</button>}
+                    </div>
                     {selected == 'l' ? <></> : Object.keys(units.find(v => v.type == selected) as {[key:string]:any}).map((v, i) => {
                         if(outAttrs.includes(v)) return null;
+                        if(units.find(v => v.type == selected)?.upgradeCost.length as number <= lvl && v == 'upgradeCost') return null;
                         return <div key={i} className="flex flex-row justify-around items-center w-full p-2 text-center">
                             <div className="flex-1 text-2xl text-white font-bold">{lng(lang, v)}</div>
-                            <div className="flex-1 text-2xl text-white font-bold">{(units.find(v => v.type == selected) as {[key:string]:any})[v]}</div>
+                            <div className="flex-1 text-2xl text-white font-bold">{displayValue(units.find(v => v.type == selected) as {[key:string]:any}, v)}</div>
                         </div>
                     })}
                     {selected !== 'l' && [''].map((v, i) => {
                         let th = (units.find(v => v.type == selected) as {[key:string]:any})
-                        let dps = Math.round(th.damage / (th.rate/1000))
+                        let dps = Math.round(th.damage[lvl] / (th.rate[lvl]/1000))
                         return <div key={i} className="flex flex-row justify-around items-center w-full p-2 text-center">
                             <div className="flex-1 text-2xl text-white font-bold">{lng(lang, 'dps')}</div>
                             <div className="flex-1 text-2xl text-white font-bold">{dps}</div>

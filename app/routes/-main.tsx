@@ -23,7 +23,7 @@ const Main:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             state == 'play' ? <PlayState lang={lang} socket={socket} setRoom={setRoom} user={user} /> :
             state == 'units' ? <UnitsState lang={lang} user={user} setUser={setUser} /> :
             state == 'settings' ? <SettingsState lang={lang} /> :
-            state == 'profile' ? <ProfileState lang={lang} user={user} /> :
+            state == 'profile' ? <ProfileState lang={lang} user={user} setUser={setUser as Dispatch<SetStateAction<IUser|null>>} set={set} /> :
             state == 'rank' ? <RankState lang={lang} /> :
             <></>
         }

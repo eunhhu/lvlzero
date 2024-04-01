@@ -29,7 +29,7 @@ const PlayState:FC<{lang:string; socket:Socket; setRoom:Dispatch<SetStateAction<
     }, [once])
 
     return <div className="flex flex-col justify-center items-center w-full fixed top-0" style={{height: `calc(100% - 76px)`}}>
-        <h1 className="text-4xl text-white font-bold mt-5">IRoom List</h1>
+        <h1 className="text-4xl text-white font-bold mt-5">{lng(lang, "room list")}</h1>
         <div className="w-full flex flex-row gap-1 p-5">
             <button className="w-40" onClick={e => setCreate(true)}>{lng(lang, 'create')}</button>
             <input className="w-full" type="text" name="" id="" placeholder={lng(lang, 'search')} value={search} onChange={e => setSearch(e.target.value)}/>

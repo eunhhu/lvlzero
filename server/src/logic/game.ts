@@ -132,8 +132,13 @@ export class Game{
             if (this.waitingTimer <= 0) {
                 const enems:Enemy[] = levels[this.level - 1].enemies[this.wave].map((enemyType:string) => {
                     const enemyData = enemies.find(enemy => enemy.type === enemyType);
-                    if (!enemyData) return new Enemy(0, 0, 0.05, 100, 'basic', this.path);
-                    return new Enemy(0, 0, enemyData.speed, enemyData.health, enemyType, this.path);
+                    let enemy:Enemy;
+                    if (!enemyData) enemy = new Enemy(0, 0, 0.05, 100, 'basic', this.path);
+                    enemy = new Enemy(0, 0, enemyData.speed, enemyData.health, enemyType, this.path);
+                    enemy.on('dead', (type:string) => {
+                        this.emit('enemyDead', enemies.find(enemy => enemy.type === type).coin);
+                    });
+                    return enemy;
                 });
                 this.startWave(enems);
             }

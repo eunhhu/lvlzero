@@ -193,7 +193,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                             g.drawRect(enemy.x * tileSize - game.size * tileSize/2 + tileSize/2 - tileSize/2, enemy.y * tileSize - game.size * tileSize/2, tileSize, 5);
                             g.endFill();
                             g.beginFill(0x00FF00);
-                            g.drawRect(enemy.x * tileSize - game.size * tileSize/2 + tileSize/2 - tileSize/2, enemy.y * tileSize - game.size * tileSize/2, tileSize * (enemy.health / 100), 5);
+                            g.drawRect(enemy.x * tileSize - game.size * tileSize/2 + tileSize/2 - tileSize/2, enemy.y * tileSize - game.size * tileSize/2, tileSize * (enemy.health / enemy.maxHealth), 5);
                             g.endFill();
                         }} />
                     </>
@@ -217,11 +217,6 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         {titleEvent && <div className="absolute w-full h-full flex justify-center items-center text-white text-4xl top-0 left-0 right-0 text-center font-semibold">
             {lng(lang, titleEvent)}
         </div>}
-        <div className="absolute border-2 border-yellow-300" style={{width:tileSize, height:tileSize,
-        left:selectedPos[0] * tileSize + width/2 - (game.size * tileSize)/2,
-        top:selectedPos[1] * tileSize + height/2 - (game.size * tileSize)/2,
-        backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center',
-        backgroundImage: selectedUnit ? `url("assets/units/${selectedUnit}.png")` : '', opacity:'0.5'}}></div>
         {selectors.map((v, i) => {
             return <div key={i} className="absolute border-2 border-white" style={{width:tileSize, height:tileSize,
             left:v.x * tileSize + width/2 - (game.size * tileSize)/2,
@@ -229,6 +224,15 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center',
             backgroundImage: v.type ? `url("assets/units/${v.type}.png")` : '', opacity:'0.5'}}></div>
         })}
+        <div className="absolute border-2 border-yellow-300" style={{width:tileSize, height:tileSize,
+            left:selectedPos[0] * tileSize + width/2 - (game.size * tileSize)/2,
+            top:selectedPos[1] * tileSize + height/2 - (game.size * tileSize)/2,
+            backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center',
+            backgroundImage: selectedUnit ? `url("assets/units/${selectedUnit}.png")` : '', opacity:'0.5'}}
+            onClick={e => {
+                setSelectedPos([-1, -1])
+                setSelectedUnit('')
+            }}></div>
         <div className="absolute text-white right-0 top-0 flex flex-col font-semibold p-2 gap-2 box text-right">
             <div>{lng(lang, 'wave')} : {wave} / {game.maxWave}</div>
             <div>{lng(lang, 'waitingfornextwave')} : {Math.floor(waiting/1000)}s <button className="noshadow p-1"

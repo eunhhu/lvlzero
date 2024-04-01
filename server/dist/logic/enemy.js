@@ -7,6 +7,7 @@ class Enemy {
     y;
     speed;
     health;
+    maxHealth;
     type;
     path = [];
     event = new events_1.EventEmitter();
@@ -16,6 +17,7 @@ class Enemy {
         this.y = y;
         this.speed = speed;
         this.health = health;
+        this.maxHealth = health;
         this.type = type;
         this.path = [...path];
     }
@@ -42,10 +44,11 @@ class Enemy {
         this.health -= damage;
         if (this.health <= 0) {
             this.dispose(enemies);
+            this.emit('dead', this.type);
         }
     }
     getTickData() {
-        return { x: this.x, y: this.y, health: this.health, type: this.type };
+        return { x: this.x, y: this.y, health: this.health, maxHealth: this.maxHealth, type: this.type };
     }
     dispose(enemies) {
         // Implement logic to dispose of the enemy
@@ -53,6 +56,13 @@ class Enemy {
         if (index !== -1) {
             enemies.splice(index, 1);
         }
+    }
+    emit(event, ...args) {
+        return this.event.emit(event, ...args);
+    }
+    on(event, listener) {
+        this.event.on(event, listener);
+        return this;
     }
 }
 exports.Enemy = Enemy;

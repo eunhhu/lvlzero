@@ -5,6 +5,7 @@ export class Enemy {
     y: number;
     speed: number;
     health: number;
+    maxHealth: number;
     type: string;
 
     path: [number, number][] = [];
@@ -16,6 +17,7 @@ export class Enemy {
         this.y = y;
         this.speed = speed;
         this.health = health;
+        this.maxHealth = health;
         this.type = type;
         this.path = [...path];
     }
@@ -45,11 +47,12 @@ export class Enemy {
         this.health -= damage;
         if (this.health <= 0) {
             this.dispose(enemies);
+            this.emit('dead', this.type);
         }
     }
 
     getTickData(): IEnemyData{
-        return { x: this.x, y: this.y, health: this.health, type: this.type };
+        return { x: this.x, y: this.y, health: this.health, maxHealth:this.maxHealth, type: this.type };
     }
 
     dispose(enemies: Enemy[]): void {
@@ -58,5 +61,14 @@ export class Enemy {
         if (index !== -1) {
             enemies.splice(index, 1);
         }
+    }
+
+    emit(event:string, ...args:any[]): boolean{
+        return this.event.emit(event, ...args);
+    }
+
+    on(event:string, listener:(...args: any[]) => void): this{
+        this.event.on(event, listener);
+        return this;
     }
 }

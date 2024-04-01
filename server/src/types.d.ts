@@ -69,6 +69,7 @@ interface IEnemyData{
     x:number;
     y:number;
     health:number;
+    maxHealth:number;
     type:string;
 }
 

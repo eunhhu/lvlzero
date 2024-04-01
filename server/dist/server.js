@@ -117,6 +117,10 @@ io.on('connection', (socket) => {
                         socket.emit('getRooms', rooms);
                         socket.broadcast.emit('getRooms', rooms);
                     });
+                    room.game.on('enemyDead', (coin) => {
+                        room.users.forEach(user => user.coin += coin);
+                        io.to(room.ownerID).emit('usersUpdate', room.users);
+                    });
                 }
             }
         }
@@ -130,7 +134,9 @@ io.on('connection', (socket) => {
             return;
         user.selection = data;
         let selectors = room.users.map(v => v.selection);
+        let mySelectors = room.users.filter(v => v.socketId != socket.id).map(v => v.selection);
         io.to(room.ownerID).emit('userSelection', selectors);
+        socket.emit('userSelection', mySelectors);
     });
     socket.on('placeUnit', (data) => {
         let room = rooms.find(room => room.users.find(user => user.socketId === socket.id));

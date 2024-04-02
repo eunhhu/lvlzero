@@ -98,21 +98,19 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         
         socket.on('waveComplete', (wave:number) => {
             setWave(wave)
-            activeMotion('text', lng(lang, 'waveComplete'), 3000, [
-                {type:'y', startValue:-height/1.5, endValue:0, duration:1500, delay:0, ease:'easeOutSine'},
-                {type:'y', startValue:0, endValue:height/1.5, duration:1500, delay:1500, ease:'easeInSine'},
-                {type:'rotation', startValue:-Math.PI, endValue:0, duration:1500, delay:0, ease:'easeOutSine'},
-                {type:'rotation', startValue:0, endValue:Math.PI, duration:1500, delay:1500, ease:'easeInSine'}
-            ], {x:0, y:0, rotation:0, scale:1, opacity:1, anchorX:0.5, anchorY:0.5})
+            activeMotion('text', lng(lang, 'waveComplete'), 1500, [
+                {type:'y', startValue:-height/1.5, endValue:0, duration:500, delay:0, ease:'easeOutCubic'},
+                {type:'y', startValue:0, endValue:0, duration:500, delay:500, ease:'linear'},
+                {type:'y', startValue:0, endValue:height/1.5, duration:500, delay:1000, ease:'easeInCubic'},
+            ], {x:0, y:-height, rotation:0, scale:1, opacity:1, anchorX:0.5, anchorY:0.5})
         })
         socket.on('waveStarted', (wave:number) => {
             setWave(wave)
-            activeMotion('text', lng(lang, 'waveStarted'), 3000, [
-                {type:'y', startValue:-height/1.5, endValue:0, duration:1500, delay:0, ease:'easeOutSine'},
-                {type:'y', startValue:0, endValue:height/1.5, duration:1500, delay:1500, ease:'easeInSine'},
-                {type:'rotation', startValue:-Math.PI, endValue:0, duration:1500, delay:0, ease:'easeOutSine'},
-                {type:'rotation', startValue:0, endValue:Math.PI, duration:1500, delay:1500, ease:'easeInSine'}
-            ], {x:0, y:0, rotation:0, scale:1, opacity:1, anchorX:0.5, anchorY:0.5})
+            activeMotion('text', lng(lang, 'waveStarted'), 1500, [
+                {type:'y', startValue:-height/1.5, endValue:0, duration:500, delay:0, ease:'easeOutCubic'},
+                {type:'y', startValue:0, endValue:0, duration:500, delay:500, ease:'linear'},
+                {type:'y', startValue:0, endValue:height/1.5, duration:500, delay:1000, ease:'easeInCubic'},
+            ], {x:0, y:-height, rotation:0, scale:1, opacity:1, anchorX:0.5, anchorY:0.5})
         })
         socket.on('gameOver', (level:number, wave:number) => {
             fetch(`/updateUser/id/${user.id}/level/${level}/wave/${wave}/maxwave/${_game.maxWave}/clear/false`).then(res => res.json()).then((res:{res:IUser}) => {

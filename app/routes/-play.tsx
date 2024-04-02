@@ -1,9 +1,10 @@
-import { Stage, Container, Sprite, Graphics } from "@pixi/react"
+import { Stage, Container, Sprite, Graphics, useApp, Text } from "@pixi/react"
 import { FC, useEffect, useRef, useState } from "react"
 import * as usehooks from "usehooks-ts"
 import * as PIXI from 'pixi.js';
 import { lng } from "~/data/lang"
 import { units as AllUnits } from "~/data/db";
+import { getEase } from "~/data/utils";
 
 const Tilemap: FC<{
     tileset: string;
@@ -40,7 +41,6 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     const [health, setHealth] = useState<number>(0)
     const [wave, setWave] = useState<number>(0)
     const [coin, setCoin] = useState<number>(0)
-    const [titleEvent, setTitleEvent] = useState<string>('')
     const [selectedPos, setSelectedPos] = useState<[number, number]>([-1, -1])
     const [selectedUnit, setSelectedUnit] = useState<string>('')
     const [selectors, setSelectors] = useState<IUserSelectionData[]>([])
@@ -77,14 +77,14 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         })
         socket.on('waveComplete', (wave:number) => {
             setWave(wave)
-            setTitleEvent('wavecomplete')
+            // need to add motion
         })
         socket.on('waveStarted', (wave:number) => {
             setWave(wave)
-            setTitleEvent('wavestarted')
+            // need to add motion
         })
         socket.on('gameOver', (level:number, wave:number) => {
-            setTitleEvent('gameover')
+            // need to add motion
             fetch(`/updateUser/id/${user.id}/level/${level}/wave/${wave}/maxwave/${_game.maxWave}/clear/false`).then(res => res.json()).then((res:{res:IUser}) => {
                 setUser(res.res)
                 set('main')
@@ -93,7 +93,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             })
         })
         socket.on('gameComplete', (level:number) => {
-            setTitleEvent('gamecomplete')
+            // need to add motion
             fetch(`/updateUser/id/${user.id}/level/${level}/wave/${_game.maxWave}/maxwave/${_game.maxWave}/clear/true`).then(res => res.json()).then((res:{res:IUser}) => {
                 setUser(res.res)
                 set('main')
@@ -117,10 +117,43 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         }
     }, [once, socket])
 
-    const activeMotion = (querySelector:string, motions:[]) => {
-        const target = document.querySelector(querySelector);
-        if(!target) return;
-        // need to implement logic to animate the target element
+    const activeMotion = (type:"sprite"|"text", value:string, motion:IMotion, options?:PIXI.TextStyle) => {
+        const game = useApp()
+        let targetSprite:PIXI.Sprite | PIXI.Text | undefined
+        if(type == "sprite"){
+            targetSprite = new PIXI.Sprite(PIXI.Texture.from(value))
+        } else {
+            targetSprite = new PIXI.Text(value, options || {})
+        }
+        if(!targetSprite) return;
+        if(targetSprite == undefined) return;
+        game.stage.addChild(targetSprite)
+        const startTime = Date.now()
+        setTimeout(() => {
+            let loop = setInterval(() => {
+                const now = Date.now()
+                const elapsed = now - startTime
+                if(elapsed > motion.duration) {
+                    clearInterval(loop)
+                    return;
+                }
+                const n = getEase(elapsed/motion.duration, motion.ease)
+                switch(motion.type){
+                    case 'x':
+                        (targetSprite as PIXI.Sprite).x = motion.startValue + (motion.endValue - motion.startValue) * n
+                        break;
+                    case 'y':
+                        (targetSprite as PIXI.Sprite).y = motion.startValue + (motion.endValue - motion.startValue) * n
+                        break;
+                    case 'scale':
+                        (targetSprite as PIXI.Sprite).scale.set(motion.startValue + (motion.endValue - motion.startValue) * n)
+                        break;
+                    case 'rotation':
+                        (targetSprite as PIXI.Sprite).rotation = motion.startValue + (motion.endValue - motion.startValue) * n
+                        break;
+                }
+            }, 1000/60)
+        }, motion.delay)
     }
 
     useEffect(() => {
@@ -150,14 +183,6 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         if(!game) return
         setTileSize(Math.min(width, height) / game.size)
     }, [game, width, height])
-
-    useEffect(() => {
-        if(titleEvent){
-            setTimeout(() => {
-                setTitleEvent('')
-            }, 2000);
-        }
-    }, [titleEvent])
 
     return (<>
         {game ? <><Stage width={width} height={height}>
@@ -218,11 +243,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                         />
                     );
                 })}
+                <Text></Text>
             </Container>
         </Stage>
-        {titleEvent && <div className="absolute w-full h-full flex justify-center items-center text-white text-4xl top-0 left-0 right-0 text-center font-semibold">
-            {lng(lang, titleEvent)}
-        </div>}
         {selectors.map((v, i) => {
             return <div key={i} className="absolute border-2 border-white" style={{width:tileSize, height:tileSize,
             left:v.x * tileSize + width/2 - (game.size * tileSize)/2,

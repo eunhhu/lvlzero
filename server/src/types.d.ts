@@ -109,3 +109,13 @@ interface IEnemy{
 interface ILevel{
     enemies:string[][];
 }
+
+interface IMotion{
+    delay:number; // ms
+    duration:number; // ms
+    type:mothionType; // x, y, scale, rotation
+    ease:string; // linear, easeIn, easeOut, easeInOut
+    startValue:number; // x, y, scale, rotation
+    endValue:number; // x, y, scale, rotation
+}
+type mothionType = 'x' | 'y' | 'scale' | 'rotation';

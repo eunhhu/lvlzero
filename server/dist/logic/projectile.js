@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Projectile = void 0;
+const events_1 = require("events");
 class Projectile {
     x;
     y;
@@ -8,6 +9,7 @@ class Projectile {
     damage;
     speed;
     type;
+    event = new events_1.EventEmitter();
     constructor(x, y, angle, damage, speed, type) {
         this.x = x;
         this.y = y;
@@ -26,6 +28,7 @@ class Projectile {
             if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 1 /* assuming size of hitbox */) {
                 enemy.takeDamage(this.damage, enemies);
                 // Assuming projectile is destroyed on hit, otherwise implement logic for that
+                this.emit('motion-hit', this.type, this.x, this.y);
                 this.dispose(projectiles);
                 break;
             }
@@ -43,6 +46,13 @@ class Projectile {
     }
     isOutOfBounds(size) {
         return this.x < 0 || this.x > size || this.y < 0 || this.y > size;
+    }
+    emit(event, ...args) {
+        return this.event.emit(event, ...args);
+    }
+    on(event, listener) {
+        this.event.on(event, listener);
+        return this;
     }
 }
 exports.Projectile = Projectile;

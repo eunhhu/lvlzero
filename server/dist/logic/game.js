@@ -62,7 +62,6 @@ class Game {
     init(lvl = 1) {
         this.lastTick = Date.now();
         this.level = lvl;
-        console.log('init', lvl);
         this.maxWave = db_1.levels[lvl - 1].enemies.length;
         this.health = 1000;
         this.units = [];
@@ -123,6 +122,9 @@ class Game {
                     enemy = new enemy_1.Enemy(0, 0, enemyData.speed, enemyData.health, enemyType, this.path);
                     enemy.on('dead', (type) => {
                         this.emit('enemyDead', db_1.enemies.find(enemy => enemy.type === type).coin);
+                    });
+                    enemy.on('motion-killed', (x, y) => {
+                        this.emit('motion', `enemyKilled-${enemy.type}`, x, y);
                     });
                     return enemy;
                 });
@@ -194,6 +196,12 @@ class Game {
         }
         const unitData = db_1.units.find(unit => unit.type === unitType);
         const newUnit = new unit_1.Unit(x, y, unitData.damage, unitData.rate, unitData.range, unitData.bulletSpeed, unitData.upgradeCost, unitData.cost, unitData.tags, unitType, 1);
+        newUnit.on('motion-hit', (type, x, y) => {
+            this.emit('motion', `projHit-${type}`, x, y);
+        });
+        newUnit.on('motion-fire', (type, x, y) => {
+            this.emit('motion', `unitFire-${type}`, x, y);
+        });
         this.units.push(newUnit);
         this.emit('unitPlaced', newUnit);
         return newUnit;

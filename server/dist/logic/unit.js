@@ -41,9 +41,14 @@ class Unit {
             return distance <= this.getCurStat().range;
         });
         if (target) {
+            this.emit('motion-fire', this.type, this.x, this.y);
             // Calculate angle towards target
             const angle = Math.atan2(target.y - this.y, target.x - this.x);
-            projectiles.push(new projectile_1.Projectile(this.x, this.y, angle, this.getCurStat().damage, this.getCurStat().bulletSpeed, this.type));
+            const proj = new projectile_1.Projectile(this.x, this.y, angle, this.getCurStat().damage, this.getCurStat().bulletSpeed, this.type);
+            proj.on('motion-hit', (type, x, y) => {
+                this.emit('motion-hit', type, x, y);
+            });
+            projectiles.push(proj);
             this.cooldown = this.getCurStat().rate;
         }
     }
@@ -58,6 +63,13 @@ class Unit {
             bulletSpeed: this.bulletSpeed[this.lvl - 1],
             upgradeCost: this.upgradeCost[this.lvl - 1]
         };
+    }
+    emit(event, ...args) {
+        return this.event.emit(event, ...args);
+    }
+    on(event, listener) {
+        this.event.on(event, listener);
+        return this;
     }
 }
 exports.Unit = Unit;

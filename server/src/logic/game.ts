@@ -68,7 +68,6 @@ export class Game{
     init(lvl:number = 1){
         this.lastTick = Date.now();
         this.level = lvl;
-        console.log('init', lvl);
         this.maxWave = levels[lvl - 1].enemies.length;
         this.health = 1000;
         this.units = [];
@@ -114,19 +113,19 @@ export class Game{
         }
     }
 
-    gameOver(){
+    gameOver():void {
         clearInterval(this.loop);
         this.emit('gameOver', this.level, this.wave);
         this.init();
     }
 
-    gameComplete(){
+    gameComplete():void {
         clearInterval(this.loop);
         this.emit('gameComplete', this.level);
         this.init();
     }
 
-    tick(delta: number) {
+    tick(delta: number):void {
         if (this.status === "waiting") {
             this.waitingTimer -= delta;
             if (this.waitingTimer <= 0) {

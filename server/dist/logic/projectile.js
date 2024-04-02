@@ -8,14 +8,16 @@ class Projectile {
     angle;
     damage;
     speed;
+    tags;
     type;
     event = new events_1.EventEmitter();
-    constructor(x, y, angle, damage, speed, type) {
+    constructor(x, y, angle, damage, speed, tags, type) {
         this.x = x;
         this.y = y;
         this.angle = angle;
         this.damage = damage;
         this.speed = speed;
+        this.tags = tags;
         this.type = type;
     }
     tick(delta, enemies, projectiles) {
@@ -26,8 +28,17 @@ class Projectile {
         // Check collision with enemies
         for (let enemy of enemies) {
             if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 1 /* assuming size of hitbox */) {
-                enemy.takeDamage(this.damage, enemies);
-                // Assuming projectile is destroyed on hit, otherwise implement logic for that
+                let debuffs = [];
+                for (let tag of this.tags.filter(tag => tag.split('-')[0] === 'debuff')) {
+                    const main = tag.split('-')[1];
+                    const type = main.split(':')[0];
+                    const duration = +(main.split(':')[1]);
+                    let value = +(main.split(':')[2]);
+                    if (type === 'poison' || type === 'fire')
+                        value = value * this.damage;
+                    debuffs.push({ type, duration, value });
+                }
+                enemy.takeDamage(this.damage, debuffs, enemies);
                 this.emit('motion-hit', this.type, this.x, this.y);
                 this.dispose(projectiles);
                 break;

@@ -61,6 +61,7 @@ interface IGameTickData{
 interface IUnitData{
     x:number;
     y:number;
+    angle:number;
     type:string;
     lvl:number;
 }
@@ -70,6 +71,7 @@ interface IEnemyData{
     y:number;
     health:number;
     maxHealth:number;
+    status:string[];
     type:string;
 }
 
@@ -113,9 +115,44 @@ interface ILevel{
 interface IMotion{
     delay:number; // ms
     duration:number; // ms
-    type:mothionType; // x, y, scale, rotation
+    type:motionType; // x, y, scale, rotation
     ease:string; // linear, easeIn, easeOut, easeInOut
     startValue:number; // x, y, scale, rotation
     endValue:number; // x, y, scale, rotation
 }
-type mothionType = 'x' | 'y' | 'scale' | 'rotation';
+type motionType = 'x' | 'y' | 'scale' | 'rotation' | 'opacity' | 'anchorX' | 'anchorY';
+
+interface ISpriteAnimation{
+    start:number; // Date.now()
+    value:string; // sprite source
+    duration:number; // ms
+    motions:IMotion[];
+    defaultOptions:IDefaultOptions;
+}
+
+interface ITextAnimation{
+    start:number; // Date.now()
+    value:string; // text
+    duration:number; // ms
+    motions:IMotion[];
+    defaultOptions:IDefaultOptions;
+    options:PIXI.TextStyle;
+}
+
+interface IDefaultOptions{
+    x:number;
+    y:number;
+    scale:number;
+    rotation:number;
+    opacity:number;
+    anchorX:number;
+    anchorY:number;
+}
+
+interface IDebuff{
+    type:string;
+    duration:number;
+    value:number;
+}
+
+type DebuffType = 'fire' | 'slow' | 'poison' | 'bleed' | 'stun';

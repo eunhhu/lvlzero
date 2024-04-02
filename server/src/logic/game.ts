@@ -144,11 +144,10 @@ export class Game{
                 });
                 this.startWave(enems);
             }
-        } else { 
-            // 적 이동
+        } else { // 게임이 진행 중일 때
+            // 적 업데이트
             this.enemies.forEach(enemy => {
-                // 예시 목적으로 단순화된 경로 이동 구현
-                enemy.move(delta);
+                enemy.tick(delta, this.enemies);
             });
 
             // 유닛 및 발사체 업데이트
@@ -282,12 +281,22 @@ export class Game{
         const commander = params[0];
         switch(commander){
             case 'place':
+                if(params.length < 4) return;
+                if(+params[1] < 0 || +params[1] >= this.size || isNaN(+params[1])) return;
+                if(+params[2] < 0 || +params[2] >= this.size || isNaN(+params[2])) return;
+                if(!units.find(unit => unit.type === params[3])) return;
                 this.placeUnit(parseInt(params[1]), parseInt(params[2]), params[3]);
                 break;
             case 'sell':
+                if(params.length < 3) return;
+                if(+params[1] < 0 || +params[1] >= this.size || isNaN(+params[1])) return;
+                if(+params[2] < 0 || +params[2] >= this.size || isNaN(+params[2])) return;
                 this.sellUnit(parseInt(params[1]), parseInt(params[2]));
                 break;
             case 'upgrade':
+                if(params.length < 3) return;
+                if(+params[1] < 0 || +params[1] >= this.size || isNaN(+params[1])) return;
+                if(+params[2] < 0 || +params[2] >= this.size || isNaN(+params[2])) return;
                 this.upgradeUnit(parseInt(params[1]), parseInt(params[2]));
                 break;
             case 'completeWave':
@@ -302,7 +311,14 @@ export class Game{
                 this.skipWave();
                 break;
             case 'setWave':
+                if(params.length < 2) return;
+                if(+params[1] < 0) return;
+                if(+params[1] > this.maxWave) return;
+                if(isNaN(+params[1])) return;
                 this.wave = +params[1];
+                break;
+            case 'killAll':
+                this.enemies = [];
                 break;
             case 'gameOver':
                 this.gameOver();
@@ -312,6 +328,12 @@ export class Game{
                 break;
             case 'emit':
                 this.emit(params[1], ...params.slice(2));
+                break;
+            case 'giveCoin':
+                if(params.length < 2) return;
+                if(+params[1] < 0) return;
+                if(isNaN(+params[1])) return;
+                this.emit('coin', +params[1]);
                 break;
             default:
                 break;

@@ -3,7 +3,7 @@ export const units:IUnit[] = [
         type: 'stone-catapult',
         damage: [20, 25, 35, 55, 95],
         rate: [1500, 1400, 1300, 1200, 1100],
-        range: [5, 5.5, 6, 6.5, 7],
+        range: [5, 6, 7, 8, 9],
         bulletSpeed: [0.3, 0.35, 0.4, 0.45, 0.5],
         cost: 100,
         upgradeCost: [50, 100, 200, 400],
@@ -14,12 +14,12 @@ export const units:IUnit[] = [
         type: 'ice-catapult',
         damage: [15, 20, 30, 50, 90],
         rate: [1200, 1150, 1100, 1050, 1000],
-        range: [5.5, 6, 6.5, 7, 7.5],
+        range: [5.5, 6.5, 7.5, 8.5, 9.5],
         bulletSpeed: [0.2, 0.25, 0.3, 0.35, 0.4],
         cost: 120,
         upgradeCost: [60, 120, 240, 480],
         buy: 900,
-        tags: ['catapult', 'ice-3']
+        tags: ['catapult', 'debuff-slow:3000:0.7']
     },
     {
         type: 'mini-cannon',
@@ -52,7 +52,7 @@ export const units:IUnit[] = [
         cost: 190,
         upgradeCost: [95, 190, 380, 760],
         buy: 2600,
-        tags: ['cannon', 'splash-2']
+        tags: ['cannon', 'splash:2']
     },
     {
         type: 'charge-cannon',
@@ -96,11 +96,11 @@ export const units:IUnit[] = [
         cost: 180,
         upgradeCost: [90, 180, 360, 720],
         buy: 2900,
-        tags: ['turret', 'splash-1']
+        tags: ['turret', 'splash:1']
     },
     {
         type: 'laser-turret',
-        damage: [20, 30, 50, 80, 150],
+        damage: [20, 30, 50, 80, 120],
         rate: [500, 450, 400, 350, 300],
         range: [5, 5.5, 6, 6.5, 7],
         bulletSpeed: [1, 1, 1, 1, 1],
@@ -129,7 +129,7 @@ export const units:IUnit[] = [
         cost: 170,
         upgradeCost: [85, 170, 340, 680],
         buy: 1400,
-        tags: ['ballista', 'fire-2']
+        tags: ['ballista', 'debuff-fire:2000:0.1']
     },
     {
         type: 'poison-ballista',
@@ -140,7 +140,7 @@ export const units:IUnit[] = [
         cost: 200,
         upgradeCost: [100, 200, 400, 800],
         buy: 3300,
-        tags: ['ballista', 'poison-5']
+        tags: ['ballista', 'debuff-poison:2000:0.1']
     }
 ]
 

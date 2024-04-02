@@ -28,7 +28,7 @@ io.on('connection', (socket) => {
     console.log('a user connected');
 
     socket.on('getRooms', () => {
-        socket.emit('getRooms', rooms);
+        socket.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
     })
 
     socket.on('createRoom', (data:{name:string;maxUsers:number;private:boolean;user:IUser}) => {
@@ -45,7 +45,7 @@ io.on('connection', (socket) => {
         rooms.push(room);
         socket.join(room.ownerID);
         socket.emit('roomCreated', room);
-        socket.broadcast.emit('getRooms', rooms);
+        socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
     })
 
     socket.on('joinRoom', (data:{ownerId:string;user:IUser}) => {
@@ -56,7 +56,7 @@ io.on('connection', (socket) => {
                 socket.emit('roomJoined', room);
                 io.to(room.ownerID).emit('userJoined', room.users);
                 socket.join(room.ownerID);
-                socket.broadcast.emit('getRooms', rooms);
+                socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
             }
         }
     })
@@ -68,12 +68,12 @@ io.on('connection', (socket) => {
                 rooms = rooms.filter(room => room.ownerID !== socket.id);
                 io.to(room.ownerID).emit('roomDeleted');
                 io.to(room.ownerID).socketsLeave(room.ownerID);
-                socket.broadcast.emit('getRooms', rooms);
+                socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
             } else {
                 room.users = room.users.filter(user => user.id !== data.user.id);
                 io.to(room.ownerID).emit('userLeft', room.users);
                 socket.leave(room.ownerID);
-                socket.broadcast.emit('getRooms', rooms);
+                socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
             }
             socket.emit('roomLeft');
         }
@@ -86,7 +86,8 @@ io.on('connection', (socket) => {
             room.status = 'playing';
             io.to(room.ownerID).emit('gameStarted');
         }
-        socket.broadcast.emit('getRooms', rooms);
+        socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
+        console.log(rooms);
     })
 
     socket.on('ready', (user:IUser) => {
@@ -130,6 +131,10 @@ io.on('connection', (socket) => {
                     })
                     room.game.on('motion', (type:string, x:number, y:number) => {
                         io.to(room.ownerID).emit('motion', type, x, y);
+                    })
+                    room.game.on('coin', (coin:number) => {
+                        room.users.forEach(user => user.coin += coin);
+                        io.to(room.ownerID).emit('usersUpdate', room.users);
                     })
                 }
             }
@@ -225,13 +230,13 @@ io.on('connection', (socket) => {
         if(room){
             rooms = rooms.filter(room => room.ownerID !== socket.id);
             io.to(room.ownerID).emit('roomDeleted');
-            socket.broadcast.emit('getRooms', rooms);
+            socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
         }
         room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
         if(room){
             room.users = room.users.filter(user => user.socketId !== socket.id);
             io.to(room.ownerID).emit('userLeft', room.users);
-            socket.broadcast.emit('getRooms', rooms);
+            socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
         }
     });
 

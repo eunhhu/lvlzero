@@ -8,23 +8,33 @@ import { getEase } from "~/data/utils";
 
 const Tilemap: FC<{
     tileset: string;
+    notileset: string;
     tilemapData: [number, number][];
     tileSize: number;
     size: number;
-  }> = ({ tileset, tilemapData, tileSize, size }) => {
+  }> = ({ tileset, notileset, tilemapData, tileSize, size }) => {
 
-    return tilemapData.map((tile, index) => {
-        return (
-            <Sprite
-                key={index}
-                x={tile[0] * tileSize - size * tileSize/2}
-                y={tile[1] * tileSize - size * tileSize/2}
-                texture={PIXI.Texture.from(tileset)}
+    const noPathData = Array.from({length: size}, (_, i) => Array.from({length: size}, (_, j) => [j, i]))
+
+    return (
+      <>
+        {noPathData.map((row, i) => {
+          return row.map((tile, j) => {
+            return (
+              <Sprite
+                key={`${i}-${j}`}
+                x={j * tileSize - size * tileSize / 2 + tileSize / 2}
+                y={i * tileSize - size * tileSize / 2 + tileSize / 2}
+                texture={tilemapData.find(v => v[0] == j && v[1] == i) ? PIXI.Texture.from(tileset) : PIXI.Texture.from(notileset)}
                 width={tileSize}
                 height={tileSize}
-            />
-        );
-    });
+                anchor={0.5}
+              />
+            );
+          });
+        })}
+      </>
+    );
 };
 
 const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
@@ -45,6 +55,13 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     const [selectedUnit, setSelectedUnit] = useState<string>('')
     const [selectors, setSelectors] = useState<IUserSelectionData[]>([])
     const [text, setText] = useState<string>('')
+    const [motionSprites, setMotionSprites] = useState<ISpriteAnimation[]>([])
+    const [motionTexts, setMotionTexts] = useState<ITextAnimation[]>([])
+    const [spriteQueue, setSpriteQueue] = useState<ISpriteAnimation>()
+    const [textQueue, setTextQueue] = useState<ITextAnimation>()
+    const [timeline, setTimeline] = useState<number>(Date.now())
+    const [viewport, setViewport] = useState<[number, number]>([0, 0])
+    const [zoom, setZoom] = useState<number>(1)
 
     useEffect(() => {
         setOnce(true)
@@ -75,16 +92,29 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         socket.on('roomDeleted', () => {
             set('main')
         })
+        socket.on('userSelection', (data:IUserSelectionData[]) => {
+            setSelectors(data.filter(d => d.x != selectedPos[0] && d.y != selectedPos[1]))
+        })
+        
         socket.on('waveComplete', (wave:number) => {
             setWave(wave)
-            // need to add motion
+            activeMotion('text', lng(lang, 'waveComplete'), 3000, [
+                {type:'y', startValue:-height/1.5, endValue:0, duration:1500, delay:0, ease:'easeOutSine'},
+                {type:'y', startValue:0, endValue:height/1.5, duration:1500, delay:1500, ease:'easeInSine'},
+                {type:'rotation', startValue:-Math.PI, endValue:0, duration:1500, delay:0, ease:'easeOutSine'},
+                {type:'rotation', startValue:0, endValue:Math.PI, duration:1500, delay:1500, ease:'easeInSine'}
+            ], {x:0, y:0, rotation:0, scale:1, opacity:1, anchorX:0.5, anchorY:0.5})
         })
         socket.on('waveStarted', (wave:number) => {
             setWave(wave)
-            // need to add motion
+            activeMotion('text', lng(lang, 'waveStarted'), 3000, [
+                {type:'y', startValue:-height/1.5, endValue:0, duration:1500, delay:0, ease:'easeOutSine'},
+                {type:'y', startValue:0, endValue:height/1.5, duration:1500, delay:1500, ease:'easeInSine'},
+                {type:'rotation', startValue:-Math.PI, endValue:0, duration:1500, delay:0, ease:'easeOutSine'},
+                {type:'rotation', startValue:0, endValue:Math.PI, duration:1500, delay:1500, ease:'easeInSine'}
+            ], {x:0, y:0, rotation:0, scale:1, opacity:1, anchorX:0.5, anchorY:0.5})
         })
         socket.on('gameOver', (level:number, wave:number) => {
-            // need to add motion
             fetch(`/updateUser/id/${user.id}/level/${level}/wave/${wave}/maxwave/${_game.maxWave}/clear/false`).then(res => res.json()).then((res:{res:IUser}) => {
                 setUser(res.res)
                 set('main')
@@ -101,60 +131,44 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                 console.log(e)
             })
         })
-        socket.on('userSelection', (data:IUserSelectionData[]) => {
-            setSelectors(data.filter(d => d.x != selectedPos[0] && d.y != selectedPos[1]))
-        })
+
+        let timelineloop = setInterval(() => {
+            setTimeline(Date.now())
+        }, 1000/60)
         return () => {
             socket.off('gameInit')
             socket.off('userInit')
             socket.off('gameUpdate')
             socket.off('roomDeleted')
+            socket.off('userSelection')
             socket.off('gameOver')
             socket.off('waveComplete')
             socket.off('waveStarted')
             socket.off('gameComplete')
-            socket.off('userSelection')
+            clearInterval(timelineloop)
         }
     }, [once, socket])
 
-    const activeMotion = (type:"sprite"|"text", value:string, motion:IMotion, options?:PIXI.TextStyle) => {
-        const game = useApp()
-        let targetSprite:PIXI.Sprite | PIXI.Text | undefined
+    const activeMotion = (type:"sprite"|"text", value:string, duration:number, motions:IMotion[], defaultOptions:IDefaultOptions, options?:PIXI.TextStyle) => {
         if(type == "sprite"){
-            targetSprite = new PIXI.Sprite(PIXI.Texture.from(value))
+            setSpriteQueue({start:Date.now(), value, duration, motions, defaultOptions})
         } else {
-            targetSprite = new PIXI.Text(value, options || {})
+            setTextQueue({start:Date.now(), value, duration, motions, defaultOptions, options:options ||
+                {fill:0xFFFFFF, fontSize:96, fontFamily:'Arial', align:'center', dropShadow:true, dropShadowBlur:10, dropShadowAngle:0, dropShadowDistance:0}})
         }
-        if(!targetSprite) return;
-        if(targetSprite == undefined) return;
-        game.stage.addChild(targetSprite)
-        const startTime = Date.now()
-        setTimeout(() => {
-            let loop = setInterval(() => {
-                const now = Date.now()
-                const elapsed = now - startTime
-                if(elapsed > motion.duration) {
-                    clearInterval(loop)
-                    return;
-                }
-                const n = getEase(elapsed/motion.duration, motion.ease)
-                switch(motion.type){
-                    case 'x':
-                        (targetSprite as PIXI.Sprite).x = motion.startValue + (motion.endValue - motion.startValue) * n
-                        break;
-                    case 'y':
-                        (targetSprite as PIXI.Sprite).y = motion.startValue + (motion.endValue - motion.startValue) * n
-                        break;
-                    case 'scale':
-                        (targetSprite as PIXI.Sprite).scale.set(motion.startValue + (motion.endValue - motion.startValue) * n)
-                        break;
-                    case 'rotation':
-                        (targetSprite as PIXI.Sprite).rotation = motion.startValue + (motion.endValue - motion.startValue) * n
-                        break;
-                }
-            }, 1000/60)
-        }, motion.delay)
     }
+
+    useEffect(() => {
+        if(!spriteQueue) return
+        setMotionSprites([...motionSprites, spriteQueue])
+        setSpriteQueue(undefined)
+    }, [spriteQueue, motionSprites])
+
+    useEffect(() => {
+        if(!textQueue) return
+        setMotionTexts([...motionTexts, textQueue])
+        setTextQueue(undefined)
+    }, [textQueue, motionTexts])
 
     useEffect(() => {
         if(!game) return
@@ -189,6 +203,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             <Container pivot={[-width/2, -height/2]}>
                 <Tilemap
                     tileset="assets/tiles/grass.png"
+                    notileset="assets/tiles/dirt.png"
                     tilemapData={game.path}
                     tileSize={tileSize}
                     size={game.size}
@@ -199,6 +214,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                             key={index}
                             x={unit.x * tileSize - game.size * tileSize/2 + tileSize/2}
                             y={unit.y * tileSize - game.size * tileSize/2 + tileSize/2}
+                            angle={unit.angle / Math.PI * 180}
                             texture={PIXI.Texture.from(`assets/units/${unit.type}.png`)}
                             width={tileSize}
                             height={tileSize}
@@ -215,6 +231,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                             texture={PIXI.Texture.from(`assets/enemies/${enemy.type}.webp`)}
                             width={tileSize}
                             height={tileSize}
+                            tint={enemy.status.includes('slow') ? 0x0000FF : 0xFFFFFF}
                             anchor={0.5}
                         />
                         <Graphics draw={g => {
@@ -243,7 +260,59 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                         />
                     );
                 })}
-                <Text></Text>
+                {motionSprites.map((animation, index) => {
+                    let delta = timeline - animation.start
+                    if(delta > animation.duration){
+                        setMotionSprites(motionSprites.filter((_, i) => i != index))
+                        return null
+                    }
+                    let props:{[key:string]:number} = {
+                        x:animation.defaultOptions.x,
+                        y:animation.defaultOptions.y,
+                        rotation:animation.defaultOptions.rotation,
+                        scale:animation.defaultOptions.scale,
+                        opacity:animation.defaultOptions.opacity,
+                        anchorX: animation.defaultOptions.anchorX,
+                        anchorY: animation.defaultOptions.anchorY
+                    }
+                    animation.motions.forEach(motion => {
+                        if(delta < motion.delay) return;
+                        if(delta > motion.delay + motion.duration) return;
+                        let progress = (delta - motion.delay) / motion.duration
+                        progress = getEase(progress, motion.ease)
+                        let value = motion.startValue + (motion.endValue - motion.startValue) * progress
+                        props[motion.type] = value;
+                    })
+                    return <Sprite key={index} texture={PIXI.Texture.from(animation.value)}
+                    x={props.x} y={props.y} rotation={props.rotation}
+                    scale={props.scale} alpha={props.opacity} anchor={[props.anchorX, props.anchorY]} />
+                })}
+                {motionTexts.map((animation, index) => {
+                    let delta = timeline - animation.start
+                    if(delta > animation.duration){
+                        setMotionTexts(motionTexts.filter((_, i) => i != index))
+                        return null
+                    }
+                    let props:{[key:string]:number} = {
+                        x:animation.defaultOptions.x,
+                        y:animation.defaultOptions.y,
+                        rotation:animation.defaultOptions.rotation,
+                        scale:animation.defaultOptions.scale,
+                        opacity:animation.defaultOptions.opacity,
+                        anchorX: animation.defaultOptions.anchorX,
+                        anchorY: animation.defaultOptions.anchorY
+                    }
+                    animation.motions.forEach(motion => {
+                        if(delta < motion.delay) return;
+                        if(delta > motion.delay + motion.duration) return;
+                        let progress = (delta - motion.delay) / motion.duration
+                        progress = getEase(progress, motion.ease)
+                        let value = motion.startValue + (motion.endValue - motion.startValue) * progress
+                        props[motion.type] = value;
+                    })
+                    return <Text key={index} text={animation.value} x={props.x} y={props.y} rotation={props.rotation}
+                    scale={props.scale} alpha={props.opacity} anchor={[props.anchorX, props.anchorY]} style={animation.options} />
+                })}
             </Container>
         </Stage>
         {selectors.map((v, i) => {

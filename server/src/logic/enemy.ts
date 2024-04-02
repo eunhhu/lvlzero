@@ -10,7 +10,7 @@ export class Enemy {
 
     path: [number, number][] = [];
     event:EventEmitter = new EventEmitter();
-    status:string[] = [];
+    debuffs:IDebuff[] = [];
 
     constructor(x: number, y: number, speed: number, health: number, type: string, path: [number, number][]) {
         this.x = x;
@@ -22,8 +22,32 @@ export class Enemy {
         this.path = [...path];
     }
 
+    tick(delta:number, enemies:Enemy[]): void {
+        this.move(delta);
+
+        // Check for debuffs
+        for (let debuff of this.debuffs) {
+            debuff.duration -= delta;
+            if (debuff.duration <= 0) {
+                this.debuffs = this.debuffs.filter(v => v !== debuff);
+            }
+            if (debuff.type === 'poison') {
+                this.health -= debuff.value * delta / 1000;
+            }
+        }
+        if(this.debuffs.some(v => v.type === 'fire')){
+            this.health -= this.debuffs.filter(v => v.type === 'fire').sort((a, b) => b.value - a.value)[0].value * delta / 1000;
+        }
+        if(this.debuffs.some(v => v.type === 'bleed')){
+            this.health -= this.maxHealth * this.debuffs.filter(v => v.type === 'bleed').sort((a, b) => b.value - a.value)[0].value * delta / 1000;
+        }
+        if (this.health <= 0) {
+            this.die(enemies);
+        }
+    }
     // Method to move the enemy along the path
     move(delta:number): void {
+        if (this.debuffs.some(v => v.type === 'stun')) return;
         if (this.path.length === 0) return;
 
         const [nextX, nextY] = this.path[0];
@@ -31,7 +55,10 @@ export class Enemy {
         const dy = nextY - this.y;
         const distance = Math.hypot(dx, dy);
 
-        const speed = this.speed * delta / 100;
+        let speed = this.speed * delta / 100;
+        if (this.debuffs.some(v => v.type === 'slow')) {
+            speed *= this.debuffs.filter(v => v.type === 'slow').sort((a, b) => a.value - b.value)[0].value;
+        }
 
         if (distance <= speed) {
             this.x = nextX;
@@ -43,16 +70,21 @@ export class Enemy {
         }
     }
 
-    takeDamage(damage: number, enemies:Enemy[]): void {
+    takeDamage(damage: number, debuffs:IDebuff[], enemies:Enemy[]): void {
         this.health -= damage;
+        this.debuffs.push(...debuffs);
         if (this.health <= 0) {
-            this.dispose(enemies);
-            this.emit('dead', this.type);
+            this.die(enemies);
         }
     }
 
     getTickData(): IEnemyData{
-        return { x: this.x, y: this.y, health: this.health, maxHealth:this.maxHealth, type: this.type };
+        return { x: this.x, y: this.y, health: this.health, maxHealth:this.maxHealth, status:this.debuffs.map(v => v.type), type: this.type };
+    }
+
+    die(enemies:Enemy[]): void {
+        this.dispose(enemies);
+        this.emit('dead', this.type);
     }
 
     dispose(enemies: Enemy[]): void {

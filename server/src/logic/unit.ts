@@ -15,6 +15,7 @@ export class Unit {
     type: string;
     lvl: number;
     cooldown: number = 0; // To manage firing rate
+    angle: number = 0;
 
     event:EventEmitter = new EventEmitter();
 
@@ -48,7 +49,8 @@ export class Unit {
             this.emit('motion-fire', this.type, this.x, this.y)
             // Calculate angle towards target
             const angle = Math.atan2(target.y - this.y, target.x - this.x);
-            const proj = new Projectile(this.x, this.y, angle, this.getCurStat().damage, this.getCurStat().bulletSpeed, this.type)
+            this.angle = angle;
+            const proj = new Projectile(this.x, this.y, angle, this.getCurStat().damage, this.getCurStat().bulletSpeed, this.tags, this.type)
             proj.on('motion-hit', (type:string, x:number, y:number) => {
                 this.emit('motion-hit', type, x, y);
             });
@@ -58,7 +60,7 @@ export class Unit {
     }
 
     getTickData(): IUnitData{
-        return { x: this.x, y: this.y, type: this.type, lvl: this.lvl };
+        return { x: this.x, y: this.y, angle:this.angle, type: this.type, lvl: this.lvl };
     }
 
     getCurStat() {

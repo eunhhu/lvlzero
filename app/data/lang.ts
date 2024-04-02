@@ -360,6 +360,22 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "en":"Upgrade Cost",
         "ko":"업그레이드 가격"
     },
+    "waveStarted":{
+        "en":"Wave Started",
+        "ko":"웨이브 시작"
+    },
+    "waveComplete":{
+        "en":"Wave Complete",
+        "ko":"웨이브 클리어"
+    },
+    "gameComplete":{
+        "en":"Victory",
+        "ko":"클리어"
+    },
+    "gameOver":{
+        "en":"Game Over",
+        "ko":"게임 오버"
+    },
 }
 
 export function lng(lang:string, key:string){

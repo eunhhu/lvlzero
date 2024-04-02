@@ -45,9 +45,14 @@ export class Unit {
         });
 
         if (target) {
+            this.emit('motion-fire', this.type, this.x, this.y)
             // Calculate angle towards target
             const angle = Math.atan2(target.y - this.y, target.x - this.x);
-            projectiles.push(new Projectile(this.x, this.y, angle, this.getCurStat().damage, this.getCurStat().bulletSpeed, this.type));
+            const proj = new Projectile(this.x, this.y, angle, this.getCurStat().damage, this.getCurStat().bulletSpeed, this.type)
+            proj.on('motion-hit', (type:string, x:number, y:number) => {
+                this.emit('motion-hit', type, x, y);
+            });
+            projectiles.push(proj);
             this.cooldown = this.getCurStat().rate;
         }
     }
@@ -64,5 +69,14 @@ export class Unit {
             bulletSpeed: this.bulletSpeed[this.lvl-1],
             upgradeCost: this.upgradeCost[this.lvl-1]
         }
+    }
+
+    emit(event:string, ...args:any[]): boolean{
+        return this.event.emit(event, ...args);
+    }
+
+    on(event:string, listener:(...args: any[]) => void): this{
+        this.event.on(event, listener);
+        return this;
     }
 }

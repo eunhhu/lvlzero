@@ -138,6 +138,9 @@ export class Game{
                     enemy.on('dead', (type:string) => {
                         this.emit('enemyDead', enemies.find(enemy => enemy.type === type).coin);
                     });
+                    enemy.on('motion-killed', (x:number, y:number) => {
+                        this.emit('motion', `enemyKilled-${enemy.type}`, x, y);
+                    })
                     return enemy;
                 });
                 this.startWave(enems);
@@ -223,6 +226,12 @@ export class Game{
             unitData.cost,
             unitData.tags,
             unitType, 1);
+        newUnit.on('motion-hit', (type:string, x:number, y:number) => {
+            this.emit('motion', `projHit-${type}`, x, y);
+        })
+        newUnit.on('motion-fire', (type:string, x:number, y:number) => {
+            this.emit('motion', `unitFire-${type}`, x, y);
+        })
         this.units.push(newUnit);
         this.emit('unitPlaced', newUnit);
         return newUnit;

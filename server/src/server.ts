@@ -128,6 +128,9 @@ io.on('connection', (socket) => {
                         room.users.forEach(user => user.coin += coin);
                         io.to(room.ownerID).emit('usersUpdate', room.users);
                     })
+                    room.game.on('motion', (type:string, x:number, y:number) => {
+                        io.to(room.ownerID).emit('motion', type, x, y);
+                    })
                 }
             }
         }

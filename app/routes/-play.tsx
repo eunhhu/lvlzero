@@ -117,6 +117,12 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         }
     }, [once, socket])
 
+    const activeMotion = (querySelector:string, motions:[]) => {
+        const target = document.querySelector(querySelector);
+        if(!target) return;
+        // need to implement logic to animate the target element
+    }
+
     useEffect(() => {
         if(!game) return
         const click = (e:MouseEvent) => {

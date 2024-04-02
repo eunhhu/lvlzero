@@ -1,4 +1,5 @@
 import { Enemy } from './enemy';
+import { EventEmitter } from 'events';
 
 export class Projectile {
     x: number;
@@ -7,6 +8,8 @@ export class Projectile {
     damage: number;
     speed: number;
     type: string;
+
+    event:EventEmitter = new EventEmitter();
 
     constructor(x: number, y: number, angle: number, damage: number, speed: number, type: string) {
         this.x = x;
@@ -28,6 +31,7 @@ export class Projectile {
             if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 1 /* assuming size of hitbox */) {
                 enemy.takeDamage(this.damage, enemies);
                 // Assuming projectile is destroyed on hit, otherwise implement logic for that
+                this.emit('motion-hit', this.type, this.x, this.y);
                 this.dispose(projectiles);
                 break;
             }
@@ -48,5 +52,14 @@ export class Projectile {
 
     isOutOfBounds(size: number): boolean {
         return this.x < 0 || this.x > size || this.y < 0 || this.y > size;
+    }
+
+    emit(event:string, ...args:any[]): boolean{
+        return this.event.emit(event, ...args);
+    }
+
+    on(event:string, listener:(...args: any[]) => void): this{
+        this.event.on(event, listener);
+        return this;
     }
 }

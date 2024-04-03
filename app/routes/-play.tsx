@@ -148,9 +148,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         const drop = (e:MouseEvent) => {
             setDragging(false)
         }
-        document.addEventListener('mousedown', dragStart)
-        document.addEventListener('mousemove', drag)
-        document.addEventListener('mouseup', drop)
+        // document.addEventListener('mousedown', dragStart)
+        // document.addEventListener('mousemove', drag)
+        // document.addEventListener('mouseup', drop)
         return () => {
             socket.off('gameInit')
             socket.off('userInit')

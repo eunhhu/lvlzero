@@ -1,8 +1,9 @@
 import {FC, Dispatch, SetStateAction, useEffect, useState} from 'react'
 import { Socket } from 'socket.io-client';
 import { levels } from '~/data/db';
+import { lng } from '~/data/lang';
 
-const InRoom:FC<{room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|null>>; socket:Socket; user:IUser; set:Dispatch<SetStateAction<string>>}> = ({room, setRoom, socket, user, set}) => {
+const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|null>>; socket:Socket; user:IUser; set:Dispatch<SetStateAction<string>>}> = ({lang, room, setRoom, socket, user, set}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [lvl, setLvl] = useState<number>(0)
@@ -15,6 +16,7 @@ const InRoom:FC<{room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|null>>; socke
         if(n < 0 && lvl + n < 0) return;
         if(n > 0 && lvl + n >= levels.length) return;
         setLvl(lvl + n);
+        socket.emit('levelRoom', room.ownerID, lvl + n + 1)
     }
 
     useEffect(() => {
@@ -32,6 +34,10 @@ const InRoom:FC<{room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|null>>; socke
             setIsFetching(false)
             setRoom(null)
             set('play')
+        })
+        socket.on('roomLeveled', (res:number) => {
+            if(room.ownerID == socket.id) return
+            setLvl(res)
         })
         return () => {
             socket.off('userJoined')
@@ -62,9 +68,9 @@ const InRoom:FC<{room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|null>>; socke
                 </div>
                 <div className="w-full h-full flex flex-col justify-center items-center">
                     <div className='flex flex-row justify-center items-center p-5 gap-3'>
-                        <button className='p-1 noshadow' onClick={e => changeLvl(-1)}>&nbsp;&lt;&nbsp;</button>
+                        {room.ownerID == socket.id && <button className='p-1 noshadow' onClick={e => changeLvl(-1)}>&nbsp;&lt;&nbsp;</button>}
                         <h1 className='text-white font-semibold text-2xl'>Level {lvl+1}</h1>
-                        <button className='p-1 noshadow' onClick={e => changeLvl(1)}>&nbsp;&gt;&nbsp;</button>
+                        {room.ownerID == socket.id && <button className='p-1 noshadow' onClick={e => changeLvl(1)}>&nbsp;&gt;&nbsp;</button>}
                     </div>
                     <div className="flex flex-row gap-2 flex-wrap p-5">
                         {
@@ -82,7 +88,7 @@ const InRoom:FC<{room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|null>>; socke
                         onClick={e => {
                             setIsFetching(true)
                             socket.emit('startGame', room.ownerID, lvl+1)
-                        }}>Start</button>}
+                        }}>{lng(lang, 'start')}</button>}
                         <button className="box p-2 w-40"
                         onClick={e => {
                             setIsFetching(true)
@@ -91,7 +97,7 @@ const InRoom:FC<{room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|null>>; socke
                                 setIsFetching(false)
                                 setRoom(null)
                             })
-                        }}>Leave</button>
+                        }}>{lng(lang, 'leave')}</button>
                     </div>
                 </div>
             </div>

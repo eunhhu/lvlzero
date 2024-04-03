@@ -19,7 +19,7 @@ const Main:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
 
     return <div className="cover flex-col" style={{backgroundImage:'url(assets/mainbg.png)'}}>
         {
-            room ? <InRoom room={room} setRoom={setRoom} socket={socket} user={user} set={set} /> :
+            room ? <InRoom lang={lang} room={room} setRoom={setRoom} socket={socket} user={user} set={set} /> :
             state == 'play' ? <PlayState lang={lang} socket={socket} setRoom={setRoom} user={user} /> :
             state == 'units' ? <UnitsState lang={lang} user={user} setUser={setUser} /> :
             state == 'settings' ? <SettingsState lang={lang} /> :

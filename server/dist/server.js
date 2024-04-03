@@ -73,6 +73,12 @@ io.on('connection', (socket) => {
             socket.emit('roomLeft');
         }
     });
+    socket.on('levelRoom', (ownerId, lvl) => {
+        let room = rooms.find(room => room.ownerID === ownerId);
+        if (room) {
+            io.to(room.ownerID).emit('roomLeveled', lvl);
+        }
+    });
     socket.on('startGame', (ownerId, lvl) => {
         let room = rooms.find(room => room.ownerID === ownerId);
         if (room) {

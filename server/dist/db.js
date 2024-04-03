@@ -149,56 +149,56 @@ exports.units = [
 exports.enemies = [
     {
         type: 'goblin',
-        health: 50,
+        health: 100,
         speed: 0.1,
         coin: 10,
         tags: []
     },
     {
         type: 'orc',
-        health: 100,
+        health: 200,
         speed: 0.08,
         coin: 20,
         tags: []
     },
     {
         type: 'ogre',
-        health: 200,
+        health: 500,
         speed: 0.07,
         coin: 30,
         tags: []
     },
     {
         type: 'troll',
-        health: 400,
+        health: 1000,
         speed: 0.08,
         coin: 40,
         tags: []
     },
     {
         type: 'giant',
-        health: 800,
+        health: 4000,
         speed: 0.05,
         coin: 50,
         tags: []
     },
     {
         type: 'dragon',
-        health: 1000,
+        health: 10000,
         speed: 0.04,
         coin: 100,
         tags: []
     },
     {
         type: 'demon',
-        health: 2000,
+        health: 50000,
         speed: 0.02,
         coin: 200,
         tags: []
     },
     {
         type: 'god',
-        health: 5000,
+        health: 100000,
         speed: 0.01,
         coin: 500,
         tags: []
@@ -208,43 +208,43 @@ exports.levels = [
     {
         enemies: [
             ['goblin', 'goblin', 'goblin', 'goblin'],
-            ['goblin', 'goblin', 'orc', 'orc'],
-            ['goblin', 'goblin', 'goblin', 'goblin', 'orc', 'orc'],
-            ['orc', 'orc', 'orc', 'orc'],
-            ['orc', 'orc', 'orc', 'orc', 'ogre'],
             ['goblin', 'goblin', 'goblin', 'goblin', 'orc', 'orc', 'orc', 'orc'],
-            ['orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'ogre', 'ogre'],
-            ['orc', 'orc', 'orc', 'orc', 'ogre', 'ogre', 'ogre'],
-            ['ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre'],
-            ['orc', 'orc', 'orc', 'orc', 'ogre', 'ogre', 'ogre', 'ogre', 'troll'],
-        ]
-    },
-    {
-        enemies: [
-            ['goblin', 'goblin', 'goblin', 'goblin', 'orc', 'orc'],
+            ['goblin', 'goblin', 'goblin', 'goblin', 'goblin', 'goblin', 'orc', 'orc', 'orc', 'orc'],
             ['orc', 'orc', 'orc', 'orc', 'orc', 'orc'],
-            ['orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'ogre'],
-            ['goblin', 'goblin', 'goblin', 'goblin', 'orc', 'orc', 'orc', 'orc'],
+            ['orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'orc'],
+            ['orc', 'orc', 'orc', 'orc', 'ogre', 'ogre'],
             ['orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'ogre', 'ogre'],
-            ['orc', 'orc', 'orc', 'orc', 'ogre', 'ogre', 'ogre'],
+            ['orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'ogre', 'ogre', 'ogre', 'ogre'],
             ['ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre'],
             ['orc', 'orc', 'orc', 'orc', 'ogre', 'ogre', 'ogre', 'ogre', 'troll'],
-            ['ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'troll'],
-            ['ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'troll', 'troll'],
+        ]
+    },
+    {
+        enemies: [
+            ['goblin', 'goblin', 'goblin', 'goblin'],
+            ['goblin', 'goblin', 'goblin', 'goblin', 'orc', 'orc', 'orc', 'orc'],
+            ['orc', 'orc', 'orc', 'orc', 'orc', 'orc'],
+            ['orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'orc'],
+            ['orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'ogre', 'ogre'],
+            ['orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'ogre', 'ogre'],
+            ['orc', 'orc', 'orc', 'orc', 'ogre', 'ogre', 'ogre', 'ogre'],
+            ['orc', 'orc', 'orc', 'orc', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre'],
+            ['ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre'],
+            ['ogre', 'ogre', 'ogre', 'ogre', 'troll', 'troll', 'troll', 'troll'],
         ]
     },
     {
         enemies: [
             ['orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'ogre'],
-            ['goblin', 'goblin', 'goblin', 'goblin', 'orc', 'orc', 'orc', 'orc'],
-            ['orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'ogre', 'ogre'],
-            ['orc', 'orc', 'orc', 'orc', 'ogre', 'ogre', 'ogre'],
-            ['ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre'],
-            ['orc', 'orc', 'orc', 'orc', 'ogre', 'ogre', 'ogre', 'ogre', 'troll'],
-            ['ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'troll'],
-            ['ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'troll', 'troll'],
-            ['ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'troll', 'troll', 'giant'],
-            ['ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'ogre', 'troll', 'troll', 'giant', 'giant'],
+            ['orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'ogre', 'ogre'],
+            ['orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'orc', 'ogre', 'ogre', 'ogre', 'ogre'],
+            ['ogre', 'ogre', 'ogre', 'ogre', 'troll', 'troll'],
+            ['ogre', 'ogre', 'ogre', 'ogre', 'troll', 'troll', 'troll', 'troll'],
+            ['ogre', 'ogre', 'ogre', 'ogre', 'troll', 'troll', 'troll', 'troll', 'troll', 'troll'],
+            ['ogre', 'ogre', 'ogre', 'ogre', 'troll', 'troll', 'troll', 'troll', 'troll', 'troll', 'troll', 'troll'],
+            ['troll', 'troll', 'troll', 'troll'],
+            ['troll', 'troll', 'troll', 'troll', 'troll', 'troll'],
+            ['troll', 'troll', 'troll', 'troll', 'troll', 'troll', 'giant'],
         ]
     }
 ];

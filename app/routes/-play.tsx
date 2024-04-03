@@ -41,7 +41,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     const {width, height} = usehooks.useWindowSize()
     const [once, setOnce] = useState<boolean>(false)
     const [game, setGame] = useState<IGameInitData>()
-    const [tileSize, setTileSize] = useState<number>(Math.min(width, height) / (game || {size:1}).size)
+    const [viewport, setViewport] = useState<[number, number]>([0, 0])
+    const [zoom, setZoom] = useState<number>(1)
+    const [tileSize, setTileSize] = useState<number>(Math.min(width, height) / (game || {size:1}).size * zoom)
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [error, setError] = useState<string>('')
     const [units, setUnits] = useState<IUnitData[]>([])
@@ -60,8 +62,10 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     const [spriteQueue, setSpriteQueue] = useState<ISpriteAnimation>()
     const [textQueue, setTextQueue] = useState<ITextAnimation>()
     const [timeline, setTimeline] = useState<number>(Date.now())
-    const [viewport, setViewport] = useState<[number, number]>([0, 0])
-    const [zoom, setZoom] = useState<number>(1)
+    const [dragging, setDragging] = useState<boolean>(false)
+    const [draggingStart, setDraggingStart] = useState<[number, number]>([0, 0])
+    const [curDrag, setCurDrag] = useState<[number, number]>([0, 0])
+    const [lastViewport, setLastViewport] = useState<[number, number]>([0, 0])
 
     useEffect(() => {
         setOnce(true)
@@ -133,6 +137,20 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         let timelineloop = setInterval(() => {
             setTimeline(Date.now())
         }, 1000/60)
+        
+        const dragStart = (e:MouseEvent) => {
+            setDragging(true)
+            setDraggingStart([e.clientX, e.clientY])
+        }
+        const drag = (e:MouseEvent) => {
+            setCurDrag([e.clientX, e.clientY])
+        }
+        const drop = (e:MouseEvent) => {
+            setDragging(false)
+        }
+        document.addEventListener('mousedown', dragStart)
+        document.addEventListener('mousemove', drag)
+        document.addEventListener('mouseup', drop)
         return () => {
             socket.off('gameInit')
             socket.off('userInit')
@@ -144,8 +162,36 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             socket.off('waveStarted')
             socket.off('gameComplete')
             clearInterval(timelineloop)
+            document.removeEventListener('mousedown', dragStart)
+            document.removeEventListener('mousemove', drag)
+            document.removeEventListener('mouseup', drop)
         }
     }, [once, socket])
+
+    useEffect(() => {
+        const md = (e:MouseEvent) => {
+            setLastViewport([viewport[0], viewport[1]])
+        }
+        document.addEventListener('mousedown', md)
+        return () => {
+            document.removeEventListener('mousedown', md)
+        }
+    }, [viewport])
+
+    useEffect(() => {
+        const wheel = (e:WheelEvent) => {
+            setZoom(zoom + e.deltaY/1000)
+        }
+        document.addEventListener('wheel', wheel)
+        return () => {
+            document.removeEventListener('wheel', wheel)
+        }
+    }, [zoom])
+
+    useEffect(() => {
+        if(!dragging) return
+        setViewport([lastViewport[0] + (draggingStart[0] - curDrag[0]), lastViewport[1] + (draggingStart[1] - curDrag[1])])
+    }, [dragging, draggingStart, curDrag, lastViewport])
 
     const activeMotion = (type:"sprite"|"text", value:string, duration:number, motions:IMotion[], defaultOptions:IDefaultOptions, options?:PIXI.TextStyle) => {
         if(type == "sprite"){
@@ -171,9 +217,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     useEffect(() => {
         if(!game) return
         const click = (e:MouseEvent) => {
-            if((e.target as HTMLElement).nodeName == "CANVAS"){
-                let x = Math.floor((e.clientX - width/2) / tileSize + game.size/2)
-                let y = Math.floor((e.clientY - height/2) / tileSize + game.size/2)
+            if((e.target as HTMLElement).nodeName == "CANVAS" && viewport[0] == lastViewport[0] && viewport[1] == lastViewport[1]){
+                let x = Math.floor((e.clientX - width/2) / tileSize + game.size/2 + viewport[0] / tileSize)
+                let y = Math.floor((e.clientY - height/2) / tileSize + game.size/2 + viewport[1] / tileSize)
                 if(x < 0 || x >= game.size || y < 0 || y >= game.size) return setSelectedPos([-1, -1]);
                 if(selectors.find(s => s.x == x && s.y == y)) return;
                 if(game.path.find(p => p[0] == x && p[1] == y)) return;
@@ -185,7 +231,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         return () => {
             document.removeEventListener('click', click)
         }
-    }, [game, width, height, tileSize, selectors])
+    }, [game, width, height, tileSize, selectors, viewport, lastViewport])
 
     useEffect(() => {
         socket.emit('userSelect', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit})
@@ -193,12 +239,12 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
 
     useEffect(() => {
         if(!game) return
-        setTileSize(Math.min(width, height) / game.size)
-    }, [game, width, height])
+        setTileSize(Math.min(width, height) / game.size * zoom)
+    }, [game, width, height, zoom])
 
     return (<>
         {game ? <><Stage width={width} height={height}>
-            <Container pivot={[-width/2, -height/2]}>
+            <Container pivot={[-width/2 + viewport[0], -height/2 + viewport[1]]}>
                 <Tilemap
                     tileset="assets/tiles/grass.png"
                     notileset="assets/tiles/dirt.png"
@@ -315,20 +361,20 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         </Stage>
         {selectors.map((v, i) => {
             return <div key={i} className="absolute border-2 border-white" style={{width:tileSize, height:tileSize,
-            left:v.x * tileSize + width/2 - (game.size * tileSize)/2,
-            top:v.y * tileSize + height/2 - (game.size * tileSize)/2,
+            left:v.x * tileSize + width/2 - (game.size * tileSize)/2 - viewport[0],
+            top:v.y * tileSize + height/2 - (game.size * tileSize)/2 - viewport[1],
             backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center',
             backgroundImage: v.type ? `url("assets/units/${v.type}.png")` : '', opacity:'0.5'}}></div>
         })}
-        <div className="absolute border-2 border-yellow-300" style={{width:tileSize, height:tileSize,
-            left:selectedPos[0] * tileSize + width/2 - (game.size * tileSize)/2,
-            top:selectedPos[1] * tileSize + height/2 - (game.size * tileSize)/2,
+        {selectedPos[0] != -1 && <div className="absolute border-2 border-yellow-300" style={{width:tileSize, height:tileSize,
+            left:selectedPos[0] * tileSize + width/2 - (game.size * tileSize)/2 - viewport[0],
+            top:selectedPos[1] * tileSize + height/2 - (game.size * tileSize)/2 - viewport[1],
             backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center',
             backgroundImage: selectedUnit ? `url("assets/units/${selectedUnit}.png")` : '', opacity:'0.5'}}
             onClick={e => {
                 setSelectedPos([-1, -1])
                 setSelectedUnit('')
-            }}></div>
+        }}></div>}
         <div className="absolute text-white right-0 top-0 flex flex-col font-semibold p-2 gap-2 box text-right">
             <div>{lng(lang, 'wave')} : {wave} / {game.maxWave}</div>
             <div>{lng(lang, 'waitingfornextwave')} : {Math.floor(waiting/1000)}s <button className="noshadow p-1"

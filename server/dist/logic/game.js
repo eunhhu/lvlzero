@@ -126,6 +126,9 @@ class Game {
                     enemy.on('motion-killed', (x, y) => {
                         this.emit('motion', `enemyKilled-${enemy.type}`, x, y);
                     });
+                    enemy.on('motion-damaged', (x, y, damage) => {
+                        this.emit('motion', `enemyDamaged-${enemy.type}`, x, y, damage);
+                    });
                     return enemy;
                 });
                 this.startWave(enems);

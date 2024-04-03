@@ -82,12 +82,12 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                         {selected != 'l' && <button className='pt-0 pb-0 pr-3 pl-3 text-lg' onClick={e => changeLvl(1)}>&gt;</button>}
                     </div>
                     <div className='flex-1 flex flex-row justify-around items-center w-full'>
-                        <div className='flex-1 flex flex-col justify-center items-center gap-5'>
+                        {selected !== 'l' && <div className='flex-1 flex flex-col justify-center items-center gap-5'>
                             <div className='bg-cover bg-center w-48 h-48 rounded-full' style={{backgroundImage:`url(assets/units/${selected}.png)`}}></div>
                             <div className='text-md text-center text-white font-semibold'>{lng(lang, `${selected}-desc`)}</div>
-                        </div>
-                        <div className='flex-1 flex flex-col justify-center items-center'>
-                            {selected == 'l' ? <></> : Object.keys(units.find(v => v.type == selected) as {[key:string]:any}).map((v, i) => {
+                        </div>}
+                        {selected !== 'l' && <div className='flex-1 flex flex-col justify-center items-center'>
+                            {Object.keys(units.find(v => v.type == selected) as {[key:string]:any}).map((v, i) => {
                                 if(outAttrs.includes(v)) return null;
                                 if(units.find(v => v.type == selected)?.upgradeCost.length as number <= lvl && v == 'upgradeCost') return null;
                                 return <div key={i} className="flex flex-row justify-around items-center w-full p-2 text-center">
@@ -95,7 +95,7 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                                     <div className="flex-1 text-lg text-white font-bold">{displayValue(units.find(v => v.type == selected) as {[key:string]:any}, v)}</div>
                                 </div>
                             })}
-                            {selected !== 'l' && [''].map((v, i) => {
+                            {[''].map((v, i) => {
                                 let th = (units.find(v => v.type == selected) as {[key:string]:any})
                                 let dps = Math.round(th.damage[lvl] / (th.rate[lvl]/1000))
                                 return <div key={i} className="flex flex-row justify-around items-center w-full p-2 text-center">
@@ -103,7 +103,7 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                                     <div className="flex-1 text-lg text-white font-bold">{dps}</div>
                                 </div>
                             })}
-                        </div>
+                        </div>}
                     </div>
                     {error && <div className="text-red-500 font-bold text-lg noshadow">{lng(lang, error)}</div>}
                 </div>

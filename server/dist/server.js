@@ -149,7 +149,7 @@ io.on('connection', (socket) => {
         user.selection = data;
         let selectors = room.users.map(v => v.selection);
         let mySelectors = room.users.filter(v => v.socketId != socket.id).map(v => v.selection);
-        io.to(room.ownerID).emit('userSelection', selectors);
+        socket.broadcast.to(room.ownerID).emit('userSelection', selectors);
         socket.emit('userSelection', mySelectors);
     });
     socket.on('placeUnit', (data) => {

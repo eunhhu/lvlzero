@@ -140,6 +140,9 @@ export class Game{
                     enemy.on('motion-killed', (x:number, y:number) => {
                         this.emit('motion', `enemyKilled-${enemy.type}`, x, y);
                     })
+                    enemy.on('motion-damaged', (x:number, y:number, damage:number) => {
+                        this.emit('motion', `enemyDamaged-${enemy.type}`, x, y, damage);
+                    })
                     return enemy;
                 });
                 this.startWave(enems);

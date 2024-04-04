@@ -16,7 +16,7 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
         if(n < 0 && lvl + n < 0) return;
         if(n > 0 && lvl + n >= levels.length) return;
         setLvl(lvl + n);
-        socket.emit('levelRoom', room.ownerID, lvl + n + 1)
+        socket.emit('levelRoom', room.ownerID, lvl + n)
     }
 
     useEffect(() => {

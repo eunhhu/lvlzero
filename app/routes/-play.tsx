@@ -142,36 +142,30 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             if(e.target instanceof HTMLCanvasElement){
                 setDragging(true)
                 setDraggingStart([e.clientX, e.clientY])
-                console.log('dragstart')
             };
         }
         const drag = (e:MouseEvent) => {
             if(e.target instanceof HTMLCanvasElement){
                 setCurDrag([e.clientX, e.clientY])
-                console.log('drag')
             };
         }
         const drop = (e:MouseEvent) => {
             setDragging(false)
-            console.log('drop')
         }
         const touchStart = (e:TouchEvent) => {
             if(e.target instanceof HTMLCanvasElement){
                 setDragging(true)
                 setCurDrag([e.touches[0].clientX, e.touches[0].clientY])
                 setDraggingStart([e.touches[0].clientX, e.touches[0].clientY])
-                console.log('touchstart')
             };
         }
         const touchMove = (e:TouchEvent) => {
             if(e.target instanceof HTMLCanvasElement){
                 setCurDrag([e.touches[0].clientX, e.touches[0].clientY])
-                console.log('touchmove')
             };
         }
         const touchEnd = (e:TouchEvent) => {
             setDragging(false)
-            console.log('touchend')
         }
         document.addEventListener('mousedown', dragStart)
         document.addEventListener('mousemove', drag)
@@ -203,9 +197,14 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         const md = (e:MouseEvent) => {
             setLastViewport([viewport[0], viewport[1]])
         }
+        const td = (e:TouchEvent) => {
+            setLastViewport([viewport[0], viewport[1]])
+        }
         document.addEventListener('mousedown', md)
+        document.addEventListener('touchstart', td)
         return () => {
             document.removeEventListener('mousedown', md)
+            document.removeEventListener('touchstart', td)
         }
     }, [viewport])
 
@@ -362,33 +361,33 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                     x={props.x} y={props.y} rotation={props.rotation}
                     scale={props.scale} alpha={props.opacity} anchor={[props.anchorX, props.anchorY]} />
                 })}
-                {motionTexts.map((animation, index) => {
-                    let delta = timeline - animation.start
-                    if(delta > animation.duration){
-                        setMotionTexts(motionTexts.filter((_, i) => i != index))
-                        return null
-                    }
-                    let props:{[key:string]:number} = {
-                        x:animation.defaultOptions.x,
-                        y:animation.defaultOptions.y,
-                        rotation:animation.defaultOptions.rotation,
-                        scale:animation.defaultOptions.scale,
-                        opacity:animation.defaultOptions.opacity,
-                        anchorX: animation.defaultOptions.anchorX,
-                        anchorY: animation.defaultOptions.anchorY
-                    }
-                    animation.motions.forEach(motion => {
-                        if(delta < motion.delay) return;
-                        if(delta > motion.delay + motion.duration) return;
-                        let progress = (delta - motion.delay) / motion.duration
-                        progress = getEase(progress, motion.ease)
-                        let value = motion.startValue + (motion.endValue - motion.startValue) * progress
-                        props[motion.type] = value;
-                    })
-                    return <Text key={index} text={animation.value} x={props.x} y={props.y} rotation={props.rotation}
-                    scale={props.scale} alpha={props.opacity} anchor={[props.anchorX, props.anchorY]} style={animation.options} />
-                })}
             </Container>
+            {motionTexts.map((animation, index) => {
+                let delta = timeline - animation.start
+                if(delta > animation.duration){
+                    setMotionTexts(motionTexts.filter((_, i) => i != index))
+                    return null
+                }
+                let props:{[key:string]:number} = {
+                    x:animation.defaultOptions.x,
+                    y:animation.defaultOptions.y,
+                    rotation:animation.defaultOptions.rotation,
+                    scale:animation.defaultOptions.scale,
+                    opacity:animation.defaultOptions.opacity,
+                    anchorX: animation.defaultOptions.anchorX,
+                    anchorY: animation.defaultOptions.anchorY
+                }
+                animation.motions.forEach(motion => {
+                    if(delta < motion.delay) return;
+                    if(delta > motion.delay + motion.duration) return;
+                    let progress = (delta - motion.delay) / motion.duration
+                    progress = getEase(progress, motion.ease)
+                    let value = motion.startValue + (motion.endValue - motion.startValue) * progress
+                    props[motion.type] = value;
+                })
+                return <Text key={index} text={animation.value} x={props.x + width/2} y={props.y + height/2} rotation={props.rotation}
+                scale={props.scale} alpha={props.opacity} anchor={[props.anchorX, props.anchorY]} style={animation.options} />
+            })}
         </Stage>
         {selectors.map((v, i) => {
             return <div key={i} className="absolute border-2 border-white" style={{width:tileSize, height:tileSize,
@@ -430,6 +429,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                     <div>{myUnit.cost}c</div>
                 </button>
             })}
+            <button className="noshadow p-1" onClick={e=> setSelectedPos([-1, -1])}>{lng(lang, 'cancel')}</button>
         </div>}
         {selectedPos[0] != -1 && selectedUnit && !units.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) && [''].map((_v, i) => {
             const canPlace = coin >= (AllUnits.find(v => v.type == selectedUnit)?.cost as number)

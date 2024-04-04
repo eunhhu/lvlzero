@@ -88,9 +88,9 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
     return (<>
         {
             <div className="cover flex-col space-y-5" style={{backgroundImage:'url(assets/loginbg.png)'}}>
-                <input type="text" name="" id="" placeholder={lng(lang, 'username')} value={username} onChange={e => {setError('');setUsername(e.target.value)}}/>
-                <input type="password" name="" id="" placeholder={lng(lang, 'password')} value={password} onChange={e => {setError('');setPassword(e.target.value)}}/>
-                {state === 'register' && <input type="password" name="" id=""
+                <input disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} type="text" name="" id="" placeholder={lng(lang, 'username')} value={username} onChange={e => {setError('');setUsername(e.target.value)}}/>
+                <input disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} type="password" name="" id="" placeholder={lng(lang, 'password')} value={password} onChange={e => {setError('');setPassword(e.target.value)}}/>
+                {state === 'register' && <input type="password" name="" id="" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}}
                 placeholder={lng(lang, 'confirm password')} value={confirmPassword} onChange={e => {setError('');setConfirmPassword(e.target.value)}}/> }
                 <button disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} onClick={e => {
                     if (state === 'login') login()

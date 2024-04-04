@@ -139,18 +139,46 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
         }, 1000/60)
         
         const dragStart = (e:MouseEvent) => {
-            setDragging(true)
-            setDraggingStart([e.clientX, e.clientY])
+            if(e.target instanceof HTMLCanvasElement){
+                setDragging(true)
+                setDraggingStart([e.clientX, e.clientY])
+                console.log('dragstart')
+            };
         }
         const drag = (e:MouseEvent) => {
-            setCurDrag([e.clientX, e.clientY])
+            if(e.target instanceof HTMLCanvasElement){
+                setCurDrag([e.clientX, e.clientY])
+                console.log('drag')
+            };
         }
         const drop = (e:MouseEvent) => {
             setDragging(false)
+            console.log('drop')
         }
-        // document.addEventListener('mousedown', dragStart)
-        // document.addEventListener('mousemove', drag)
-        // document.addEventListener('mouseup', drop)
+        const touchStart = (e:TouchEvent) => {
+            if(e.target instanceof HTMLCanvasElement){
+                setDragging(true)
+                setCurDrag([e.touches[0].clientX, e.touches[0].clientY])
+                setDraggingStart([e.touches[0].clientX, e.touches[0].clientY])
+                console.log('touchstart')
+            };
+        }
+        const touchMove = (e:TouchEvent) => {
+            if(e.target instanceof HTMLCanvasElement){
+                setCurDrag([e.touches[0].clientX, e.touches[0].clientY])
+                console.log('touchmove')
+            };
+        }
+        const touchEnd = (e:TouchEvent) => {
+            setDragging(false)
+            console.log('touchend')
+        }
+        document.addEventListener('mousedown', dragStart)
+        document.addEventListener('mousemove', drag)
+        document.addEventListener('mouseup', drop)
+        document.addEventListener('touchstart', touchStart)
+        document.addEventListener('touchmove', touchMove)
+        document.addEventListener('touchend', touchEnd)
         return () => {
             socket.off('gameInit')
             socket.off('userInit')
@@ -165,6 +193,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             document.removeEventListener('mousedown', dragStart)
             document.removeEventListener('mousemove', drag)
             document.removeEventListener('mouseup', drop)
+            document.removeEventListener('touchstart', touchStart)
+            document.removeEventListener('touchmove', touchMove)
+            document.removeEventListener('touchend', touchEnd)
         }
     }, [once, socket])
 

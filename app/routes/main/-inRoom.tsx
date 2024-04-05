@@ -1,9 +1,8 @@
 import {FC, Dispatch, SetStateAction, useEffect, useState} from 'react'
 import { Socket } from 'socket.io-client';
-import { levels } from '~/data/db';
 import { lng } from '~/data/lang';
 
-const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|null>>; socket:Socket; user:IUser; set:Dispatch<SetStateAction<string>>}> = ({lang, room, setRoom, socket, user, set}) => {
+const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|null>>; socket:Socket; user:IUser; set:Dispatch<SetStateAction<string>>;global:IDB}> = ({lang, room, setRoom, socket, user, set, global}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [lvl, setLvl] = useState<number>(0)
@@ -14,7 +13,7 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
 
     const changeLvl = (n:number) => {
         if(n < 0 && lvl + n < 0) return;
-        if(n > 0 && lvl + n >= levels.length) return;
+        if(n > 0 && lvl + n >= global.levels.length) return;
         setLvl(lvl + n);
         socket.emit('levelRoom', room.ownerID, lvl + n)
     }

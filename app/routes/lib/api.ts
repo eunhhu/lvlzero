@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { connectToMongoDB, getMongoDB } from "~/models/mongodb";
 
 export async function getUser(type: string, value: string): Promise<IUser> {
@@ -38,5 +39,56 @@ export async function getAllUsers(): Promise<IUser[]> {
     const db = getMongoDB();
     const collection = db.collection("users");
     const result = (await collection.find({}, {projection: {password: 0, equipped:0}}).toArray()) as unknown as IUser[];
+    return result;
+}
+
+export async function getAllDB(): Promise<{users:IUser[];units:IUnit[];enemies:IEnemy[];levels:ILevel[]}> {
+    await connectToMongoDB();
+    const db = getMongoDB();
+    const userCol = db.collection("users");
+    const users = (await userCol.find({}).toArray()) as unknown as IUser[];
+    const unitCol = db.collection("units");
+    const units = (await unitCol.find({}).toArray()) as unknown as IUnit[];
+    const enemyCol = db.collection("enemies");
+    const enemies = (await enemyCol.find({}).toArray()) as unknown as IEnemy[];
+    const levelCol = db.collection("levels");
+    const levels = (await levelCol.find({}).toArray()) as unknown as ILevel[];
+    return {users, units, enemies, levels};
+}
+
+export async function deleteOne(col: string, id: string): Promise<any> {
+    await connectToMongoDB();
+    const db = getMongoDB();
+    const collection = db.collection(col);
+    const result = (await collection.deleteOne({ _id:new ObjectId(id) })) as unknown as any;
+    return result;
+}
+
+export async function getOne(col: string, id: string): Promise<any> {
+    await connectToMongoDB();
+    const db = getMongoDB();
+    const collection = db.collection(col);
+    const result = (await collection.findOne({ _id:new ObjectId(id) })) as unknown as any;
+    return result;
+}
+
+export async function updateOne(col: string, id: string, type: string, value:string): Promise<any> {
+    await connectToMongoDB();
+    const db = getMongoDB();
+    const collection = db.collection(col);
+    await collection.updateOne({ _id:new ObjectId(id) }, {
+        $set: {
+            [type]: JSON.parse(value)
+        }
+    });
+    const result = collection.findOne({ _id:new ObjectId(id) }) as unknown as any;
+    return result;
+}
+
+export async function createOne(col: string, obj: string): Promise<any> {
+    await connectToMongoDB();
+    const db = getMongoDB();
+    const collection = db.collection(col);
+    const result = (await collection.insertOne(JSON.parse(obj))) as unknown as any;
     return result;
 }

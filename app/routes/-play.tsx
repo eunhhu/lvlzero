@@ -3,7 +3,6 @@ import { FC, useEffect, useRef, useState } from "react"
 import * as usehooks from "usehooks-ts"
 import * as PIXI from 'pixi.js';
 import { lng } from "~/data/lang"
-import { units as AllUnits } from "~/data/db";
 import { getEase } from "~/data/utils";
 
 const Tilemap: FC<{
@@ -37,7 +36,7 @@ const Tilemap: FC<{
     );
 };
 
-const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
+const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global}) => {
     const {width, height} = usehooks.useWindowSize()
     const [once, setOnce] = useState<boolean>(false)
     const [game, setGame] = useState<IGameInitData>()
@@ -46,9 +45,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
     const [tileSize, setTileSize] = useState<number>(Math.min(width, height) / (game || {size:1}).size * zoom)
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [error, setError] = useState<string>('')
-    const [units, setUnits] = useState<IUnitData[]>([])
-    const [enemies, setEnemies] = useState<IEnemyData[]>([])
-    const [projectiles, setProjectiles] = useState<IProjectileData[]>([])
+    const [unitDatas, setUnitDatas] = useState<IUnitData[]>([])
+    const [enemyDatas, setEnemyDatas] = useState<IEnemyData[]>([])
+    const [projectileDatas, setProjectileDatas] = useState<IProjectileData[]>([])
     const [waiting, setWaiting] = useState<number>(0)
     const [health, setHealth] = useState<number>(0)
     const [wave, setWave] = useState<number>(0)
@@ -87,9 +86,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             setCoin(coin)
         })
         socket.on('gameUpdate', (tickData:IGameTickData) => {
-            setUnits(tickData.units)
-            setEnemies(tickData.enemies)
-            setProjectiles(tickData.projectiles)
+            setUnitDatas(tickData.units)
+            setEnemyDatas(tickData.enemies)
+            setProjectileDatas(tickData.projectiles)
             setHealth(tickData.health)
             setWaiting(tickData.waitingTimer)
         })
@@ -282,7 +281,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                     tileSize={tileSize}
                     size={game.size}
                 />
-                {units.map((unit, index) => {
+                {unitDatas.map((unit, index) => {
                     return (
                         <Sprite
                             key={index}
@@ -296,7 +295,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                         />
                     );
                 })}
-                {enemies.map((enemy, index) => {
+                {enemyDatas.map((enemy, index) => {
                     return <>
                         <Sprite
                             key={index}
@@ -320,7 +319,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                         }} />
                     </>
                 })}
-                {projectiles.map((projectile, index) => {
+                {projectileDatas.map((projectile, index) => {
                     return (
                         <Sprite
                             key={index}
@@ -412,11 +411,11 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             <div>{lng(lang, 'health')} : {health}</div>
             <div>{lng(lang, 'coin')} : {coin}c</div>
         </div>
-        {selectedPos[0] != -1 && !selectedUnit && !units.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) &&
+        {selectedPos[0] != -1 && !selectedUnit && !unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) &&
         <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-2 gap-2 box w-38">
             {user.equipped.map((unit:string, index:number) => {
                 if(unit == 'l') return null;
-                let myUnit = AllUnits.find(v => v.type == unit) || {cost:0}
+                let myUnit = global.units.find(v => v.type == unit) || {cost:0}
                 const canBuy = coin - myUnit.cost >= 0
                 return <button key={index} className={`noshadow p-1 flex flex-col items-center justify-between ${!canBuy ? "text-red-700" : "text-white"}`}
                 onClick={e => {
@@ -431,18 +430,18 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
             })}
             <button className="noshadow p-1" onClick={e=> setSelectedPos([-1, -1])}>{lng(lang, 'cancel')}</button>
         </div>}
-        {selectedPos[0] != -1 && selectedUnit && !units.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) && [''].map((_v, i) => {
-            const canPlace = coin >= (AllUnits.find(v => v.type == selectedUnit)?.cost as number)
+        {selectedPos[0] != -1 && selectedUnit && !unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) && [''].map((_v, i) => {
+            const canPlace = coin >= (global.units.find(v => v.type == selectedUnit)?.cost as number)
             return <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-2 gap-2 box w-38">
                 <div className="flex flex-row items-center justify-between gap-3">
                     <img src={`assets/units/${selectedUnit}.png`} className="w-8 h-8 rounded-md" />
                     <div>{lng(lang, selectedUnit)}</div>
                 </div>
-                <div className="p-2">{lng(lang, 'damage')} {AllUnits.find(v => v.type == selectedUnit)?.damage[0]}</div>
-                <div className="p-2">{lng(lang, 'rate')} {(AllUnits.find(v => v.type == selectedUnit)?.rate as number[])[0]/1000}s</div>
-                <div className="p-2">{lng(lang, 'range')} {AllUnits.find(v => v.type == selectedUnit)?.range[0]}m</div>
-                <div className="p-2">{lng(lang, 'bulletSpeed')} {AllUnits.find(v => v.type == selectedUnit)?.bulletSpeed[0]}</div>
-                <div className="p-2">{lng(lang, 'cost')} {AllUnits.find(v => v.type == selectedUnit)?.cost}c</div>
+                <div className="p-2">{lng(lang, 'damage')} {global.units.find(v => v.type == selectedUnit)?.damage[0]}</div>
+                <div className="p-2">{lng(lang, 'rate')} {(global.units.find(v => v.type == selectedUnit)?.rate as number[])[0]/1000}s</div>
+                <div className="p-2">{lng(lang, 'range')} {global.units.find(v => v.type == selectedUnit)?.range[0]}m</div>
+                <div className="p-2">{lng(lang, 'bulletSpeed')} {global.units.find(v => v.type == selectedUnit)?.bulletSpeed[0]}</div>
+                <div className="p-2">{lng(lang, 'cost')} {global.units.find(v => v.type == selectedUnit)?.cost}c</div>
                 <button className="noshadow p-1 text-white" onClick={e => {
                     setSelectedUnit('')
                 }}>{lng(lang, 'cancel')}</button>
@@ -453,10 +452,10 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
                 }}>{lng(lang, 'place')}</button>
             </div>
         })}
-        {selectedPos[0] != -1 && !selectedUnit && units.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) && [''].map((_v, i) => {
-            const selected = units.find(v => v.x == selectedPos[0] && v.y == selectedPos[1])
+        {selectedPos[0] != -1 && !selectedUnit && unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) && [''].map((_v, i) => {
+            const selected = unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1])
             if(!selected) return null;
-            const thisUnit = AllUnits.find(v => v.type == selected.type)
+            const thisUnit = global.units.find(v => v.type == selected.type)
             if(!thisUnit) return null;
             const isMaxLvl = thisUnit.upgradeCost.length < selected.lvl;
             const upgCost = thisUnit.upgradeCost[selected.lvl-1];

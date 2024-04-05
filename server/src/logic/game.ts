@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-import { levels, units, enemies } from '../db';
 import { Unit } from './unit';
 import { Enemy } from './enemy';
 import { Projectile } from './projectile';
@@ -65,10 +64,10 @@ export class Game{
         this.path.push([...cur]);
     }
 
-    init(lvl:number = 1){
+    init(levels:ILevel[], lvl:number = 1){
         this.lastTick = Date.now();
         this.level = lvl;
-        this.maxWave = levels[lvl - 1].enemies.length;
+        this.maxWave = levels.find(v => v.level == lvl).enemies.length;
         this.health = 1000;
         this.units = [];
         this.enemies = [];
@@ -78,9 +77,9 @@ export class Game{
         this.waitingTimer = this.waitingTimerMax * 2;
     }
 
-    start(){
+    start(levels:ILevel[], enemies:IEnemy[]){
         this.lastTick = Date.now();
-        this.run();
+        this.run(levels, enemies);
     }
 
     on(event:string, listener:(...args: any[]) => void){
@@ -113,23 +112,23 @@ export class Game{
         }
     }
 
-    gameOver():void {
+    gameOver(levels:ILevel[]):void {
         clearInterval(this.loop);
         this.emit('gameOver', this.level, this.wave);
-        this.init();
+        this.init(levels);
     }
 
-    gameComplete():void {
+    gameComplete(levels:ILevel[]):void {
         clearInterval(this.loop);
         this.emit('gameComplete', this.level);
-        this.init();
+        this.init(levels);
     }
 
-    tick(delta: number):void {
+    tick(levels:ILevel[], enemies:IEnemy[], delta: number):void {
         if (this.status === "waiting") {
             this.waitingTimer -= delta;
             if (this.waitingTimer <= 0) {
-                const enems:Enemy[] = levels[this.level - 1].enemies[this.wave].map((enemyType:string) => {
+                const enems:Enemy[] = levels.find(v => v.level == this.level).enemies[this.wave].map((enemyType:string) => {
                     const enemyData = enemies.find(enemy => enemy.type === enemyType);
                     let enemy:Enemy;
                     if (!enemyData) enemy = new Enemy(0, 0, 0.05, 100, 'basic', this.path);
@@ -169,7 +168,7 @@ export class Game{
                 this.status = "waiting";
                 this.waitingTimer = this.waitingTimerMax;
                 if (this.wave >= this.maxWave) {
-                    this.gameComplete();
+                    this.gameComplete(levels);
                 }
             }
 
@@ -183,7 +182,7 @@ export class Game{
 
             // 게임 오버 조건 검사
             if (this.health <= 0) {
-                this.gameOver();
+                this.gameOver(levels);
             }
         }
     }
@@ -211,7 +210,7 @@ export class Game{
         this.spawnInterval = spawnInterval;
     }
 
-    placeUnit(x: number, y: number, unitType: string) {
+    placeUnit(units:IUnit[], x: number, y: number, unitType: string) {
         // 유닛을 배치하는 예시 메서드, 실제 구현은 유닛 유형과 게임 로직에 따라 달라질 것입니다
         if (this.units.some(unit => unit.x === x && unit.y === y)) {
             return this.emit('unitPlacementFailed', 'A unit already exists at the specified location');
@@ -267,19 +266,19 @@ export class Game{
         }
     }
 
-    run() {
+    run(levels:ILevel[], enemies:IEnemy[]) {
         const runTick = () => {
             const now = Date.now();
             const delta = now - this.lastTick;
             this.lastTick = now;
-            this.tick(delta);
+            this.tick(levels, enemies, delta);
             this.emit('tick', this.getTickData());
         };
 
         this.loop = setInterval(runTick, 1000/60);
     }
 
-    command(command:string){
+    command(units:IUnit[], levels:ILevel[], command:string){
         const params = command.split(' ');
         const commander = params[0];
         switch(commander){
@@ -288,7 +287,7 @@ export class Game{
                 if(+params[1] < 0 || +params[1] >= this.size || isNaN(+params[1])) return;
                 if(+params[2] < 0 || +params[2] >= this.size || isNaN(+params[2])) return;
                 if(!units.find(unit => unit.type === params[3])) return;
-                this.placeUnit(parseInt(params[1]), parseInt(params[2]), params[3]);
+                this.placeUnit(units, parseInt(params[1]), parseInt(params[2]), params[3]);
                 break;
             case 'sell':
                 if(params.length < 3) return;
@@ -324,10 +323,10 @@ export class Game{
                 this.enemies = [];
                 break;
             case 'gameOver':
-                this.gameOver();
+                this.gameOver(levels);
                 break;
             case 'gameComplete':
-                this.gameComplete();
+                this.gameComplete(levels);
                 break;
             case 'emit':
                 this.emit(params[1], ...params.slice(2));

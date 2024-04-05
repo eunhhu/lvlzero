@@ -7,7 +7,7 @@ const opposite = (state:string) => state === 'login' ? 'register' : 'login'
 
 const socketDomain = process.env.NODE_ENV === 'production' ? 'https://lvlzero.onrender.com' : 'http://127.0.0.1:3002'
 
-const Login:FC<glFCProps> = ({lang, set, setUser, setSocket}) => {
+const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global}) => {
   const [once, setOnce] = useState<boolean>(false)
     const [state, setState] = useState<string>('login')
     const [username, setUsername] = useState<string>('')

@@ -20,7 +20,8 @@ interface glFCProps{
     user:IUser,
     setUser:React.Dispatch<React.SetStateAction<IUser>>
     socket:SocketIOClient.Socket,
-    setSocket:React.Dispatch<React.SetStateAction<SocketIOClient.Socket>>
+    setSocket:React.Dispatch<React.SetStateAction<SocketIOClient.Socket>>,
+    global:IDB
 }
 
 interface IRoom{
@@ -109,6 +110,7 @@ interface IEnemy{
 }
 
 interface ILevel{
+    level:number;
     enemies:string[][];
 }
 
@@ -156,3 +158,10 @@ interface IDebuff{
 }
 
 type DebuffType = 'fire' | 'slow' | 'poison' | 'bleed' | 'stun';
+
+interface IDB{
+    users:IUser[];
+    units:IUnit[];
+    enemies:IEnemy[];
+    levels:ILevel[];
+}

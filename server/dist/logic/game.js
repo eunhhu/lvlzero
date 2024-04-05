@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Game = void 0;
 const events_1 = require("events");
-const db_1 = require("../db");
 const unit_1 = require("./unit");
 const enemy_1 = require("./enemy");
 class Game {
@@ -59,10 +58,10 @@ class Game {
         cur = [this.size - 1, this.size - 1];
         this.path.push([...cur]);
     }
-    init(lvl = 1) {
+    init(levels, lvl = 1) {
         this.lastTick = Date.now();
         this.level = lvl;
-        this.maxWave = db_1.levels[lvl - 1].enemies.length;
+        this.maxWave = levels.find(v => v.level == lvl).enemies.length;
         this.health = 1000;
         this.units = [];
         this.enemies = [];
@@ -71,9 +70,9 @@ class Game {
         this.status = "waiting";
         this.waitingTimer = this.waitingTimerMax * 2;
     }
-    start() {
+    start(levels, enemies) {
         this.lastTick = Date.now();
-        this.run();
+        this.run(levels, enemies);
     }
     on(event, listener) {
         this.event.on(event, listener);
@@ -100,28 +99,28 @@ class Game {
             waitingTimer: this.waitingTimer
         };
     }
-    gameOver() {
+    gameOver(levels) {
         clearInterval(this.loop);
         this.emit('gameOver', this.level, this.wave);
-        this.init();
+        this.init(levels);
     }
-    gameComplete() {
+    gameComplete(levels) {
         clearInterval(this.loop);
         this.emit('gameComplete', this.level);
-        this.init();
+        this.init(levels);
     }
-    tick(delta) {
+    tick(levels, enemies, delta) {
         if (this.status === "waiting") {
             this.waitingTimer -= delta;
             if (this.waitingTimer <= 0) {
-                const enems = db_1.levels[this.level - 1].enemies[this.wave].map((enemyType) => {
-                    const enemyData = db_1.enemies.find(enemy => enemy.type === enemyType);
+                const enems = levels.find(v => v.level == this.level).enemies[this.wave].map((enemyType) => {
+                    const enemyData = enemies.find(enemy => enemy.type === enemyType);
                     let enemy;
                     if (!enemyData)
                         enemy = new enemy_1.Enemy(0, 0, 0.05, 100, 'basic', this.path);
                     enemy = new enemy_1.Enemy(0, 0, enemyData.speed, enemyData.health, enemyType, this.path);
                     enemy.on('dead', (type) => {
-                        this.emit('enemyDead', db_1.enemies.find(enemy => enemy.type === type).coin);
+                        this.emit('enemyDead', enemies.find(enemy => enemy.type === type).coin);
                     });
                     enemy.on('motion-killed', (x, y) => {
                         this.emit('motion', `enemyKilled-${enemy.type}`, x, y);
@@ -154,7 +153,7 @@ class Game {
                 this.status = "waiting";
                 this.waitingTimer = this.waitingTimerMax;
                 if (this.wave >= this.maxWave) {
-                    this.gameComplete();
+                    this.gameComplete(levels);
                 }
             }
             // 적이 목적지에 도달하면 체력 감소
@@ -166,7 +165,7 @@ class Game {
             });
             // 게임 오버 조건 검사
             if (this.health <= 0) {
-                this.gameOver();
+                this.gameOver(levels);
             }
         }
     }
@@ -191,12 +190,12 @@ class Game {
         const spawnInterval = setInterval(spawnEnemy, this.enemySpawnInterval);
         this.spawnInterval = spawnInterval;
     }
-    placeUnit(x, y, unitType) {
+    placeUnit(units, x, y, unitType) {
         // 유닛을 배치하는 예시 메서드, 실제 구현은 유닛 유형과 게임 로직에 따라 달라질 것입니다
         if (this.units.some(unit => unit.x === x && unit.y === y)) {
             return this.emit('unitPlacementFailed', 'A unit already exists at the specified location');
         }
-        const unitData = db_1.units.find(unit => unit.type === unitType);
+        const unitData = units.find(unit => unit.type === unitType);
         const newUnit = new unit_1.Unit(x, y, unitData.damage, unitData.rate, unitData.range, unitData.bulletSpeed, unitData.upgradeCost, unitData.cost, unitData.tags, unitType, 1);
         newUnit.on('motion-hit', (type, x, y) => {
             this.emit('motion', `projHit-${type}`, x, y);
@@ -233,17 +232,17 @@ class Game {
             this.waitingTimer = 0;
         }
     }
-    run() {
+    run(levels, enemies) {
         const runTick = () => {
             const now = Date.now();
             const delta = now - this.lastTick;
             this.lastTick = now;
-            this.tick(delta);
+            this.tick(levels, enemies, delta);
             this.emit('tick', this.getTickData());
         };
         this.loop = setInterval(runTick, 1000 / 60);
     }
-    command(command) {
+    command(units, levels, command) {
         const params = command.split(' ');
         const commander = params[0];
         switch (commander) {
@@ -254,9 +253,9 @@ class Game {
                     return;
                 if (+params[2] < 0 || +params[2] >= this.size || isNaN(+params[2]))
                     return;
-                if (!db_1.units.find(unit => unit.type === params[3]))
+                if (!units.find(unit => unit.type === params[3]))
                     return;
-                this.placeUnit(parseInt(params[1]), parseInt(params[2]), params[3]);
+                this.placeUnit(units, parseInt(params[1]), parseInt(params[2]), params[3]);
                 break;
             case 'sell':
                 if (params.length < 3)
@@ -302,10 +301,10 @@ class Game {
                 this.enemies = [];
                 break;
             case 'gameOver':
-                this.gameOver();
+                this.gameOver(levels);
                 break;
             case 'gameComplete':
-                this.gameComplete();
+                this.gameComplete(levels);
                 break;
             case 'emit':
                 this.emit(params[1], ...params.slice(2));

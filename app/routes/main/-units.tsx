@@ -1,6 +1,5 @@
 import {FC, Dispatch, SetStateAction, useEffect, useState} from 'react'
 import { lng } from '~/data/lang'
-import { units } from '~/data/db'
 
 const outAttrs = ['type', 'buy', 'tags']
 const suffix:{[key:string]:string} = {
@@ -10,7 +9,7 @@ const suffix:{[key:string]:string} = {
     "upgradeCost":"c"
 }
 
-const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser>>}> = ({lang, user, setUser}) => {
+const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser>>;global:IDB}> = ({lang, user, setUser, global}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [selected, setSelected] = useState<string>('')
     const [isFetching, setIsFetching] = useState<boolean>(false)
@@ -27,7 +26,7 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
 
     const changeLvl = (n:number) => {
         if(n < 0 && lvl < 1) return;
-        const unit = units.find(v => v.type == selected);
+        const unit = global.units.find(v => v.type == selected);
         if(!unit) return;
         if(n > 0 && lvl >= unit.upgradeCost.length) return;
         setLvl(lvl + n)
@@ -45,7 +44,7 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
     return <div className="flex flex-col justify-center items-center w-full fixed top-0" style={{height: `calc(100% - 76px)`}}>
         <div className="w-full flex flex-row gap-2 flex-wrap items-center justify-center overflow-auto p-5" style={{}}>
             {
-                units.map((v, i) => {
+                global.units.map((v, i) => {
                     return <div key={i} className="box bg-cover bg-center cursor-pointer"
                     style={{width:'min(15vw,10vh)', height:'min(15vw,10vh)', backgroundImage:`url(assets/units/${v.type}.png)`}}
                     onClick={e => setSelected(v.type)}>
@@ -87,16 +86,16 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                             <div className='text-md text-center text-white font-semibold'>{lng(lang, `${selected}-desc`)}</div>
                         </div>}
                         {selected !== 'l' && <div className='flex-1 flex flex-col justify-center items-center'>
-                            {Object.keys(units.find(v => v.type == selected) as {[key:string]:any}).map((v, i) => {
+                            {Object.keys(global.units.find(v => v.type == selected) as {[key:string]:any}).map((v, i) => {
                                 if(outAttrs.includes(v)) return null;
-                                if(units.find(v => v.type == selected)?.upgradeCost.length as number <= lvl && v == 'upgradeCost') return null;
+                                if(global.units.find(v => v.type == selected)?.upgradeCost.length as number <= lvl && v == 'upgradeCost') return null;
                                 return <div key={i} className="flex flex-row justify-around items-center w-full p-2 text-center">
                                     <div className="flex-1 text-lg text-white font-bold">{lng(lang, v)}</div>
-                                    <div className="flex-1 text-lg text-white font-bold">{displayValue(units.find(v => v.type == selected) as {[key:string]:any}, v)}</div>
+                                    <div className="flex-1 text-lg text-white font-bold">{displayValue(global.units.find(v => v.type == selected) as {[key:string]:any}, v)}</div>
                                 </div>
                             })}
                             {[''].map((v, i) => {
-                                let th = (units.find(v => v.type == selected) as {[key:string]:any})
+                                let th = (global.units.find(v => v.type == selected) as {[key:string]:any})
                                 let dps = Math.round(th.damage[lvl] / (th.rate[lvl]/1000))
                                 return <div key={i} className="flex flex-row justify-around items-center w-full p-2 text-center">
                                     <div className="flex-1 text-lg text-white font-bold">{lng(lang, 'dps')}</div>
@@ -140,7 +139,7 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                             success(res.res)
                         })
                     } else {
-                        const cost = (units.find(v => v.type == selected) as {[key:string]:any}).buy
+                        const cost = (global.units.find(v => v.type == selected) as {[key:string]:any}).buy
                         if(user.gold < cost) return setError('not enough gold')
                         // buy
                         setIsFetching(true)
@@ -152,7 +151,7 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                 }}>{
                     selected == 'l' ? `${lng(lang, 'buy')} - 900` : user.equipped.includes(selected) ? lng(lang, 'unequip') :
                     user.unlocked.includes(selected) ? lng(lang, 'equip') :
-                    `${lng(lang, 'buy')} - ${units.find(v => v.type == selected)?.buy}`
+                    `${lng(lang, 'buy')} - ${global.units.find(v => v.type == selected)?.buy}`
                 }</button>
             </div>
         </div>}

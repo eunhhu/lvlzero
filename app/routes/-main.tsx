@@ -9,7 +9,7 @@ import RankState from "./main/-rank";
 
 const states = ['rank', 'units', 'play', 'profile', 'settings']
 
-const Main:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
+const Main:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global}) => {
     const [state, setState] = useState<string>('play')
     const [room, setRoom] = useState<IRoom|null>(null)
 
@@ -19,9 +19,9 @@ const Main:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket}) => {
 
     return <div className="cover flex-col" style={{backgroundImage:'url(assets/mainbg.png)'}}>
         {
-            room ? <InRoom lang={lang} room={room} setRoom={setRoom} socket={socket} user={user} set={set} /> :
+            room ? <InRoom lang={lang} room={room} setRoom={setRoom} socket={socket} user={user} set={set} global={global} /> :
             state == 'play' ? <PlayState lang={lang} socket={socket} setRoom={setRoom} user={user} /> :
-            state == 'units' ? <UnitsState lang={lang} user={user} setUser={setUser} /> :
+            state == 'units' ? <UnitsState lang={lang} user={user} setUser={setUser} global={global}/> :
             state == 'settings' ? <SettingsState lang={lang} /> :
             state == 'profile' ? <ProfileState lang={lang} user={user} setUser={setUser as Dispatch<SetStateAction<IUser|null>>} set={set} /> :
             state == 'rank' ? <RankState lang={lang} /> :

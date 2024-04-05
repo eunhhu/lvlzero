@@ -61,8 +61,6 @@ const Table:FC = () => {
     const [page, setPage] = useState<string>('users')
     const [global, setGlobal] = useState<IDB>()
     const [refresh, setRefresh] = useState<boolean>(false)
-    const [editType, setEditType] = useState<string>('')
-    const [editValue, setEditValue] = useState<string>('')
     const [editKey, setEditKey] = useState<string>('')
 
     useEffect(() => {
@@ -84,15 +82,7 @@ const Table:FC = () => {
         setRefresh(true)
     }, [once])
 
-    useEffect(() => {
-        if(!editKey) {
-            setEditType('')
-            setEditValue('')
-            return
-        }
-    }, [editKey])
-
-    return global && <main className="flex flex-row w-full h-full justify-center items-center gap-3 text-white">
+    return global && <><main className="flex flex-row w-full h-full justify-center items-center gap-3 text-white">
         <div className="w-24 h-full flex flex-col gap-2 justify-center items-center">
             {Object.keys(global).map((v, i) => {
                 return <button key={i} disabled={isFetching} style={{opacity: isFetching ? "0.5" : "1"}} className={`w-full p-1 noshadow ${page == v ? "bg-[#ffffff44]" : ""}`} onClick={e => setPage(v)}>{v.toUpperCase()}</button>
@@ -103,26 +93,30 @@ const Table:FC = () => {
                 return <details key={i} className="w-full flex flex-col justify-start items-center p-1 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-md">
                     <summary className="flex flex-row justify-between items-center">
                         <div className="text-xl text-white font-bold">[{v.lvl}] {v.username}</div>
-                        <button disabled={isFetching} className="noshadow p-1" onClick={e => {
-                            setIsFetching(true)
-                            fetch(`/deleteOne/col/${page}/id/${(v as any)._id}`).then(res => res.json()).then(res => {
-                                setRefresh(true)
-                                setIsFetching(false)
-                            })
-                        }}>Delete</button>
+                        <div className="flex flex-row justify-center items-center gap-2">
+                            <button disabled={isFetching} className="noshadow p-1" onClick={e => {
+                                    setEditKey((v as any)._id)
+                            }}>Edit</button>
+                            <button disabled={isFetching} className="noshadow p-1" onClick={e => {
+                                setIsFetching(true)
+                                fetch(`/deleteOne/col/${page}/id/${(v as any)._id}`).then(res => res.json()).then(res => {
+                                    setRefresh(true)
+                                    setIsFetching(false)
+                                })
+                            }}>Delete</button>
+                        </div>
                     </summary>
                     {Object.keys(v).map((k, j) => {
                         return <div className="flex flex-row justify-between items-center">
                             <div key={j} className="text-lg text-white">{k} : {JSON.stringify(Object.values(v)[j])}</div>
-                            <button disabled={isFetching} className="noshadow p-1" onClick={e => {
-                                setEditKey((v as any)._id)
-                                setEditType(k)
-                                setEditValue(JSON.stringify(Object.values(v)[j]))
-                            }}>Edit</button>
                         </div>
                     })}
                 </details>
             })}
         </div>
     </main>
+    {editKey && <div className="w-full h-full absolute top-0 left-0 bg-[#00000066] flex flex-col justify-center items-center"
+    onClick={e => {if(e.target === e.currentTarget) {setEditKey('')}}}>
+    </div>}
+    </>
 }

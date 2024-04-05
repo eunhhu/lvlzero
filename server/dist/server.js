@@ -7,11 +7,18 @@ const express_1 = __importDefault(require("express"));
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const game_1 = require("./logic/game");
+const mongodb_1 = require("mongodb");
 const PORT = 3002;
-const dbUrl = process.env.NODE_ENV === 'production' ? 'https://lvlzero.vercel.com/getAllDB' : 'http://127.0.0.1:3000/getAllDB';
-fetch(dbUrl).then(res => res.json()).then((res) => {
-    console.log('DB loaded');
-    const gl = res.gl;
+const uri = `mongodb+srv://realtime:EhcTmV54vQFH0AXq@cluster0.qo3ekyu.mongodb.net/`;
+const client = new mongodb_1.MongoClient(uri);
+client.connect().then(async () => {
+    const db = client.db('lvlzero');
+    console.log('DB connected');
+    const users = await db.collection('users').find({}).toArray();
+    const units = await db.collection('units').find({}).toArray();
+    const enemies = await db.collection('enemies').find({}).toArray();
+    const levels = await db.collection('levels').find({}).toArray();
+    console.log('DB data loaded');
     const app = (0, express_1.default)();
     const httpServer = (0, http_1.createServer)(app); // Note: Non-null assertion (!) is used here for simplicity.
     const io = new socket_io_1.Server(httpServer, {
@@ -85,7 +92,7 @@ fetch(dbUrl).then(res => res.json()).then((res) => {
         socket.on('startGame', (ownerId, lvl) => {
             let room = rooms.find(room => room.ownerID === ownerId);
             if (room) {
-                room.game.init(gl.levels, lvl);
+                room.game.init(levels, lvl);
                 room.status = 'playing';
                 io.to(room.ownerID).emit('gameStarted');
             }
@@ -103,7 +110,7 @@ fetch(dbUrl).then(res => res.json()).then((res) => {
                         let avg = room.users.reduce((a, b) => a + b.lvl, 0) / room.users.length;
                         room.users.forEach(user => user.coin += 500);
                         io.to(room.ownerID).emit('usersUpdate', room.users);
-                        room.game.start(gl.levels, gl.enemies);
+                        room.game.start(levels, enemies);
                         room.game.on('tick', (tickData) => {
                             io.to(room.ownerID).emit('gameUpdate', tickData);
                         });
@@ -160,10 +167,10 @@ fetch(dbUrl).then(res => res.json()).then((res) => {
             if (room) {
                 let user = room.users.find(user => user.socketId === socket.id);
                 if (user) {
-                    if (user.coin >= gl.units.find(unit => unit.type === data.type).cost) {
-                        user.coin -= gl.units.find(unit => unit.type === data.type).cost;
+                    if (user.coin >= units.find(unit => unit.type === data.type).cost) {
+                        user.coin -= units.find(unit => unit.type === data.type).cost;
                         socket.emit('coinUpdate', user.coin);
-                        let unit = room.game.placeUnit(gl.units, data.x, data.y, data.type);
+                        let unit = room.game.placeUnit(units, data.x, data.y, data.type);
                         if (unit) {
                             io.to(room.ownerID).emit('unitPlaced', unit);
                         }
@@ -179,7 +186,7 @@ fetch(dbUrl).then(res => res.json()).then((res) => {
                     const unit = room.game.findUnit(data.x, data.y);
                     if (!unit)
                         return;
-                    const unitData = gl.units.find(v => v.type == unit.type);
+                    const unitData = units.find(v => v.type == unit.type);
                     if (unit) {
                         const cost = unitData.upgradeCost[unit.lvl - 1];
                         if (user.coin < cost)
@@ -200,7 +207,7 @@ fetch(dbUrl).then(res => res.json()).then((res) => {
                     const unit = room.game.findUnit(data.x, data.y);
                     if (!unit)
                         return;
-                    const unitData = gl.units.find(v => v.type == unit.type);
+                    const unitData = units.find(v => v.type == unit.type);
                     if (unit) {
                         const allUpgCosts = unit.lvl == 1 ? 0 : unit.lvl == 2 ? unitData.upgradeCost[0] : unitData.upgradeCost.slice(0, unit.lvl - 1).reduce((a, b) => a + b);
                         const sellCost = Math.round((unitData.cost + allUpgCosts) / 2);

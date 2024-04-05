@@ -1,6 +1,12 @@
 
-import type { MetaFunction } from "@remix-run/node";
-import { useEffect, useState } from "react";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "LVL.ZERO" },
+    { name: "description", content: "Casual Tower Defense Game" },
+  ];
+};
+
 import Login from "./-login";
 import Main from "./-main";
 import Play from "./-play";

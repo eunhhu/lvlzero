@@ -54,17 +54,32 @@
             addText(data);
         });
 
+        let history = [];
+        let idx = 0;
+
         const log = document.querySelector('.log');
         const input = document.querySelector('input');
         input.addEventListener('keyup', (e) => {
             if (e.key === 'Enter') {
+                history.push(input.value);
+                idx = history.length;
                 socket.emit('command', input.value);
                 input.value = '';
+            } else if (e.key === 'ArrowUp') {
+                idx = Math.max(0, idx - 1);
+                input.value = history[idx];
+            } else if (e.key === 'ArrowDown') {
+                idx = Math.min(history.length, idx + 1);
+                input.value = history[idx] || '';
+            } else {
+                idx = history.length;
             }
         });
 
         function addText(text) {
-            log.innerHTML += `<div>${text}</div>`;
+            text.split('/n;').forEach(line => {
+                log.innerHTML += `<div>${line}</div>`;
+            });
             log.scrollTop = log.scrollHeight;
         }
     </script>

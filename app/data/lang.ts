@@ -376,6 +376,38 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "en":"Game Over",
         "ko":"게임 오버"
     },
+    "banned user":{
+        "en":"Banned User",
+        "ko":"차단된 사용자"
+    },
+    "new password":{
+        "en":"New Password",
+        "ko":"새 비밀번호"
+    },
+    "level":{
+        "en":"Level",
+        "ko":"레벨"
+    },
+    "exp":{
+        "en":"Exp",
+        "ko":"경험치"
+    },
+    "maxExp":{
+        "en":"Max Exp",
+        "ko":"최대 경험치"
+    },
+    "reward":{
+        "en":"Reward",
+        "ko":"보상"
+    },
+    "close":{
+        "en":"Close",
+        "ko":"닫기"
+    },
+    "rating":{
+        "en":"Rating",
+        "ko":"레이팅"
+    },
 }
 
 export function lng(lang:string, key:string){

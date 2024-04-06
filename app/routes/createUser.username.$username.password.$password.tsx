@@ -15,6 +15,7 @@ export const loader:LoaderFunction = async ({params}) => {
         lvl: 1,
         exp: 0,
         admin: false,
+        banned: false,
         unlocked: ['stone-catapult', 'mini-cannon', 'auto-turret', 'ballista'],
         equipped: ['stone-catapult', 'mini-cannon', 'auto-turret', 'ballista', 'l', 'l'],
         avatar: 'default',

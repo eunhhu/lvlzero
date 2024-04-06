@@ -49,7 +49,7 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                     style={{width:'min(15vw,10vh)', height:'min(15vw,10vh)', backgroundImage:`url(assets/units/${v.type}.png)`}}
                     onClick={e => setSelected(v.type)}>
                         {!user.unlocked.includes(v.type) && <div
-                        className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000077] text-white text-xl font-bold">{v.buy}</div>}
+                        className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000077] text-white text-sm lg:text-xl font-bold">{v.buy}</div>}
                     </div>
                 })
             }
@@ -61,7 +61,7 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                     style={{width:'min(15vw,10vh)', height:'min(15vw,10vh)', backgroundImage:`${v ? `url(assets/units/${v == 'l' ? 'locked' : v}.png)` : ''}`}}
                     onClick={e => setSelected(v)}>
                         {v == 'l' && <div
-                        className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000077] text-white text-xl font-bold">900</div>}
+                        className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000077] text-white text-sm lg:text-xl font-bold">900</div>}
                     </div>
                 })
             }
@@ -73,19 +73,19 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
             setError('')
             setSelected('')
         }}>
-            <div className="box bg-[#000000aa] flex flex-col" style={{width:'80%', height:'70%'}}>
+            <div className="box bg-[#000000aa] flex flex-col" style={{width:'80%', height:'80%'}}>
                 <div className="w-full h-full flex flex-col justify-center items-center">
-                    <div className="text-4xl text-white font-bold w-full text-center p-5 flex flex-row items-center justify-around">
-                        {selected != 'l' && <button className='pt-0 pb-0 pr-3 pl-3 text-lg' onClick={e => changeLvl(-1)}>&lt;</button>}
+                    <div className="text-lg lg:text-4xl text-white font-bold w-full text-center p-2 lg:p-5 flex flex-row items-center justify-around">
+                        {selected != 'l' && <button className='pt-0 pb-0 pr-3 pl-3 text-sm lg:text-lg' onClick={e => changeLvl(-1)}>&lt;</button>}
                         <div>{selected != 'l' && `Lv.${lvl+1}`} {lng(lang, selected)}</div>
-                        {selected != 'l' && <button className='pt-0 pb-0 pr-3 pl-3 text-lg' onClick={e => changeLvl(1)}>&gt;</button>}
+                        {selected != 'l' && <button className='pt-0 pb-0 pr-3 pl-3 text-sm lg:text-lg' onClick={e => changeLvl(1)}>&gt;</button>}
                     </div>
                     <div className='flex-1 flex flex-row justify-around items-center w-full'>
                         {selected !== 'l' && <div className='flex-1 flex flex-col justify-center items-center gap-5'>
-                            <div className='bg-cover bg-center w-48 h-48 rounded-full' style={{backgroundImage:`url(assets/units/${selected}.png)`}}></div>
+                            <div className='bg-cover bg-center w-24 h-24 lg:w-48 lg:h-48 rounded-full' style={{backgroundImage:`url(assets/units/${selected}.png)`}}></div>
                             <div className='text-md text-center text-white font-semibold'>{lng(lang, `${selected}-desc`)}</div>
                         </div>}
-                        {selected !== 'l' && <div className='flex-1 flex flex-col justify-center items-center'>
+                        {selected !== 'l' && <div className='flex-1 flex flex-col justify-center items-center mr-4'>
                             {Object.keys(global.units.find(v => v.type == selected) as {[key:string]:any}).map((v, i) => {
                                 if(outAttrs.includes(v)) return null;
                                 if(global.units.find(v => v.type == selected)?.upgradeCost.length as number <= lvl && v == 'upgradeCost') return null;
@@ -94,11 +94,11 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                                 }).sort((a,b) => b-a)[0];
                                 const tar = global.units.find(v => v.type == selected) as {[key:string]:any}
                                 const result:number = v == 'cost' ? +tar[v] : v == 'rate' ? 1000/+tar[v][lvl] : +tar[v][lvl]
-                                return <div key={i} className="flex flex-row justify-around items-center w-full p-2 text-center">
-                                    <div className="flex-1 text-lg text-white font-bold">{lng(lang, v)}</div>
-                                    <div className="flex-1 text-lg text-white font-bold">{displayValue(tar, v)}</div>
+                                return <div key={i} className="flex flex-row justify-around items-center w-full p-1 lg:p-1.5 text-center">
+                                    <div className="flex-1 text-sm lg:text-lg text-white font-bold">{lng(lang, v)}</div>
+                                    <div className="flex-1 text-sm lg:text-lg text-white font-bold">{displayValue(tar, v)}</div>
                                     <div className='flex-1'>
-                                        <div className='border-2 border-white w-full h-4 rounded-full'>
+                                        <div className='border-2 border-white w-full h-3 lg:h-4 rounded-full'>
                                             <div className={`h-full bg-blue-300 rounded-full text-black`} style={{width: `${result / max * 100}%`}}></div>
                                         </div>
                                     </div>
@@ -107,11 +107,11 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                             {[''].map((v, i) => {
                                 let th = (global.units.find(v => v.type == selected) as {[key:string]:any})
                                 let dps = Math.round(th.damage[lvl] / (th.rate[lvl]/1000))
-                                return <div key={i} className="flex flex-row justify-around items-center w-full p-2 text-center">
-                                    <div className="flex-1 text-lg text-white font-bold">{lng(lang, 'dps')}</div>
-                                    <div className="flex-1 text-lg text-white font-bold">{dps}</div>
+                                return <div key={i} className="flex flex-row justify-around items-center w-full p-1 lg:p-1.5 text-center">
+                                    <div className="flex-1 text-sm lg:text-lg text-white font-bold">{lng(lang, 'dps')}</div>
+                                    <div className="flex-1 text-sm lg:text-lg text-white font-bold">{dps}</div>
                                     <div className='flex-1'>
-                                        <div className='border-2 border-white w-full h-4 rounded-full'>
+                                        <div className='border-2 border-white w-full h-3 lg:h-4 rounded-full'>
                                             <div className={`h-full bg-blue-300 rounded-full`} style={{width:`${dps / 500 * 100}%`}}></div>
                                         </div>
                                     </div>
@@ -120,11 +120,11 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                             {[''].map((v, i) => {
                                 let th = (global.units.find(v => v.type == selected) as {[key:string]:any})
                                 let drrs = Math.round(th.damage[lvl] / (th.rate[lvl]/1000) * th.range[lvl] * th.bulletSpeed[lvl])
-                                return <div key={i} className="flex flex-row justify-around items-center w-full p-2 text-center">
-                                    <div className="flex-1 text-lg text-white font-bold">{lng(lang, 'drrs')}</div>
-                                    <div className="flex-1 text-lg text-white font-bold">{drrs}</div>
+                                return <div key={i} className="flex flex-row justify-around items-center w-full p-1 lg:p-1.5 text-center">
+                                    <div className="flex-1 text-sm lg:text-lg text-white font-bold">{lng(lang, 'drrs')}</div>
+                                    <div className="flex-1 text-sm lg:text-lg text-white font-bold">{drrs}</div>
                                     <div className='flex-1'>
-                                        <div className='border-2 border-white w-full h-4 rounded-full'>
+                                        <div className='border-2 border-white w-full h-3 lg:h-4 rounded-full'>
                                             <div className={`h-full bg-blue-300 rounded-full`} style={{width:`${drrs / 3000 * 100}%`}}></div>
                                         </div>
                                     </div>
@@ -132,9 +132,9 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                             })}
                         </div>}
                     </div>
-                    {error && <div className="text-red-500 font-bold text-lg noshadow">{lng(lang, error)}</div>}
+                    {error && <div className="text-red-500 font-bold text-sm lg:text-lg noshadow">{lng(lang, error)}</div>}
                 </div>
-                <button className="text-xl"
+                <button className="p-1 lg:p-2 text-md lg:text-xl"
                 onClick={e => {
                     setError('')
                     const success = (res:IUser) => {

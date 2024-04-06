@@ -18,5 +18,5 @@ export const loader:LoaderFunction = async ({params}) => {
     }
     let upd:{} = {gold: user.gold + rewardMount, exp, lvl};
     res = await updateUser(id as string, upd);
-    return json({res});
+    return json({res, reward: rewardMount});
 }

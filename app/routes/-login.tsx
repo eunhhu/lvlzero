@@ -7,7 +7,7 @@ const opposite = (state:string) => state === 'login' ? 'register' : 'login'
 
 const socketDomain = process.env.NODE_ENV === 'production' ? 'https://lvlzero.onrender.com' : 'http://127.0.0.1:3002'
 
-const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global}) => {
+const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global, isMobile}) => {
   const [once, setOnce] = useState<boolean>(false)
     const [state, setState] = useState<string>('login')
     const [username, setUsername] = useState<string>('')
@@ -21,9 +21,16 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global}) => {
     }, [])
 
     const tryLogin = async (user:IUser) => {
+      if(user.banned) {
+        localStorage.removeItem('userId')
+        setError('banned user')
+        setIsFetching(false)
+        return;
+      }
       setIsFetching(true)
       let socket = io(socketDomain)
-      socket.on('connect', () => {
+      socket.emit('login', user)
+      socket.on('login', () => {
         setUser(user)
         setSocket(socket)
         set('main')
@@ -50,18 +57,17 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global}) => {
         if(isFetching) return
         setIsFetching(true)
         fetch(`/getUser/type/username/value/${username}`).then(res => res.json()).then((res:{res:IUser}) => {
-            if(res.res){
-              if(res.res.password === sha256(password)){
-                localStorage.setItem('userId', res.res.id)
-                tryLogin(res.res)
-              }else{
-                setIsFetching(false)
-                setError('invalid password')
-              }
+          setIsFetching(false)
+          if(res.res){
+            if(res.res.password === sha256(password)){
+              localStorage.setItem('userId', res.res.id)
+              tryLogin(res.res)
             }else{
-                setIsFetching(false)
-                setError('invalid username')
+              setError('invalid password')
             }
+          }else{
+              setError('invalid username')
+          }
         })
     }
 
@@ -90,16 +96,16 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global}) => {
     return (<>
         {
             <div className="cover flex-col space-y-5" style={{backgroundImage:'url(assets/loginbg.png)'}}>
-                <input disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} type="text" name="" id="" placeholder={lng(lang, 'username')} value={username} onChange={e => {setError('');setUsername(e.target.value)}}/>
-                <input disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} type="password" name="" id="" placeholder={lng(lang, 'password')} value={password} onChange={e => {setError('');setPassword(e.target.value)}}/>
-                {state === 'register' && <input type="password" name="" id="" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}}
+                <input className="text-sm lg:text-md" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} type="text" name="" id="" placeholder={lng(lang, 'username')} value={username} onChange={e => {setError('');setUsername(e.target.value)}}/>
+                <input className="text-sm lg:text-md" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} type="password" name="" id="" placeholder={lng(lang, 'password')} value={password} onChange={e => {setError('');setPassword(e.target.value)}}/>
+                {state === 'register' && <input className="text-sm lg:text-md" type="password" name="" id="" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}}
                 placeholder={lng(lang, 'confirm password')} value={confirmPassword} onChange={e => {setError('');setConfirmPassword(e.target.value)}}/> }
-                <button disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} onClick={e => {
+                <button className="text-sm lg:text-md" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} onClick={e => {
                     if (state === 'login') login()
                     else register()
                 }}>{lng(lang, state)}</button>
-                {error && <div className="text-red-400">{lng(lang, error)}</div>}
-                <div className="text-white underline cursor-pointer" onClick={e => setState(opposite(state))}>{lng(lang, `to ${opposite(state)}`)}</div>
+                {error && <div className="text-red-400 text-sm lg:text-md">{lng(lang, error)}</div>}
+                <div className="text-white underline cursor-pointer text-sm lg:text-md" onClick={e => setState(opposite(state))}>{lng(lang, `to ${opposite(state)}`)}</div>
             </div>
         }
     </>)

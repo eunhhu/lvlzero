@@ -6,6 +6,7 @@ interface IUser{
     lvl: number;
     exp: number;
     admin: boolean;
+    banned: boolean;
     unlocked: string[];
     equipped: string[];
     avatar: string;
@@ -16,12 +17,14 @@ interface IUser{
 
 interface glFCProps{
     lang:string,
+    setLang:React.Dispatch<React.SetStateAction<string>>,
     set:React.Dispatch<React.SetStateAction<string>>,
     user:IUser,
     setUser:React.Dispatch<React.SetStateAction<IUser>>
     socket:SocketIOClient.Socket,
     setSocket:React.Dispatch<React.SetStateAction<SocketIOClient.Socket>>,
-    global:IDB
+    global:IDB,
+    isMobile:boolean
 }
 
 interface IRoom{
@@ -113,6 +116,7 @@ interface IEnemy{
 interface ILevel{
     level:number;
     enemyRegexes:string[];
+    title:string;
 }
 
 interface IMotion{

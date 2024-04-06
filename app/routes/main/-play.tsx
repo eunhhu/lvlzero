@@ -29,10 +29,10 @@ const PlayState:FC<{lang:string; socket:Socket; setRoom:Dispatch<SetStateAction<
     }, [once])
 
     return <div className="flex flex-col justify-center items-center w-full fixed top-0" style={{height: `calc(100% - 76px)`}}>
-        <h1 className="text-4xl text-white font-bold mt-5">{lng(lang, "room list")}</h1>
+        <h1 className="text-xl lg:text-4xl text-white font-bold mt-5">{lng(lang, "room list")}</h1>
         <div className="w-full flex flex-row gap-1 p-5">
-            <button className="w-40" onClick={e => setCreate(true)}>{lng(lang, 'create')}</button>
-            <input className="w-full" type="text" name="" id="" placeholder={lng(lang, 'search')} value={search} onChange={e => setSearch(e.target.value)}/>
+            <button className="text-sm lg:text-lg w-40" onClick={e => setCreate(true)}>{lng(lang, 'create')}</button>
+            <input className="text-sm lg:text-lg w-full" type="text" name="" id="" placeholder={lng(lang, 'search')} value={search} onChange={e => setSearch(e.target.value)}/>
         </div>
         <div className="w-full h-full overflow-auto flex flex-col gap-2 items-center p-5">
             {rooms.filter(v => v.name.match(search)).map((room, i) => {
@@ -44,12 +44,12 @@ const PlayState:FC<{lang:string; socket:Socket; setRoom:Dispatch<SetStateAction<
                     })
                 }}>
                     <div className="flex flex-col justify-center items-start">
-                        <div className="text-xl text-white font-bold">{room.name}</div>
-                        <div className="text-lg text-white">{room.users.length} / {room.maxUsers}</div>
+                        <div className="text-lg lg:text-xl text-white font-bold">{room.name}</div>
+                        <div className="text-md lg:text-lg text-white">{room.users.length} / {room.maxUsers}</div>
                     </div>
                     <div className="flex flex-col justify-center items-end">
-                        <div className="text-xl text-white font-bold">{room.ownerName}</div>
-                        <div className="text-lg text-white">{lng(lang, room.status)}</div>
+                        <div className="text-lg lg:text-xl text-white font-bold">{room.ownerName}</div>
+                        <div className="text-sm lg:text-lg text-white">{lng(lang, room.status)}</div>
                     </div>
                 </div>
             })}
@@ -65,20 +65,20 @@ const PlayState:FC<{lang:string; socket:Socket; setRoom:Dispatch<SetStateAction<
             <div className="box bg-[#000000aa] flex flex-col justify-center items-center text-center" style={{width:'80%', height:'70%'}}>
                 <div className="w-full h-full flex flex-col justify-center items-center gap-5">
                     <div className="flex justify-center items-center gap-5">
-                        <div className="text-3xl">{lng(lang, 'room name')}</div>
-                        <input className="w-40" type="text" name="" id="" placeholder={lng(lang, 'room name')} value={roomname} onChange={e => setRoomname(e.target.value)}/>
+                        <div className="text-lg lg:text-3xl">{lng(lang, 'room name')}</div>
+                        <input className="text-sm lg:text-lg w-64" type="text" name="" id="" placeholder={lng(lang, 'room name')} value={roomname} onChange={e => setRoomname(e.target.value)}/>
                     </div>
                     <div className="flex justify-center items-center gap-5">
-                        <div className="text-3xl">{lng(lang, 'max users')}</div>
-                        <input className="w-20" type="number" name="" id="" placeholder={lng(lang, 'max users')} value={maxUsers}
+                        <div className="text-lg lg:text-3xl">{lng(lang, 'max users')}</div>
+                        <input className="text-sm lg:text-lg w-20" type="number" name="" id="" placeholder={lng(lang, 'max users')} value={maxUsers}
                         onChange={e => setMaxUsers(Math.min(Math.max(1, +e.target.value), 4))} />
                     </div>
                     <div className="flex justify-center items-center gap-5">
-                        <div className="text-3xl">{lng(lang, 'private')}</div>
+                        <div className="text-lg lg:text-3xl">{lng(lang, 'private')}</div>
                         <input type="checkbox" name="" id="" className="w-7 h-7" checked={isPrivate} onChange={e => setIsPrivate(e.target.checked)} />
                     </div>
                 </div>
-                <button className="w-full text-3xl"
+                <button className="w-full text-lg lg:text-3xl"
                 onClick={e => {
                     socket.emit('createRoom', {name:roomname, maxUsers, private:isPrivate, user})
                     socket.once('roomCreated', (res:IRoom) => {

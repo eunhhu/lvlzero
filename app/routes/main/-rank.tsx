@@ -30,11 +30,9 @@ const RankState:FC<{lang:string}> = ({lang}) => {
             {(
                 state == 'level' ? users.sort((a, b) => b.lvl - a.lvl) :
                 state == 'winrate' ? users.sort((a, b) => {
-                    if(a.lose == 0 && b.lose == 0) return 0
-                    if(a.lose == 0) return -1
-                    if(b.lose == 0) return 1
-                    return b.win / (b.win + b.lose) - a.win / (a.win + a.lose)
-                
+                    let awr = a.win / (a.win + a.lose == 0 ? 1 : a.win + a.lose)
+                    let bwr = b.win / (b.win + b.lose == 0 ? 1 : b.win + b.lose)
+                    return bwr - awr
                 }) :
                 state == 'rating' ? users.sort((a, b) => (b.win - b.lose) - (a.win - a.lose)) :
                 users
@@ -53,7 +51,7 @@ const RankState:FC<{lang:string}> = ({lang}) => {
                         <div className='text-sm lg:text-md'>{lng(lang, 'win')} {v.win}</div>
                         <div className='text-sm lg:text-md'>{lng(lang, 'lose')} {v.lose}</div>
                         <div className='text-sm lg:text-md'>{lng(lang, 'winrate')} {v.lose == 0 ? 0 : v.win / (v.win + v.lose) * 100}%</div>
-                        <div className='text-sm lg:text-md'>{lng(lang, 'rating')} {v.win - v.lose}</div>
+                        <div className='text-sm lg:text-md'>{lng(lang, 'rating')} {v.win - (v.win + v.lose)}</div>
                     </div>
                 </div>
             })}

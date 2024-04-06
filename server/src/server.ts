@@ -191,7 +191,7 @@ client.connect().then(async () => {
                 user.selection = data;
                 let selectors:IUserSelectionData[] = room.users.map(v => v.selection)
                 let mySelectors:IUserSelectionData[] = room.users.filter(v => v.socketId != socket.id).map(v => v.selection)
-                socket.broadcast.to(room.ownerID).emit('userSelection', selectors)
+                io.to(room.ownerID).emit('userSelection', selectors)
                 socket.emit('userSelection', mySelectors)
             })
         

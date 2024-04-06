@@ -8,6 +8,7 @@ class Game {
     wave = 0;
     size = 20;
     health = 1000;
+    maxHealth = 1000;
     path = [];
     level = 1;
     maxWave = 10;
@@ -61,8 +62,9 @@ class Game {
     init(levels, lvl = 1) {
         this.lastTick = Date.now();
         this.level = lvl;
-        this.maxWave = levels.find(v => v.level == lvl).enemies.length;
-        this.health = 1000;
+        this.maxWave = levels.find(v => v.level == lvl).enemyRegexes.length;
+        this.maxHealth = 1000;
+        this.health = this.maxHealth;
         this.units = [];
         this.enemies = [];
         this.projectiles = [];
@@ -87,7 +89,8 @@ class Game {
         return {
             size: this.size,
             path: this.path,
-            maxWave: this.maxWave
+            maxWave: this.maxWave,
+            maxHealth: this.maxHealth
         };
     }
     getTickData() {
@@ -113,7 +116,8 @@ class Game {
         if (this.status === "waiting") {
             this.waitingTimer -= delta;
             if (this.waitingTimer <= 0) {
-                const enems = levels.find(v => v.level == this.level).enemies[this.wave].map((enemyType) => {
+                const lvl = levels.find(v => v.level == this.level);
+                const enems = this.parseEnemyRegex(lvl.enemyRegexes[this.wave]).map((enemyType) => {
                     const enemyData = enemies.find(enemy => enemy.type === enemyType);
                     let enemy;
                     if (!enemyData)
@@ -168,6 +172,29 @@ class Game {
                 this.gameOver(levels);
             }
         }
+    }
+    parseEnemyRegex(enemyRegex) {
+        const regexes = enemyRegex.split(',');
+        const enemies = [];
+        regexes.forEach(regex => {
+            const [enemyType, count] = regex.split(':');
+            for (let i = 0; i < +count; i++) {
+                enemies.push(enemyType);
+            }
+        });
+        return enemies;
+    }
+    stringifyEnemyRegex(enemies) {
+        let enemyCounts = {};
+        enemies.forEach(enemy => {
+            if (enemyCounts[enemy]) {
+                enemyCounts[enemy]++;
+            }
+            else {
+                enemyCounts[enemy] = 1;
+            }
+        });
+        return Object.entries(enemyCounts).map(([enemy, count]) => `${enemy}:${count}`).join(',');
     }
     startWave(enemies) {
         this.wave++;
@@ -286,16 +313,48 @@ class Game {
             case 'skipWave':
                 this.skipWave();
                 break;
-            case 'setWave':
-                if (params.length < 2)
+            case 'set':
+                if (params.length < 3)
                     return;
-                if (+params[1] < 0)
-                    return;
-                if (+params[1] > this.maxWave)
-                    return;
-                if (isNaN(+params[1]))
-                    return;
-                this.wave = +params[1];
+                switch (params[1]) {
+                    case 'wave':
+                        if (+params[2] < 0 || isNaN(+params[2]))
+                            return;
+                        this.wave = +params[2];
+                        break;
+                    case 'level':
+                        if (+params[2] < 1 || isNaN(+params[2]))
+                            return;
+                        this.level = +params[2];
+                        break;
+                    case 'health':
+                        if (+params[2] < 0 || isNaN(+params[2]))
+                            return;
+                        this.health = +params[2];
+                        break;
+                    case 'maxWave':
+                        if (+params[2] < 1 || isNaN(+params[2]))
+                            return;
+                        this.maxWave = +params[2];
+                        break;
+                    case 'waitingTimer':
+                        if (+params[2] < 0 || isNaN(+params[2]))
+                            return;
+                        this.waitingTimer = +params[2];
+                        break;
+                    case 'waitingTimerMax':
+                        if (+params[2] < 0 || isNaN(+params[2]))
+                            return;
+                        this.waitingTimerMax = +params[2];
+                        break;
+                    case 'enemySpawnInterval':
+                        if (+params[2] < 0 || isNaN(+params[2]))
+                            return;
+                        this.enemySpawnInterval = +params[2];
+                        break;
+                    default:
+                        break;
+                }
                 break;
             case 'killAll':
                 this.enemies = [];

@@ -50,6 +50,10 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     const [projectileDatas, setProjectileDatas] = useState<IProjectileData[]>([])
     const [waiting, setWaiting] = useState<number>(0)
     const [health, setHealth] = useState<number>(0)
+    const [lastHealth, setLastHealth] = useState<number>(0)
+    const [takenDamage, setTakenDamage] = useState<number>(0)
+    const [healthAniTimeStart, setHealthAniTimeStart] = useState<number>(0)
+    const [healthAniTimeEnd, setHealthAniTimeEnd] = useState<number>(0)
     const [wave, setWave] = useState<number>(0)
     const [coin, setCoin] = useState<number>(0)
     const [selectedPos, setSelectedPos] = useState<[number, number]>([-1, -1])
@@ -77,6 +81,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
         socket.emit('ready', user.id)
         socket.on('gameInit', (game:IGameInitData) => {
             setGame(game)
+            setHealth(game.maxHealth)
             _game = game
         })
         socket.on('usersUpdate', (users:IInRoomUser[]) => {
@@ -271,7 +276,18 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
         setTileSize(Math.min(width, height) / game.size * zoom)
     }, [game, width, height, zoom])
 
+    useEffect(() => {
+        if(!game) return
+        if(health != lastHealth){
+            setTakenDamage(health - lastHealth)
+            setLastHealth(health)
+            setHealthAniTimeStart(Date.now())
+            setHealthAniTimeEnd(Date.now() + 500)
+        }
+    }, [health, lastHealth])
+
     return (<>
+        {/* Stage */}
         {game ? <><Stage width={width} height={height}>
             <Container pivot={[-width/2 + viewport[0], -height/2 + viewport[1]]}>
                 <Tilemap
@@ -388,6 +404,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                 scale={props.scale} alpha={props.opacity} anchor={[props.anchorX, props.anchorY]} style={animation.options} />
             })}
         </Stage>
+        {/* Player's Selector */}
         {selectors.map((v, i) => {
             return <div key={i} className="absolute border-2 border-white" style={{width:tileSize, height:tileSize,
             left:v.x * tileSize + width/2 - (game.size * tileSize)/2 - viewport[0],
@@ -395,6 +412,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center',
             backgroundImage: v.type ? `url("assets/units/${v.type}.png")` : '', opacity:'0.5'}}></div>
         })}
+        {/* My Selector */}
         {selectedPos[0] != -1 && <div className="absolute border-2 border-yellow-300" style={{width:tileSize, height:tileSize,
             left:selectedPos[0] * tileSize + width/2 - (game.size * tileSize)/2 - viewport[0],
             top:selectedPos[1] * tileSize + height/2 - (game.size * tileSize)/2 - viewport[1],
@@ -404,13 +422,30 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                 setSelectedPos([-1, -1])
                 setSelectedUnit('')
         }}></div>}
+        {/* Wave Statement && Coin */}
         <div className="absolute text-white right-0 top-0 flex flex-col font-semibold p-2 gap-2 box text-right">
             <div>{lng(lang, 'wave')} : {wave} / {game.maxWave}</div>
             <div>{lng(lang, 'waitingfornextwave')} : {Math.floor(waiting/1000)}s <button className="noshadow p-1"
             onClick={e => {socket.emit('skipWave')}}>{lng(lang, 'skipwave')}</button></div>
-            <div>{lng(lang, 'health')} : {health}</div>
-            <div>{lng(lang, 'coin')} : {coin}c</div>
+            <div>{lng(lang, 'coin')} : <span className="text-yellow-400">{coin}</span>c</div>
         </div>
+        {/* Health Bar */}
+        <div className="absolute bottom-2 flex flex-col p-1 box noshadow w-[60%]" style={{left:`50%`, transform:`translate(-50%, -50%)`}}>
+            <div className="w-full h-5 bg-[#ffffff22] rounded-md">
+                {[''].map((v) => {
+                    const isAnimating = healthAniTimeEnd > timeline;
+                    const animationProgress = (timeline - healthAniTimeStart) / (healthAniTimeEnd - healthAniTimeStart);
+                    const ease = getEase(animationProgress, 'easeInOutSine');
+                    const damage = Math.abs(takenDamage);
+                    const backHealth = isAnimating ? (health + (damage * (1 - ease))) / game.maxHealth : health / game.maxHealth;
+                    const curHealth = isAnimating ? (health + (damage * ease)) / (health + damage) : 1;
+                    return <div key={v} className="h-full bg-[#ffffff99] rounded-md" style={{width:`${backHealth * 100}%`}}>
+                        <div className="h-full bg-[#ffffffaa] rounded-md text-black text-center align-middle font-semibold" style={{width:`${curHealth * 100}%`}}>{health} / {game.maxHealth}</div>
+                    </div>
+                })}
+            </div>
+        </div>
+        {/* Unit Selection */}
         {selectedPos[0] != -1 && !selectedUnit && !unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) &&
         <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-2 gap-2 box w-38">
             {user.equipped.map((unit:string, index:number) => {
@@ -430,6 +465,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             })}
             <button className="noshadow p-1" onClick={e=> setSelectedPos([-1, -1])}>{lng(lang, 'cancel')}</button>
         </div>}
+        {/* Unit Placement */}
         {selectedPos[0] != -1 && selectedUnit && !unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) && [''].map((_v, i) => {
             const canPlace = coin >= (global.units.find(v => v.type == selectedUnit)?.cost as number)
             return <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-2 gap-2 box w-38">
@@ -452,6 +488,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                 }}>{lng(lang, 'place')}</button>
             </div>
         })}
+        {/* Unit attributes & Upgrade */}
         {selectedPos[0] != -1 && !selectedUnit && unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) && [''].map((_v, i) => {
             const selected = unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1])
             if(!selected) return null;
@@ -487,6 +524,18 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                 </div>
             </>
         })}
+        {/* Zoom */}
+        <div className={`absolute text-white right-0 bottom-0 flex flex-col font-semibold p-2 gap-2 box ${user.admin ? "bottom-28" : ""}`}>
+            {/* Progress bar to make zoom */}
+            <div className="h-8 w-40 bg-[#ffffff22] rounded-md" onTouchMove={e => {
+                setZoom((e.touches[0].clientX - width/2) / width * 2 + 1.5)
+            }}>
+                {[''].map((v) => {
+                    return <div key={v} className="h-full bg-[#ffffff99] rounded-md" style={{width:`${Math.min((zoom-0.5) * 50, 100)}%`}}></div>
+                })}
+            </div>
+        </div>
+        {/* Admin */}
         {user.admin && <div className="absolute text-white right-0 bottom-0 flex flex-col font-semibold p-2 gap-2 box">
             <input className="noshadow p-1" type="text" value={text} onChange={e => setText(e.target.value)} />
             <button className="noshadow p-1 text-white" onClick={e => {

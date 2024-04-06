@@ -42,15 +42,15 @@ export default function Index(){
     return <main className="bg-black w-full h-full">
         {
             user?.admin ? <Table /> : <div className="flex flex-col w-full h-full justify-center items-center gap-3">
-                <input disabled={isFetching} style={{opacity: isFetching ? "0.5" : "1"}} type="text" name="" id="" value={username} onChange={e => {setUsername(e.target.value);setError('')}} />
-                <input disabled={isFetching} style={{opacity: isFetching ? "0.5" : "1"}} type="password" name="" id="" value={password} onChange={e => {setPassword(e.target.value);setError('')}} />
+                <input disabled={isFetching} type="text" name="" id="" value={username} onChange={e => {setUsername(e.target.value);setError('')}} />
+                <input disabled={isFetching} type="password" name="" id="" value={password} onChange={e => {setPassword(e.target.value);setError('')}} />
                 <p className="text-red-700">{error}</p>
-                <button disabled={isFetching} style={{opacity: isFetching ? "0.5" : "1"}} onClick={() => {login();setError('')}}>Login</button>
+                <button disabled={isFetching} onClick={() => {login();setError('')}}>Login</button>
             </div>
         }
         <div className="box absolute left-0 top-0 p-2 flex flex-col items-center justify-center gap-2">
             <div className="text-white font-semibold">Login as : {user?.username || "guest"}</div>
-            {user && <button disabled={isFetching} style={{opacity: isFetching ? "0.5" : "1"}} className="p-1" onClick={e => setUser(undefined)}>Logout</button>}
+            {user && <button disabled={isFetching} className="p-1" onClick={e => setUser(undefined)}>Logout</button>}
         </div>
     </main>
 }
@@ -86,8 +86,9 @@ const Table:FC = () => {
     return global && <><main className="flex flex-row w-full h-full justify-center items-center gap-3 text-white">
         <div className="w-24 h-full flex flex-col gap-2 justify-center items-center">
             {Object.keys(global).map((v, i) => {
-                return <button key={i} disabled={isFetching} style={{opacity: isFetching ? "0.5" : "1"}} className={`w-full p-1 noshadow ${page == v ? "bg-[#ffffff44]" : ""}`} onClick={e => setPage(v)}>{v.toUpperCase()}</button>
+                return <button key={i} disabled={isFetching} className={`w-full p-1 noshadow ${page == v ? "bg-[#ffffff44]" : ""}`} onClick={e => setPage(v)}>{v.toUpperCase()}</button>
             })}
+            <button className="w-full p-1 noshadow" disabled={isFetching} onClick={e => setRefresh(true)}>Refresh</button>
         </div>
         <div className="flex-1 h-full flex flex-col justify-start items-center overflow-y-auto overflow-x-hidden p-2 gap-2" style={{opacity: isFetching ? "0.5" : "1"}}>
             {(global as any)[page].map((v:any, i:number) => {
@@ -121,6 +122,10 @@ const Table:FC = () => {
                     })}
                 </details>
             })}
+            <button disabled={isFetching} className="p-1 noshadow w-full" onClick={e => {
+                setEditKey('create')
+                setTa(JSON.stringify({}))
+            }}>Create</button>
         </div>
     </main>
     {editKey && <div className="w-full h-full absolute top-0 left-0 bg-[#00000066] flex flex-col justify-center items-center"
@@ -129,17 +134,30 @@ const Table:FC = () => {
             <textarea className="w-full h-full" name="" id="" value={ta} onChange={e => setTa(e.target.value)}></textarea>
             <button className="p-1" onClick={e => {
                 setIsFetching(true)
-                fetch(`/updateOne/col/${page}/id/${editKey}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(JSON.parse(ta))
-                }).then(res => res.json()).then(res => {
-                    setRefresh(true)
-                    setIsFetching(false)
-                    setEditKey('')
-                    setTa('')
-                })
-            }}>Save</button>
+                if(editKey == 'create'){
+                    fetch(`/createOne/col/${page}`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: ta
+                    }).then(res => res.json()).then(res => {
+                        setRefresh(true)
+                        setIsFetching(false)
+                        setEditKey('')
+                        setTa('')
+                    })
+                } else if(editKey) {
+                    fetch(`/updateOne/col/${page}/id/${editKey}`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(JSON.parse(ta))
+                    }).then(res => res.json()).then(res => {
+                        setRefresh(true)
+                        setIsFetching(false)
+                        setEditKey('')
+                        setTa('')
+                    })
+                }
+            }}>{editKey == 'create' ? "Create" : "Save"}</button>
         </div>
     </div>}
     </>

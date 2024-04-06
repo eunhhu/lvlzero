@@ -49,6 +49,7 @@ interface IGameInitData{
     path:[number, number][];
     size:number;
     maxWave:number;
+    maxHealth:number;
 }
 
 interface IGameTickData{
@@ -111,7 +112,7 @@ interface IEnemy{
 
 interface ILevel{
     level:number;
-    enemies:string[][];
+    enemyRegexes:string[];
 }
 
 interface IMotion{

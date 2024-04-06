@@ -1,7 +1,7 @@
 import {FC, Dispatch, SetStateAction, useEffect, useState} from 'react'
 import { lng } from '~/data/lang'
 
-const outAttrs = ['type', 'buy', 'tags']
+const outAttrs = ['_id', 'type', 'buy', 'tags']
 const suffix:{[key:string]:string} = {
     "range":"m",
     "rate":"s",
@@ -89,9 +89,19 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                             {Object.keys(global.units.find(v => v.type == selected) as {[key:string]:any}).map((v, i) => {
                                 if(outAttrs.includes(v)) return null;
                                 if(global.units.find(v => v.type == selected)?.upgradeCost.length as number <= lvl && v == 'upgradeCost') return null;
+                                const max:number = +(global.units as {[key:string]:any}[]).map(v2 => {
+                                    return v == 'cost' ? v2[v] : v == 'rate' ? 1000/v2[v][v2.upgradeCost.length] : v2[v][v == 'upgradeCost' ? v2.upgradeCost.length-1 : v2.upgradeCost.length]
+                                }).sort((a,b) => b-a)[0];
+                                const tar = global.units.find(v => v.type == selected) as {[key:string]:any}
+                                const result:number = v == 'cost' ? +tar[v] : v == 'rate' ? 1000/+tar[v][lvl] : +tar[v][lvl]
                                 return <div key={i} className="flex flex-row justify-around items-center w-full p-2 text-center">
                                     <div className="flex-1 text-lg text-white font-bold">{lng(lang, v)}</div>
-                                    <div className="flex-1 text-lg text-white font-bold">{displayValue(global.units.find(v => v.type == selected) as {[key:string]:any}, v)}</div>
+                                    <div className="flex-1 text-lg text-white font-bold">{displayValue(tar, v)}</div>
+                                    <div className='flex-1'>
+                                        <div className='border-2 border-white w-full h-4 rounded-full'>
+                                            <div className={`h-full bg-blue-300 rounded-full text-black`} style={{width: `${result / max * 100}%`}}></div>
+                                        </div>
+                                    </div>
                                 </div>
                             })}
                             {[''].map((v, i) => {
@@ -100,6 +110,24 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                                 return <div key={i} className="flex flex-row justify-around items-center w-full p-2 text-center">
                                     <div className="flex-1 text-lg text-white font-bold">{lng(lang, 'dps')}</div>
                                     <div className="flex-1 text-lg text-white font-bold">{dps}</div>
+                                    <div className='flex-1'>
+                                        <div className='border-2 border-white w-full h-4 rounded-full'>
+                                            <div className={`h-full bg-blue-300 rounded-full`} style={{width:`${dps / 500 * 100}%`}}></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            })}
+                            {[''].map((v, i) => {
+                                let th = (global.units.find(v => v.type == selected) as {[key:string]:any})
+                                let drrs = Math.round(th.damage[lvl] / (th.rate[lvl]/1000) * th.range[lvl] * th.bulletSpeed[lvl])
+                                return <div key={i} className="flex flex-row justify-around items-center w-full p-2 text-center">
+                                    <div className="flex-1 text-lg text-white font-bold">{lng(lang, 'drrs')}</div>
+                                    <div className="flex-1 text-lg text-white font-bold">{drrs}</div>
+                                    <div className='flex-1'>
+                                        <div className='border-2 border-white w-full h-4 rounded-full'>
+                                            <div className={`h-full bg-blue-300 rounded-full`} style={{width:`${drrs / 3000 * 100}%`}}></div>
+                                        </div>
+                                    </div>
                                 </div>
                             })}
                         </div>}

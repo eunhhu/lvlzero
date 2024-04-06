@@ -228,7 +228,7 @@ client.connect().then(async () => {
         socket.on('gameCommand', (command) => {
             let room = rooms.find(room => room.ownerID === socket.id);
             if (room) {
-                room.game.command(command);
+                room.game.command(units, levels, command);
             }
         });
         socket.on('disconnect', () => {

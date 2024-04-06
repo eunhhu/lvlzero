@@ -45,8 +45,8 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global}) => {
     }, [once])
 
     const login = async () => {
-        if(!username) return setError(lng(lang, 'enter username'))
-        if(!password) return setError(lng(lang, 'enter password'))
+        if(!username) return setError('enter username')
+        if(!password) return setError('enter password')
         if(isFetching) return
         setIsFetching(true)
         fetch(`/getUser/type/username/value/${username}`).then(res => res.json()).then((res:{res:IUser}) => {
@@ -56,19 +56,19 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global}) => {
                 tryLogin(res.res)
               }else{
                 setIsFetching(false)
-                setError(lng(lang, 'invalid password'))
+                setError('invalid password')
               }
             }else{
                 setIsFetching(false)
-                setError(lng(lang, 'invalid username'))
+                setError('invalid username')
             }
         })
     }
 
     const register = () => {
-      if(!username) return setError(lng(lang, 'enter username'))
-      if(!password) return setError(lng(lang, 'enter password'))
-      if(!confirmPassword) return setError(lng(lang, 'confirm password'))
+      if(!username) return setError('enter username')
+      if(!password) return setError('enter password')
+      if(!confirmPassword) return setError('confirm password')
       if(!checkNick(username)) return setError('username must be 3~12 characters long including numbers and alphabets')
       if(!checkPass(password)) return setError('password must be more than 8 characters long including numbers and alphabets')
       if(password !== confirmPassword) return setError('passwords do not match')
@@ -81,7 +81,7 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global}) => {
           localStorage.setItem('userId', res.res.id)
           tryLogin(res.res)
         } else {
-          setError(lng(lang, 'name already exists'))
+          setError('name already exists')
           setIsFetching(false)
         }
       })

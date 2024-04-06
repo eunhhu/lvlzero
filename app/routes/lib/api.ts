@@ -5,7 +5,8 @@ export async function getUser(type: string, value: string): Promise<IUser> {
     await connectToMongoDB();
     const db = getMongoDB();
     const collection = db.collection("users");
-    const result = (await collection.findOne({ [type]: value })) as unknown as IUser;
+    let res = type == "username" ? {'$regex': value, '$options': 'i'} : value;
+    const result = (await collection.findOne({ [type]: res })) as unknown as IUser;
     return result;
 }
 
@@ -81,10 +82,10 @@ export async function updateOne(col: string, id: string, obj:any): Promise<any> 
     return result;
 }
 
-export async function createOne(col: string, obj: string): Promise<any> {
+export async function createOne(col: string, obj: any): Promise<any> {
     await connectToMongoDB();
     const db = getMongoDB();
     const collection = db.collection(col);
-    const result = (await collection.insertOne(JSON.parse(obj))) as unknown as any;
+    const result = (await collection.insertOne(obj)) as unknown as any;
     return result;
 }

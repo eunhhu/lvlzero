@@ -240,10 +240,10 @@ client.connect().then(async () => {
         socket.on('gameCommand', (command:string) => {
             let room:IRoom = rooms.find(room => room.ownerID === socket.id);
             if(room){
-                room.game.command(command);
+                room.game.command(units, levels, command);
             }
         })
-    
+
         socket.on('disconnect', () => {
             console.log("a user disconnected");
             let room:IRoom = rooms.find(room => room.ownerID === socket.id);

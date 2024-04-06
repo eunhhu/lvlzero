@@ -39,7 +39,7 @@ const ProfileState:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<
             <div className="box flex-1 w-full p-2 font-semibold text-lg flex flex-col justify-center items-center gap-3">
                 <div className='text-sm lg:text-lg'>{lng(lang, 'win')} {user.win}</div>
                 <div className='text-sm lg:text-lg'>{lng(lang, 'lose')} {user.lose}</div>
-                <div className='text-sm lg:text-lg'>{lng(lang, 'winrate')} {user.lose == 0 ? 0 : user.win / user.lose * 100}%</div>
+                <div className='text-sm lg:text-lg'>{lng(lang, 'winrate')} {user.lose == 0 ? 0 : user.win / (user.win + user.lose) * 100}%</div>
                 <div className='text-sm lg:text-lg'>{lng(lang, 'rating')} {user.win - user.lose}</div>
             </div>
         </div>

@@ -46,7 +46,7 @@ const RankState:FC<{lang:string}> = ({lang}) => {
                     <div className='flex flex-col justify-center items-end gap-2'>
                         <div className='text-sm lg:text-md'>{lng(lang, 'win')} {v.win}</div>
                         <div className='text-sm lg:text-md'>{lng(lang, 'lose')} {v.lose}</div>
-                        <div className='text-sm lg:text-md'>{lng(lang, 'winrate')} {v.lose == 0 ? 0 : v.win / v.lose * 100}%</div>
+                        <div className='text-sm lg:text-md'>{lng(lang, 'winrate')} {v.lose == 0 ? 0 : v.win / (v.win + v.lose) * 100}%</div>
                         <div className='text-sm lg:text-md'>{lng(lang, 'rating')} {v.win - v.lose}</div>
                     </div>
                 </div>

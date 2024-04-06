@@ -21,6 +21,7 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global}) => {
     }, [])
 
     const tryLogin = async (user:IUser) => {
+      setIsFetching(true)
       let socket = io(socketDomain)
       socket.on('connect', () => {
         setUser(user)
@@ -28,13 +29,14 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global}) => {
         set('main')
       })
     }
-
+    
     useEffect(() => {
       if(!once) return
       let userId = localStorage.getItem('userId')
       if(userId){
         setIsFetching(true)
         fetch(`/getUser/type/id/value/${userId}`).then(res => res.json()).then((res:{res:IUser}) => {
+          setIsFetching(false)
           if(res.res){
             tryLogin(res.res)
           }

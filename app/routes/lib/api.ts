@@ -72,15 +72,11 @@ export async function getOne(col: string, id: string): Promise<any> {
     return result;
 }
 
-export async function updateOne(col: string, id: string, type: string, value:string): Promise<any> {
+export async function updateOne(col: string, id: string, obj:any): Promise<any> {
     await connectToMongoDB();
     const db = getMongoDB();
     const collection = db.collection(col);
-    await collection.updateOne({ _id:new ObjectId(id) }, {
-        $set: {
-            [type]: JSON.parse(value)
-        }
-    });
+    await collection.updateOne({ _id:new ObjectId(id) }, {$set: obj});
     const result = collection.findOne({ _id:new ObjectId(id) }) as unknown as any;
     return result;
 }

@@ -62,6 +62,7 @@ const Table:FC = () => {
     const [global, setGlobal] = useState<IDB>()
     const [refresh, setRefresh] = useState<boolean>(false)
     const [editKey, setEditKey] = useState<string>('')
+    const [ta, setTa] = useState<string>('')
 
     useEffect(() => {
         if(!refresh) return
@@ -89,13 +90,20 @@ const Table:FC = () => {
             })}
         </div>
         <div className="flex-1 h-full flex flex-col justify-start items-center overflow-y-auto overflow-x-hidden p-2 gap-2" style={{opacity: isFetching ? "0.5" : "1"}}>
-            {global.users.map((v, i) => {
+            {(global as any)[page].map((v:any, i:number) => {
+                const title = page === 'users' ? `[${v.lvl}] ${v.username}`:
+                page === 'units' ? `${v.type}`:
+                page === 'enemies' ? `${v.type}`:
+                page === 'levels' ? `Lv.${v.level}` : ``
                 return <details key={i} className="w-full flex flex-col justify-start items-center p-1 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-md">
                     <summary className="flex flex-row justify-between items-center">
-                        <div className="text-xl text-white font-bold">[{v.lvl}] {v.username}</div>
+                        <div className="text-xl text-white font-bold">{title}</div>
                         <div className="flex flex-row justify-center items-center gap-2">
                             <button disabled={isFetching} className="noshadow p-1" onClick={e => {
-                                    setEditKey((v as any)._id)
+                                setEditKey((v as any)._id)
+                                let newone = {...v}
+                                delete newone._id
+                                setTa(JSON.stringify(newone, null, 2))
                             }}>Edit</button>
                             <button disabled={isFetching} className="noshadow p-1" onClick={e => {
                                 setIsFetching(true)
@@ -116,7 +124,23 @@ const Table:FC = () => {
         </div>
     </main>
     {editKey && <div className="w-full h-full absolute top-0 left-0 bg-[#00000066] flex flex-col justify-center items-center"
-    onClick={e => {if(e.target === e.currentTarget) {setEditKey('')}}}>
+    onClick={e => {if(e.target === e.currentTarget) {setEditKey('');setTa('')}}}>
+        <div className="box w-[80%] h-[80%] p-2 flex flex-col gap-2">
+            <textarea className="w-full h-full" name="" id="" value={ta} onChange={e => setTa(e.target.value)}></textarea>
+            <button className="p-1" onClick={e => {
+                setIsFetching(true)
+                fetch(`/updateOne/col/${page}/id/${editKey}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(JSON.parse(ta))
+                }).then(res => res.json()).then(res => {
+                    setRefresh(true)
+                    setIsFetching(false)
+                    setEditKey('')
+                    setTa('')
+                })
+            }}>Save</button>
+        </div>
     </div>}
     </>
 }

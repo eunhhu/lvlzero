@@ -45,7 +45,7 @@ class Unit {
             this.emit('motion-fire', this.type, this.x, this.y);
             // Calculate angle towards target
             const angle = Math.atan2(target.y - this.y, target.x - this.x);
-            this.angle = angle;
+            this.angle = angle + Math.PI / 2;
             const proj = new projectile_1.Projectile(this.x, this.y, angle, this.getCurStat().damage, this.getCurStat().bulletSpeed, this.tags, this.type);
             proj.on('motion-hit', (type, x, y) => {
                 this.emit('motion-hit', type, x, y);

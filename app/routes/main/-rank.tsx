@@ -29,7 +29,13 @@ const RankState:FC<{lang:string}> = ({lang}) => {
         <div className='flex-1 flex flex-col justify-start items-center w-full overflow-x-hidden overflow-y-auto p-1 gap-1'>
             {(
                 state == 'level' ? users.sort((a, b) => b.lvl - a.lvl) :
-                state == 'winrate' ? users.sort((a, b) => b.win / b.lose - a.win / a.lose) :
+                state == 'winrate' ? users.sort((a, b) => {
+                    if(a.lose == 0 && b.lose == 0) return 0
+                    if(a.lose == 0) return -1
+                    if(b.lose == 0) return 1
+                    return b.win / (b.win + b.lose) - a.win / (a.win + a.lose)
+                
+                }) :
                 state == 'rating' ? users.sort((a, b) => (b.win - b.lose) - (a.win - a.lose)) :
                 users
             ).map((v, i) => {

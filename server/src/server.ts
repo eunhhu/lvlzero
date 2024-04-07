@@ -141,6 +141,7 @@ client.connect().then(async () => {
                         if(room.users.every(user => user.ready)){
                             io.to(room.ownerID).emit('gameInit', room.game.getInitData());
                             let avg = room.users.reduce((a, b) => a + b.lvl, 0) / room.users.length;
+                            console.log('started')
                             room.users.forEach(user => user.coin += 500);
                             io.to(room.ownerID).emit('usersUpdate', room.users);
                             room.game.start(levels, enemies);

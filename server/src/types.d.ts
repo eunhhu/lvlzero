@@ -64,6 +64,7 @@ interface IGameTickData{
 }
 
 interface IUnitData{
+    id:number;
     x:number;
     y:number;
     angle:number;
@@ -72,6 +73,7 @@ interface IUnitData{
 }
 
 interface IEnemyData{
+    id:number;
     x:number;
     y:number;
     health:number;
@@ -81,6 +83,7 @@ interface IEnemyData{
 }
 
 interface IProjectileData{
+    id:number;
     x:number;
     y:number;
     angle:number;

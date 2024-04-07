@@ -50,8 +50,8 @@ const RankState:FC<{lang:string}> = ({lang}) => {
                     <div className='flex flex-col justify-center items-end gap-2'>
                         <div className='text-sm lg:text-md'>{lng(lang, 'win')} {v.win}</div>
                         <div className='text-sm lg:text-md'>{lng(lang, 'lose')} {v.lose}</div>
-                        <div className='text-sm lg:text-md'>{lng(lang, 'winrate')} {v.lose == 0 ? 0 : v.win / (v.win + v.lose) * 100}%</div>
-                        <div className='text-sm lg:text-md'>{lng(lang, 'rating')} {v.win - (v.win + v.lose)}</div>
+                        <div className='text-sm lg:text-md'>{lng(lang, 'winrate')} {v.lose == 0 ? 0 : (v.win / (v.win + v.lose) * 100).toFixed(2)}%</div>
+                        <div className='text-sm lg:text-md'>{lng(lang, 'rating')} {v.win - v.lose}</div>
                     </div>
                 </div>
             })}
@@ -74,7 +74,8 @@ const RankState:FC<{lang:string}> = ({lang}) => {
             <div className="box flex-1 w-full p-2 font-semibold text-lg flex flex-col justify-center items-center gap-3">
                 <div className='text-sm lg:text-md'>{lng(lang, 'win')} {profile.win}</div>
                 <div className='text-sm lg:text-md'>{lng(lang, 'lose')} {profile.lose}</div>
-                <div className='text-sm lg:text-md'>{lng(lang, 'winrate')} {profile.lose == 0 ? 0 : profile.win / profile.lose * 100}%</div>
+                <div className='text-sm lg:text-md'>{lng(lang, 'winrate')} {profile.lose == 0 ? 0 : (profile.win / (profile.win + profile.lose) * 100).toFixed(2)}%</div>
+                <div className='text-sm lg:text-md'>{lng(lang, 'rating')} {profile.win - profile.lose}</div>
             </div>
         </div>
     </div>}

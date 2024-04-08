@@ -3,7 +3,7 @@ import { FC, useEffect, useRef, useState } from "react"
 import * as usehooks from "usehooks-ts"
 import * as PIXI from 'pixi.js';
 import { lng } from "~/data/lang"
-import { getEase } from "~/data/utils";
+import { getEase, gradient } from "~/data/utils";
 
 const Tilemap: FC<{
     tileset: string;
@@ -62,8 +62,10 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     const [text, setText] = useState<string>('')
     const [motionSprites, setMotionSprites] = useState<ISpriteAnimation[]>([])
     const [motionTexts, setMotionTexts] = useState<ITextAnimation[]>([])
+    const [motionGlobalTexts, setMotionGlobalTexts] = useState<ITextAnimation[]>([])
     const [spriteQueue, setSpriteQueue] = useState<ISpriteAnimation>()
     const [textQueue, setTextQueue] = useState<ITextAnimation>()
+    const [globalTextQueue, setGlobalTextQueue] = useState<ITextAnimation>()
     const [timeline, setTimeline] = useState<number>(Date.now())
     const [dragging, setDragging] = useState<boolean>(false)
     const [draggingStart, setDraggingStart] = useState<[number, number]>([0, 0])
@@ -116,7 +118,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
         socket.on('waveComplete', (wave:number) => {
             setWave(wave)
             if(wave == _game.maxWave) return;
-            activeMotion('text', lng(lang, 'waveComplete'), 1500, [
+            activeMotion('globalText', lng(lang, 'waveComplete'), 1500, [
                 {type:'y', startValue:-height/1.5, endValue:0, duration:500, delay:0, ease:'easeOutCubic'},
                 {type:'y', startValue:0, endValue:0, duration:500, delay:500, ease:'linear'},
                 {type:'y', startValue:0, endValue:height/1.5, duration:500, delay:1000, ease:'easeInCubic'},
@@ -124,7 +126,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
         })
         socket.on('waveStarted', (wave:number) => {
             setWave(wave)
-            activeMotion('text', lng(lang, 'waveStarted'), 1500, [
+            activeMotion('globalText', lng(lang, 'waveStarted'), 1500, [
                 {type:'y', startValue:-height/1.5, endValue:0, duration:500, delay:0, ease:'easeOutCubic'},
                 {type:'y', startValue:0, endValue:0, duration:500, delay:500, ease:'linear'},
                 {type:'y', startValue:0, endValue:height/1.5, duration:500, delay:1000, ease:'easeInCubic'},
@@ -153,6 +155,25 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             }).catch(e => {
                 console.log(e)
             })
+        })
+        socket.on('motion', (type:string, x:number, y:number, value?:string) => {
+            const motion = type.split('-')[0]
+            const target = type.split('-')[1]
+            switch(motion){
+                case 'enemyDamaged':
+                    const damage = +(value || 0);
+                    if(damage < 3) return;
+                    const color = gradient(0, 1200, damage, 0xFFFF00, 0xFF0000);
+                    const size = gradient(0, 1200, damage, 12, 32);
+                    activeMotion('text', `${damage}`, 1000, [
+                        {type:'y', startValue:y, endValue:y - 0.2, duration:500, delay:0, ease:'easeOutCubic'},
+                        {type:'y', startValue:y - 0.2, endValue:y - 0.2, duration:500, delay:500, ease:'linear'},
+                        {type:'opacity', startValue:1, endValue:0, duration:300, delay:700, ease:'easeInCubic'},
+                    ], {x:x, y:y, rotation:0, scale:1, opacity:1, anchorX:0.5, anchorY:0.5},
+                    {fill:color, fontSize:isMobile ? size : size*2, fontWeight:900, fontFamily:'Arial', align:'center', dropShadow:true, dropShadowBlur:10, dropShadowAngle:0, dropShadowDistance:0} as any
+                    )
+                    break;
+            }
         })
 
         let timelineloop = setInterval(() => {
@@ -274,11 +295,14 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
         setViewport([lastViewport[0] + (draggingStart[0] - curDrag[0]), lastViewport[1] + (draggingStart[1] - curDrag[1])])
     }, [dragging, draggingStart, curDrag, lastViewport])
 
-    const activeMotion = (type:"sprite"|"text", value:string, duration:number, motions:IMotion[], defaultOptions:IDefaultOptions, options?:PIXI.TextStyle) => {
+    const activeMotion = (type:"sprite"|"text"|"globalText", value:string, duration:number, motions:IMotion[], defaultOptions:IDefaultOptions, options?:PIXI.TextStyle) => {
         if(type == "sprite"){
             setSpriteQueue({start:Date.now(), value, duration, motions, defaultOptions})
-        } else {
+        } else if(type == "text") {
             setTextQueue({start:Date.now(), value, duration, motions, defaultOptions, options:options ||
+            {fill:0xFFFFFF, fontSize:isMobile ? 48 : 96, fontWeight:900, fontFamily:'Arial', align:'center', dropShadow:true, dropShadowBlur:10, dropShadowAngle:0, dropShadowDistance:0}})
+        } else if(type == "globalText") {
+            setGlobalTextQueue({start:Date.now(), value, duration, motions, defaultOptions, options:options ||
             {fill:0xFFFFFF, fontSize:isMobile ? 48 : 96, fontWeight:900, fontFamily:'Arial', align:'center', dropShadow:true, dropShadowBlur:10, dropShadowAngle:0, dropShadowDistance:0}})
         }
     }
@@ -292,8 +316,15 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     useEffect(() => {
         if(!textQueue) return
         setMotionTexts([...motionTexts, textQueue])
+        console.log(motionTexts)
         setTextQueue(undefined)
     }, [textQueue, motionTexts])
+
+    useEffect(() => {
+        if(!globalTextQueue) return
+        setMotionGlobalTexts([...motionGlobalTexts, globalTextQueue])
+        setGlobalTextQueue(undefined)
+    }, [globalTextQueue, motionGlobalTexts])
 
     useEffect(() => {
         if(!game) return
@@ -359,6 +390,12 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                     );
                 })}
                 {enemyDatas.map((enemy, index) => {
+                    let tint = 0xFFFFFF;
+                    if(enemy.status.includes('poison')) tint = 0x44FF44;
+                    if(enemy.status.includes('fire')) tint = 0xFF9900;
+                    if(enemy.status.includes('bleed')) tint = 0xFF0000;
+                    if(enemy.status.includes('slow')) tint = 0x0088FF;
+                    if(enemy.status.includes('stun')) tint = 0xFFFF00;
                     return <>
                         <Sprite
                             key={index}
@@ -367,7 +404,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                             texture={PIXI.Texture.from(`assets/enemies/${enemy.type}.webp`)}
                             width={tileSize}
                             height={tileSize}
-                            tint={enemy.status.includes('slow') ? 0x0000FF : 0xFFFFFF}
+                            tint={tint}
                             anchor={0.5}
                         />
                         <Graphics draw={g => {
@@ -423,11 +460,37 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                     x={props.x} y={props.y} rotation={props.rotation}
                     scale={props.scale} alpha={props.opacity} anchor={[props.anchorX, props.anchorY]} />
                 })}
+                {motionTexts.map((animation, index) => {
+                    let delta = timeline - animation.start
+                    if(delta > animation.duration){
+                        setMotionTexts(motionTexts.filter((_, i) => i != index))
+                        return null
+                    }
+                    let props:{[key:string]:number} = {
+                        x:animation.defaultOptions.x,
+                        y:animation.defaultOptions.y,
+                        rotation:animation.defaultOptions.rotation,
+                        scale:animation.defaultOptions.scale,
+                        opacity:animation.defaultOptions.opacity,
+                        anchorX: animation.defaultOptions.anchorX,
+                        anchorY: animation.defaultOptions.anchorY
+                    }
+                    animation.motions.forEach(motion => {
+                        if(delta < motion.delay) return;
+                        if(delta > motion.delay + motion.duration) return;
+                        let progress = (delta - motion.delay) / motion.duration
+                        progress = getEase(progress, motion.ease)
+                        let value = motion.startValue + (motion.endValue - motion.startValue) * progress
+                        props[motion.type] = value;
+                    })
+                    return <Text key={index} text={animation.value} x={(props.x - game.size/2 + 0.5)*tileSize} y={(props.y - game.size/2 + 0.5)*tileSize} rotation={props.rotation}
+                    scale={props.scale} alpha={props.opacity} anchor={[props.anchorX, props.anchorY]} style={animation.options} />
+                })}
             </Container>
-            {motionTexts.map((animation, index) => {
+            {motionGlobalTexts.map((animation, index) => {
                 let delta = timeline - animation.start
                 if(delta > animation.duration){
-                    setMotionTexts(motionTexts.filter((_, i) => i != index))
+                    setMotionGlobalTexts(motionGlobalTexts.filter((_, i) => i != index))
                     return null
                 }
                 let props:{[key:string]:number} = {
@@ -469,6 +532,28 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                 setSelectedPos([-1, -1])
                 setSelectedUnit('')
         }}></div>}
+        {/* Radius */}
+        {selectedPos[0] != -1 && selectedUnit && [''].map((_v) => {
+            let radius = global.units.find(v => v.type == selectedUnit)?.range[0] || 0
+            radius *= 2;
+            return <div className="absolute border-2 border-yellow-300 rounded-full pointer-events-none" style={{
+                width:tileSize * radius, height:tileSize * radius,
+                left:selectedPos[0] * tileSize + width/2 - (game.size * tileSize)/2 - viewport[0] - tileSize * radius/2 + tileSize/2,
+                top:selectedPos[1] * tileSize + height/2 - (game.size * tileSize)/2 - viewport[1] - tileSize * radius/2 + tileSize/2,
+                opacity:'0.5'}}
+            ></div>
+        })}
+        {selectedPos[0] != -1 && !selectedUnit && unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) && [''].map((_v) => {
+            const target = unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1])
+            let radius = global.units.find(v => v.type == target?.type)?.range[(target?.lvl as number) - 1] || 0
+            radius *= 2;
+            return <div className="absolute border-2 border-yellow-300 rounded-full pointer-events-none" style={{
+                width:tileSize * radius, height:tileSize * radius,
+                left:selectedPos[0] * tileSize + width/2 - (game.size * tileSize)/2 - viewport[0] - tileSize * radius/2 + tileSize/2,
+                top:selectedPos[1] * tileSize + height/2 - (game.size * tileSize)/2 - viewport[1] - tileSize * radius/2 + tileSize/2,
+                opacity:'0.5'}}
+            ></div>
+        })}
         {/* Wave Statement && Coin */}
         <div className="absolute text-white right-0 top-0 flex flex-col font-semibold p-1 lg:p-2 gap-1 lg:gap-2 box text-right">
             <div className="text-sm lg:text-md">{lng(lang, 'wave')} : {wave} / {game.maxWave}</div>

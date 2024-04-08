@@ -42,7 +42,17 @@ export class Projectile {
                     if(type === 'poison' || type === 'fire') value = value * this.damage;
                     debuffs.push({type, duration, value});
                 }
-                enemy.takeDamage(this.damage, debuffs, enemies);
+                const splash = this.tags.find(tag => tag.split(':')[0] == 'splash');
+                if(splash){
+                    const radius = +(splash.split(':')[1]);
+                    for (let enemy of enemies) {
+                        if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < radius) {
+                            enemy.takeDamage(this.damage, debuffs, enemies);
+                        }
+                    }
+                } else {
+                    enemy.takeDamage(this.damage, debuffs, enemies);
+                }
 
                 this.emit('motion-hit', this.type, this.x, this.y);
                 this.dispose(projectiles);

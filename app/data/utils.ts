@@ -55,6 +55,9 @@ export function generateRandomAlphabets(count: number): string {
   return result;
 }
 
+export const gradient = (min:number, max:number, value:number, targetMin:number, targetMax:number):number => {
+  return (value - min) / (max - min) * (targetMax - targetMin) + targetMin;
+}
 
 function easeInSine(x: number): number {return 1 - Math.cos((x * Math.PI) / 2);}
 function easeOutSine(x: number): number {return Math.sin((x * Math.PI) / 2);}

@@ -112,7 +112,7 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                                     <div className="flex-1 text-sm lg:text-lg text-white font-bold">{dps}</div>
                                     <div className='flex-1'>
                                         <div className='border-2 border-white w-full h-3 lg:h-4 rounded-full'>
-                                            <div className={`h-full bg-blue-300 rounded-full`} style={{width:`${dps / 500 * 100}%`}}></div>
+                                            <div className={`h-full bg-blue-300 rounded-full`} style={{width:`${dps / 700 * 100}%`}}></div>
                                         </div>
                                     </div>
                                 </div>

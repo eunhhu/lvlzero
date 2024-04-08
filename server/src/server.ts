@@ -172,8 +172,8 @@ client.connect().then(async () => {
                                 room.users.forEach(user => user.coin += coin);
                                 io.to(room.ownerID).emit('usersUpdate', room.users);
                             })
-                            room.game.on('motion', (type:string, x:number, y:number) => {
-                                io.to(room.ownerID).emit('motion', type, x, y);
+                            room.game.on('motion', (type:string, x:number, y:number, value?:string) => {
+                                io.to(room.ownerID).emit('motion', type, x, y, value);
                             })
                             room.game.on('coin', (coin:number) => {
                                 room.users.forEach(user => user.coin += coin);

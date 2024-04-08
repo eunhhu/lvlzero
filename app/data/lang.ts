@@ -408,6 +408,66 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "en":"Rating",
         "ko":"레이팅"
     },
+    "stone-catapult":{
+        "en":"Stone Catapult",
+        "ko":"돌 투석기"
+    },
+    "ice-catapult":{
+        "en":"Ice Catapult",
+        "ko":"아이스 투석기"
+    },
+    "mini-cannon":{
+        "en":"Mini Cannon",
+        "ko":"미니 캐논"
+    },
+    "heavy-cannon":{
+        "en":"Heavy Cannon",
+        "ko":"헤비 캐논"
+    },
+    "bomb-cannon":{
+        "en":"Bomb Cannon",
+        "ko":"붐 캐논"
+    },
+    "charge-cannon":{
+        "en":"Charge Cannon",
+        "ko":"차지 캐논"
+    },
+    "auto-turret":{
+        "en":"Auto Turret",
+        "ko":"오토 터렛"
+    },
+    "machinegun-turret":{
+        "en":"Machinegun Turret",
+        "ko":"머신건 터렛"
+    },
+    "rocket-turret":{
+        "en":"Rocket Turret",
+        "ko":"로켓 터렛"
+    },
+    "laser-turret":{
+        "en":"Laser Turret",
+        "ko":"레이저 터렛"
+    },
+    "ballista":{
+        "en":"Ballista",
+        "ko":"발리스타"
+    },
+    "fire-ballista":{
+        "en":"Fire Ballista",
+        "ko":"파이어 발리스타"
+    },
+    "poison-ballista":{
+        "en":"Poison Ballista",
+        "ko":"포이즌 발리스타"
+    },
+    "royal-cannon":{
+        "en":"Royal Cannon",
+        "ko":"로얄 캐논"
+    },
+    "pulse-turret":{
+        "en":"Pulse Turret",
+        "ko":"펄스 터렛"
+    },
 }
 
 export function lng(lang:string, key:string){

@@ -4,6 +4,7 @@ exports.Unit = void 0;
 const events_1 = require("events");
 const projectile_1 = require("./projectile");
 class Unit {
+    id;
     x;
     y;
     damage;
@@ -19,6 +20,7 @@ class Unit {
     angle = 0;
     event = new events_1.EventEmitter();
     constructor(x, y, damage, rate, range, bulletSpeed, upgradeCost, cost, tags, type, lvl) {
+        this.id = Date.now();
         this.x = x;
         this.y = y;
         this.damage = damage;
@@ -55,7 +57,7 @@ class Unit {
         }
     }
     getTickData() {
-        return { x: this.x, y: this.y, angle: this.angle, type: this.type, lvl: this.lvl };
+        return { x: this.x, y: this.y, angle: this.angle, type: this.type, lvl: this.lvl, id: this.id };
     }
     getCurStat() {
         return {

@@ -2,6 +2,7 @@ import { Enemy } from './enemy';
 import { EventEmitter } from 'events';
 
 export class Projectile {
+    id: number;
     x: number;
     y: number;
     angle: number;
@@ -13,6 +14,7 @@ export class Projectile {
     event:EventEmitter = new EventEmitter();
 
     constructor(x: number, y: number, angle: number, damage: number, speed: number, tags:string[], type: string) {
+        this.id = Date.now();
         this.x = x;
         this.y = y;
         this.angle = angle;
@@ -58,7 +60,7 @@ export class Projectile {
     }
 
     getTickData(): IProjectileData{
-        return { x: this.x, y: this.y, angle: this.angle, type: this.type };
+        return { x: this.x, y: this.y, angle: this.angle, type: this.type, id: this.id};
     }
 
     isOutOfBounds(size: number): boolean {

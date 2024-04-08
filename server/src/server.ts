@@ -69,7 +69,7 @@ client.connect().then(async () => {
             socket.on('createRoom', (data:{name:string;maxUsers:number;private:boolean;user:IUser}) => {
                 let room:IRoom = {
                     name: data.name,
-                    users: [{username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0, lvl: data.user.lvl, ready: false, selection:{x:-1, y:-1, type:''}}],
+                    users: [{username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0, lvl: data.user.lvl, ready: false, selection:{x:-1, y:-1, type:'', socketId:socket.id}}],
                     maxUsers: data.maxUsers,
                     private: data.private,
                     status: 'waiting',
@@ -87,7 +87,7 @@ client.connect().then(async () => {
                 let room = rooms.find(room => room.ownerID === data.ownerId);
                 if(room){
                     if(room.users.length < room.maxUsers){
-                        room.users.push({username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0, lvl: data.user.lvl, ready: false, selection:{x:-1, y:-1, type:''}});
+                        room.users.push({username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0, lvl: data.user.lvl, ready: false, selection:{x:-1, y:-1, type:'', socketId:socket.id}});
                         socket.emit('roomJoined', room);
                         io.to(room.ownerID).emit('userJoined', room.users);
                         socket.join(room.ownerID);

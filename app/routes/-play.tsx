@@ -315,7 +315,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     }, [game, width, height, tileSize, selectors, viewport, lastViewport])
 
     useEffect(() => {
-        socket.emit('userSelect', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit})
+        socket.emit('userSelect', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit, socketId:socket.id})
     }, [selectedPos, selectedUnit])
 
     useEffect(() => {

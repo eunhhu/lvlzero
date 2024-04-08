@@ -3,6 +3,7 @@ import { Enemy } from './enemy';
 import { Projectile } from './projectile';
 
 export class Unit {
+    id: number;
     x: number;
     y: number;
     damage: number[];
@@ -20,6 +21,7 @@ export class Unit {
     event:EventEmitter = new EventEmitter();
 
     constructor(x: number, y: number, damage: number[], rate: number[], range: number[], bulletSpeed:number[], upgradeCost:number[], cost:number, tags:string[], type: string, lvl: number) {
+        this.id = Date.now();
         this.x = x;
         this.y = y;
         this.damage = damage;
@@ -60,7 +62,7 @@ export class Unit {
     }
 
     getTickData(): IUnitData{
-        return { x: this.x, y: this.y, angle:this.angle, type: this.type, lvl: this.lvl };
+        return { x: this.x, y: this.y, angle:this.angle, type: this.type, lvl: this.lvl, id: this.id};
     }
 
     getCurStat() {

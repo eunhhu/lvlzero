@@ -94,6 +94,7 @@ interface IUserSelectionData{
     x:number;
     y:number;
     type:string;
+    socketId:string;
 }
 
 interface IUnit{

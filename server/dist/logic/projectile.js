@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Projectile = void 0;
 const events_1 = require("events");
 class Projectile {
+    id;
     x;
     y;
     angle;
@@ -12,6 +13,7 @@ class Projectile {
     type;
     event = new events_1.EventEmitter();
     constructor(x, y, angle, damage, speed, tags, type) {
+        this.id = Date.now();
         this.x = x;
         this.y = y;
         this.angle = angle;
@@ -53,7 +55,7 @@ class Projectile {
         }
     }
     getTickData() {
-        return { x: this.x, y: this.y, angle: this.angle, type: this.type };
+        return { x: this.x, y: this.y, angle: this.angle, type: this.type, id: this.id };
     }
     isOutOfBounds(size) {
         return this.x < 0 || this.x > size || this.y < 0 || this.y > size;

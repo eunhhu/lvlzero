@@ -1,28 +1,23 @@
 import * as BABYLON from 'babylonjs';
-import { EventEmitter } from './eventEmitter';
+import 'babylonjs-loaders';
 
-export const useWebGl = (canvas:HTMLCanvasElement, global:IDB):{
+export const useWebGl = async (canvas:HTMLCanvasElement, global:IDB):Promise<{
     engine:BABYLON.Engine;
-    glOn:(event:string, listener:(...args:any[]) => void) => void;
-    glOff:(event:string, listener:(...args:any[]) => void) => void;
-    glEmit:(event:string, ...args:any[]) => void;
-} => {
-    const events = new EventEmitter()
+    gameUpdate:(tickData:IGameTickData) => void;
+    init:(game:IGameInitData) => void;
+    clicker:(x:number, y:number, game:IGameInitData) => [number, number];
+}> => {
     const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:true, stencil:true});
-
-    let unitMeshes:BABYLON.AbstractMesh[][] = []
-    let enemyMeshes:BABYLON.AbstractMesh[][] = []
-    let projectileMeshes:BABYLON.AbstractMesh[][] = []
 
     async function createScene():Promise<BABYLON.Scene> {
         const scene = new BABYLON.Scene(engine)
         scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
         scene.ambientColor = new BABYLON.Color3(1, 1, 1);
         scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
-        scene.fogDensity = 0.01;
+        scene.fogDensity = 0.001;
         scene.fogColor = new BABYLON.Color3(1, 1, 1);
-        scene.fogStart = 0;
-        scene.fogEnd = 100;
+        scene.fogStart = 40;
+        scene.fogEnd = 200;
 
         const camera = new BABYLON.ArcRotateCamera('Camera', 0, 0, 0, new BABYLON.Vector3(0, 0, 0), scene);
         camera.radius = 20;
@@ -35,7 +30,7 @@ export const useWebGl = (canvas:HTMLCanvasElement, global:IDB):{
         light.intensity = 0.7
         light.diffuse = new BABYLON.Color3(1, 1, 1)
 
-        const ground = BABYLON.MeshBuilder.CreateGround('ground', {width:10, height:10}, scene)
+        const ground = BABYLON.MeshBuilder.CreateGround('ground', {width:1, height:1}, scene)
         const matName = 'GroundGrassGreen002'
         const groundMaterial = new BABYLON.StandardMaterial(`M_${matName}`, scene)
         groundMaterial.ambientTexture = new BABYLON.Texture(`assets/textures/${matName}/${matName}_AO_1K.jpg`, scene)
@@ -55,61 +50,70 @@ export const useWebGl = (canvas:HTMLCanvasElement, global:IDB):{
         skybox.material = skyboxMaterial
         skybox.infiniteDistance = true
 
-        await Promise.all(global.units.map(async (unit:IUnit) => {
-            const unitMesh = await BABYLON.SceneLoader.ImportMeshAsync('', 'assets/units/', `${unit.type}.glb`, scene)
-            unitMeshes.push(unitMesh.meshes)
-        }))
-
-        await Promise.all(global.enemies.map(async (enemy:IEnemy) => {
-            const enemyMesh = await BABYLON.SceneLoader.ImportMeshAsync('', 'assets/enemies/', `${enemy.type}.glb`, scene)
-            enemyMeshes.push(enemyMesh.meshes)
-        }))
-
         return scene
     }
-    let scene:BABYLON.Scene;
-    createScene().then((_s) => scene = _s);
+
+    let scene:BABYLON.Scene = await createScene();
     engine.runRenderLoop(() => {
         scene.render();
     });
-    const glOn = (event:string, listener:(...args:any[]) => void) => {events.on(event, listener)};
-    const glOff = (event:string, listener:(...args:any[]) => void) => {events.off(event, listener)};
-    const glEmit = (event:string, ...args:any[]) => {events.emit(event, args)};
-    glEmit('ready')
-    
-    let unitDatas:IUnitData[] = []
-    let enemyDatas:IEnemyData[] = []
-    let projectileDats:IProjectileData[] = []
 
-    glOn('gameUpdate', (tickData:IGameTickData) => {
-        unitDatas = tickData.units
-        enemyDatas = tickData.enemies
-        projectileDats = tickData.projectiles
-
-        unitDatas.forEach((unitData:IUnitData) => {
+    const gameUpdate = (tickData:IGameTickData) => {
+        tickData.units.forEach(async (unitData:IUnitData) => {
             const unit = scene.getMeshById(`${unitData.id}`)
             if(unit){
                 unit.position = new BABYLON.Vector3(unitData.x, 1, unitData.y)
+            } else {
+                const newUnit = (await BABYLON.SceneLoader.ImportMeshAsync(unitData.id, 'assets/units/', `${unitData.type}.glb`, scene)).meshes[0]
+                newUnit.position = new BABYLON.Vector3(unitData.x, 1, unitData.y)
+                console.log('unit created')
             }
         })
 
-        enemyDatas.forEach((enemyData:IEnemyData) => {
+        tickData.enemies.forEach(async (enemyData:IEnemyData) => {
             const enemy = scene.getMeshById(`${enemyData.id}`)
             if(enemy){
                 enemy.position = new BABYLON.Vector3(enemyData.x, 1, enemyData.y)
+            } else {
+                const newEnemy = (await BABYLON.SceneLoader.ImportMeshAsync(enemyData.id, 'assets/enemies/', `${enemyData.type}.glb`, scene)).meshes[0]
+                newEnemy.position = new BABYLON.Vector3(enemyData.x, 1, enemyData.y)
+                console.log('enemy created')
             }
         })
-    })
+    }
 
-    glOn('init', (game:IGameInitData) => {
+    const init = (game:IGameInitData) => {
         (scene.getMeshById('ground') as BABYLON.Mesh).scaling = new BABYLON.Vector3(game.size, 1, game.size);
-    })
 
-    glOn('click', (x:number, y:number) => {
+        const matName = 'GroundDirtWeedsPatchy004'
+        const pathMat = new BABYLON.StandardMaterial(`M_${matName}`, scene)
+        pathMat.ambientTexture = new BABYLON.Texture(`assets/textures/${matName}/${matName}_AO_1K.jpg`, scene)
+        pathMat.bumpTexture = new BABYLON.Texture(`assets/textures/${matName}/${matName}_NRM_1K.jpg`, scene)
+        pathMat.diffuseTexture = new BABYLON.Texture(`assets/textures/${matName}/${matName}_COL_1K.jpg`, scene)
+        pathMat.specularTexture = new BABYLON.Texture(`assets/textures/${matName}/${matName}_GLOSS_1K.jpg`, scene)
+        pathMat.reflectionTexture = new BABYLON.Texture(`assets/textures/${matName}/${matName}_REFL_1K.jpg`, scene)
+
+        game.path.forEach((pathData:[number, number]) => {
+            const path = BABYLON.MeshBuilder.CreateBox('path', {size:1}, scene)
+            path.position = new BABYLON.Vector3(pathData[0], 0.05, pathData[1])
+            path.scaling = new BABYLON.Vector3(1, 0.01, 1)
+            path.material = pathMat
+            scene.getMeshByID('ground')?.addChild(path)
+        })
+    }
+
+    const clicker =  (x:number, y:number, game:IGameInitData):[number, number] => {
         const pickResult = scene.pick(x, y)
-        if(pickResult.hit){
-            glEmit('click', pickResult.pickedPoint)
-        }
-    })
-    return {engine, glOn, glOff, glEmit}
+        if(!pickResult.hit) return [-1, -1]
+        if(pickResult.pickedPoint?.x && pickResult.pickedPoint?.z){
+            let posX = Math.round(pickResult.pickedPoint?.x)
+            let posZ = Math.round(pickResult.pickedPoint?.z)
+            console.log(posX, posZ)
+            if(posX > game.size || posX < 0) return [-1, -1]
+            if(posZ > game.size || posZ < 0) return [-1, -1]
+            return [posX, posZ]
+        } else return [-1, -1]
+    }
+
+    return {engine, gameUpdate, init, clicker}
 }

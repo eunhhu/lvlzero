@@ -1,10 +1,9 @@
 import { FC, useEffect, useRef, useState } from "react"
-import * as BABYLON from 'babylonjs'
-import 'babylonjs-loaders'
 import * as usehooks from "usehooks-ts"
 import { lng } from "~/data/lang"
 import { getEase } from "~/data/utils";
 import { useWebGl } from "~/models/webgl"
+import '@babylonjs/loaders'
 
 const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global, isMobile}) => {
     const {width, height} = usehooks.useWindowSize()
@@ -44,121 +43,154 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
         if(!once || !socket || !canvasRef.current) return
 
         const canvas = canvasRef.current as HTMLCanvasElement
-
-        let _game:IGameInitData;
-
-        const {engine, glOn, glOff, glEmit} = useWebGl(canvas, global)
-
-        socket.emit('ready', user.id)
-        socket.on('gameInit', (game:IGameInitData) => {
-            setGame(game)
-            setHealth(game.maxHealth)
-            _game = game
-            glOn('ready', () => {
-                glEmit('init', game)
-                glOff('ready' , () => {})
+        const initial = async () => {
+            
+            let _game:IGameInitData;
+    
+            const {engine, init, gameUpdate, clicker} = await useWebGl(canvas, global)
+            console.log('webgl initialized')
+    
+            socket.emit('ready', user.id)
+            socket.on('gameInit', (game:IGameInitData) => {
+                console.log('gameInit')
+                setGame(game)
+                setHealth(game.maxHealth)
+                _game = game
+                init(game)
             })
-        })
-        socket.on('usersUpdate', (users:IInRoomUser[]) => {
-            setCoin(users.find(u => u.socketId === socket.id)?.coin || 0)
-        })
-        socket.on('coinUpdate', (coin:number) => {
-            setCoin(coin)
-        })
-        socket.on('gameUpdate', (tickData:IGameTickData) => {
-            glEmit('gameUpdate', tickData)
-            setUnitDatas(unitDatas)
-            setHealth(tickData.health)
-            setWaiting(tickData.waitingTimer)
-        })
-        socket.on('roomDeleted', () => {
-            set('main')
-        })
-        socket.on('userSelection', (data:IUserSelectionData[]) => {
-            glEmit('userSelection', data)
-        })
 
-        socket.on('waveComplete', (wave:number) => {
-            setWave(wave)
-            if(wave == _game.maxWave) return;
-            activeMotion(lng(lang, 'waveComplete'), 1500, [
-                {type:'y', startValue:-height/1.5, endValue:0, duration:500, delay:0, ease:'easeOutCubic'},
-                {type:'y', startValue:0, endValue:0, duration:500, delay:500, ease:'linear'},
-                {type:'y', startValue:0, endValue:height/1.5, duration:500, delay:1000, ease:'easeInCubic'},
-            ], {x:0, y:-height, rotation:0, scale:1, opacity:1, anchorX:0.5, anchorY:0.5})
-        })
-        socket.on('waveStarted', (wave:number) => {
-            setWave(wave)
-            activeMotion(lng(lang, 'waveStarted'), 1500, [
-                {type:'y', startValue:-height/1.5, endValue:0, duration:500, delay:0, ease:'easeOutCubic'},
-                {type:'y', startValue:0, endValue:0, duration:500, delay:500, ease:'linear'},
-                {type:'y', startValue:0, endValue:height/1.5, duration:500, delay:1000, ease:'easeInCubic'},
-            ], {x:0, y:-height, rotation:0, scale:1, opacity:1, anchorX:0.5, anchorY:0.5})
-        })
-        socket.on('gameOver', (level:number, wave:number) => {
-            setFinished(true)
-            fetch(`/updateUser/id/${user.id}/level/${level}/wave/${wave}/maxwave/${_game.maxWave}/clear/false`).then(res => res.json()).then((res:{res:IUser, reward:number}) => {
-                setShowResult(true)
-                setUser(res.res)
-                setResultGold(res.reward)
-                setResultExp(res.reward)
-                setResultText('gameOver')
-            }).catch(e => {
-                console.log(e)
+            socket.on('usersUpdate', (users:IInRoomUser[]) => {
+                setCoin(users.find(u => u.socketId === socket.id)?.coin || 0)
             })
-        })
-        socket.on('gameComplete', (level:number) => {
-            setFinished(true)
-            fetch(`/updateUser/id/${user.id}/level/${level}/wave/${_game.maxWave}/maxwave/${_game.maxWave}/clear/true`).then(res => res.json()).then((res:{res:IUser, reward:number}) => {
-                setShowResult(true)
-                setUser(res.res)
-                setResultGold(res.reward)
-                setResultExp(res.reward)
-                setResultText('gameComplete')
-            }).catch(e => {
-                console.log(e)
+            socket.on('coinUpdate', (coin:number) => {
+                setCoin(coin)
             })
-        })
+            socket.on('gameUpdate', (tickData:IGameTickData) => {
+                gameUpdate(tickData)
+                setUnitDatas(unitDatas)
+                setHealth(tickData.health)
+                setWaiting(tickData.waitingTimer)
+            })
+            socket.on('roomDeleted', () => {
+                set('main')
+            })
+            socket.on('userSelection', (data:IUserSelectionData[]) => {
+                
+            })
+    
+            socket.on('waveComplete', (wave:number) => {
+                setWave(wave)
+                if(wave == _game.maxWave) return;
+                activeMotion(lng(lang, 'waveComplete'), 1500, [
+                    {type:'y', startValue:-height/1.5, endValue:0, duration:500, delay:0, ease:'easeOutCubic'},
+                    {type:'y', startValue:0, endValue:0, duration:500, delay:500, ease:'linear'},
+                    {type:'y', startValue:0, endValue:height/1.5, duration:500, delay:1000, ease:'easeInCubic'},
+                ], {x:0, y:-height, rotation:0, scale:1, opacity:1, anchorX:0.5, anchorY:0.5})
+            })
+            socket.on('waveStarted', (wave:number) => {
+                setWave(wave)
+                activeMotion(lng(lang, 'waveStarted'), 1500, [
+                    {type:'y', startValue:-height/1.5, endValue:0, duration:500, delay:0, ease:'easeOutCubic'},
+                    {type:'y', startValue:0, endValue:0, duration:500, delay:500, ease:'linear'},
+                    {type:'y', startValue:0, endValue:height/1.5, duration:500, delay:1000, ease:'easeInCubic'},
+                ], {x:0, y:-height, rotation:0, scale:1, opacity:1, anchorX:0.5, anchorY:0.5})
+            })
+            socket.on('gameOver', (level:number, wave:number) => {
+                setFinished(true)
+                fetch(`/updateUser/id/${user.id}/level/${level}/wave/${wave}/maxwave/${_game.maxWave}/clear/false`).then(res => res.json()).then((res:{res:IUser, reward:number}) => {
+                    setShowResult(true)
+                    setUser(res.res)
+                    setResultGold(res.reward)
+                    setResultExp(res.reward)
+                    setResultText('gameOver')
+                }).catch(e => {
+                    console.log(e)
+                })
+            })
+            socket.on('gameComplete', (level:number) => {
+                setFinished(true)
+                fetch(`/updateUser/id/${user.id}/level/${level}/wave/${_game.maxWave}/maxwave/${_game.maxWave}/clear/true`).then(res => res.json()).then((res:{res:IUser, reward:number}) => {
+                    setShowResult(true)
+                    setUser(res.res)
+                    setResultGold(res.reward)
+                    setResultExp(res.reward)
+                    setResultText('gameComplete')
+                }).catch(e => {
+                    console.log(e)
+                })
+            })
+            let isDragging = false
+            let isMouseDown = false
+    
+            const click = (event:MouseEvent) => {
+                if(isDragging) return isDragging = false
+                console.log('click')
+                const rect = canvas.getBoundingClientRect()
+                const x = event.clientX - rect.left
+                const y = event.clientY - rect.top
+                setSelectedPos(clicker(x, y, _game))
+            }
+            canvas.addEventListener('click', click)
+    
+            const resize = () => {
+                canvas.width = window.innerWidth
+                canvas.height = window.innerHeight
+                engine.resize()
+            }
+            resize()
+    
+            let timelineloop = setInterval(() => {
+                setTimeline(Date.now())
+            }, 1000/60)
+    
+            const touchStart = (e:TouchEvent) => {
+            }
+            const touchMove = (e:TouchEvent) => {
+                isDragging = true
+            }
+            const touchEnd = (e:TouchEvent) => {
+            }
+            const mousedown = (e:MouseEvent) => {
+                isMouseDown = true
+            }
+            const mouseup = (e:MouseEvent) => {
+                isMouseDown = false
+            }
+            const mousemove = (e:MouseEvent) => {
+                if(isMouseDown) isDragging = true
+            }
+            document.addEventListener('touchstart', touchStart)
+            document.addEventListener('touchmove', touchMove)
+            document.addEventListener('touchend', touchEnd)
+            document.addEventListener('mousedown', mousedown)
+            document.addEventListener('mouseup', mouseup)
+            document.addEventListener('mousemove', mousemove)
+            window.addEventListener('resize', resize)
+            return () => {
+                socket.off('gameInit')
+                socket.off('userInit')
+                socket.off('gameUpdate')
+                socket.off('roomDeleted')
+                socket.off('userSelection')
+                socket.off('gameOver')
+                socket.off('waveComplete')
+                socket.off('waveStarted')
+                socket.off('gameComplete')
+                clearInterval(timelineloop)
+                document.removeEventListener('click', click)
+                document.removeEventListener('touchstart', touchStart)
+                document.removeEventListener('touchmove', touchMove)
+                document.removeEventListener('touchend', touchEnd)
+                document.removeEventListener('mousedown', mousedown)
+                document.removeEventListener('mouseup', mouseup)
+                document.removeEventListener('mousemove', mousemove)
+                window.removeEventListener('resize', resize)
+                engine.dispose()
+            }
+        }
+        initial()
 
-        const resize = () => {
-            canvas.width = window.innerWidth
-            canvas.height = window.innerHeight
-            engine.resize()
-        }
-        resize()
-
-        let timelineloop = setInterval(() => {
-            setTimeline(Date.now())
-        }, 1000/60)
-
-        const touchStart = (e:TouchEvent) => {
-        }
-        const touchMove = (e:TouchEvent) => {
-        }
-        const touchEnd = (e:TouchEvent) => {
-        }
-        document.addEventListener('touchstart', touchStart)
-        document.addEventListener('touchmove', touchMove)
-        document.addEventListener('touchend', touchEnd)
-        window.addEventListener('resize', resize)
-        return () => {
-            socket.off('gameInit')
-            socket.off('userInit')
-            socket.off('gameUpdate')
-            socket.off('roomDeleted')
-            socket.off('userSelection')
-            socket.off('gameOver')
-            socket.off('waveComplete')
-            socket.off('waveStarted')
-            socket.off('gameComplete')
-            clearInterval(timelineloop)
-            document.removeEventListener('touchstart', touchStart)
-            document.removeEventListener('touchmove', touchMove)
-            document.removeEventListener('touchend', touchEnd)
-            window.removeEventListener('resize', resize)
-            engine.dispose()
-        }
-    }, [once, socket, canvasRef.current])
+    }, [once, socket])
 
     useEffect(() => {
         socket.emit('userSelection', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit})

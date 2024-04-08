@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Enemy = void 0;
 const events_1 = require("events");
 class Enemy {
+    id;
     x;
     y;
     speed;
@@ -13,6 +14,7 @@ class Enemy {
     event = new events_1.EventEmitter();
     debuffs = [];
     constructor(x, y, speed, health, type, path) {
+        this.id = Date.now();
         this.x = x;
         this.y = y;
         this.speed = speed;
@@ -79,7 +81,7 @@ class Enemy {
         this.emit('motion-damaged', this.x, this.y, damage);
     }
     getTickData() {
-        return { x: this.x, y: this.y, health: this.health, maxHealth: this.maxHealth, status: this.debuffs.map(v => v.type), type: this.type };
+        return { x: this.x, y: this.y, health: this.health, maxHealth: this.maxHealth, status: this.debuffs.map(v => v.type), type: this.type, id: this.id };
     }
     die(enemies) {
         this.dispose(enemies);

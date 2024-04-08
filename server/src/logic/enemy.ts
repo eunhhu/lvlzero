@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 
 export class Enemy {
+    id: number;
     x: number;
     y: number;
     speed: number;
@@ -13,6 +14,7 @@ export class Enemy {
     debuffs:IDebuff[] = [];
 
     constructor(x: number, y: number, speed: number, health: number, type: string, path: [number, number][]) {
+        this.id = Date.now();
         this.x = x;
         this.y = y;
         this.speed = speed;
@@ -84,7 +86,7 @@ export class Enemy {
     }
 
     getTickData(): IEnemyData{
-        return { x: this.x, y: this.y, health: this.health, maxHealth:this.maxHealth, status:this.debuffs.map(v => v.type), type: this.type };
+        return { x: this.x, y: this.y, health: this.health, maxHealth:this.maxHealth, status:this.debuffs.map(v => v.type), type: this.type, id: this.id};
     }
 
     die(enemies:Enemy[]): void {

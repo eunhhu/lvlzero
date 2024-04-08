@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Login from "./-login";
 import Main from "./-main";
 import Play from "./-play";
+import Play3d from "./-play3d";
 import {Socket} from "socket.io-client";
 
 export const meta: MetaFunction = () => {
@@ -103,6 +104,7 @@ export default function Index() {
       globalState == 'login' ? <Login lang={lang} setLang={setLang} set={setGlobalState} user={user as IUser} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} global={global} isMobile={isMobile} /> :
       globalState == 'main' ? <Main lang={lang} setLang={setLang} set={setGlobalState} user={user as IUser} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} global={global} isMobile={isMobile} />:
       globalState == 'play' ? <Play lang={lang} setLang={setLang} set={setGlobalState} user={user as IUser} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} global={global} isMobile={isMobile} />:
+      globalState == 'play3d' ? <Play3d lang={lang} setLang={setLang} set={setGlobalState} user={user as IUser} setUser={setUser as any} socket={socket as Socket} setSocket={setSocket as any} global={global} isMobile={isMobile} />:
       <>404</>
     }</> : <main className="w-full h-full bg-black flex flex-col justify-end items-end text-gray-300 font-semibold text-sm p-1">Loading . . .</main>}
   </>);

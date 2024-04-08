@@ -14,7 +14,7 @@ class Enemy {
     event = new events_1.EventEmitter();
     debuffs = [];
     constructor(x, y, speed, health, type, path) {
-        this.id = Date.now();
+        this.id = Math.floor(Math.random() * 1000000);
         this.x = x;
         this.y = y;
         this.speed = speed;

@@ -3,9 +3,8 @@ import * as usehooks from "usehooks-ts"
 import { lng } from "~/data/lang"
 import { getEase } from "~/data/utils";
 import { useWebGl } from "~/models/webgl"
-import '@babylonjs/loaders'
 
-const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global, isMobile}) => {
+const Play3d:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global, isMobile}) => {
     const {width, height} = usehooks.useWindowSize()
     const [once, setOnce] = useState<boolean>(false)
     const [game, setGame] = useState<IGameInitData>()
@@ -48,11 +47,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             let _game:IGameInitData;
     
             const {engine, init, gameUpdate, clicker} = await useWebGl(canvas, global)
-            console.log('webgl initialized')
     
             socket.emit('ready', user.id)
             socket.on('gameInit', (game:IGameInitData) => {
-                console.log('gameInit')
                 setGame(game)
                 setHealth(game.maxHealth)
                 _game = game
@@ -66,7 +63,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                 setCoin(coin)
             })
             socket.on('gameUpdate', (tickData:IGameTickData) => {
-                gameUpdate(tickData)
+                gameUpdate(tickData, _game)
                 setUnitDatas(unitDatas)
                 setHealth(tickData.health)
                 setWaiting(tickData.waitingTimer)
@@ -124,7 +121,6 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     
             const click = (event:MouseEvent) => {
                 if(isDragging) return isDragging = false
-                console.log('click')
                 const rect = canvas.getBoundingClientRect()
                 const x = event.clientX - rect.left
                 const y = event.clientY - rect.top
@@ -158,6 +154,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             }
             const mousemove = (e:MouseEvent) => {
                 if(isMouseDown) isDragging = true
+                console.log(isDragging)
             }
             document.addEventListener('touchstart', touchStart)
             document.addEventListener('touchmove', touchMove)
@@ -238,7 +235,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
 
     const activeMotion = (value:string, duration:number, motions:IMotion[], defaultOptions:IDefaultOptions, options?:any) => {
         setTextQueue({start:Date.now(), value, duration, motions, defaultOptions, options:options ||
-        {fill:0xFFFFFF, fontSize:isMobile ? 48 : 96, fontWeight:900, fontFamily:'Arial', align:'center', dropShadow:true, dropShadowBlur:10, dropShadowAngle:0, dropShadowDistance:0}})
+        {fill:0xFFFFFF, fontSize:isMobile ? 36 : 64, fontWeight:900, fontFamily:'Arial', align:'center', dropShadow:true, dropShadowBlur:10, dropShadowAngle:0, dropShadowDistance:0}})
     }
     
     useEffect(() => {
@@ -411,4 +408,4 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     </>)
 }
 
-export default Play
+export default Play3d

@@ -3,7 +3,7 @@ import 'babylonjs-loaders';
 
 export const useWebGl = async (canvas:HTMLCanvasElement, global:IDB):Promise<{
     engine:BABYLON.Engine;
-    gameUpdate:(tickData:IGameTickData) => void;
+    gameUpdate:(tickData:IGameTickData, game:IGameInitData) => void;
     init:(game:IGameInitData) => void;
     clicker:(x:number, y:number, game:IGameInitData) => [number, number];
 }> => {
@@ -26,7 +26,7 @@ export const useWebGl = async (canvas:HTMLCanvasElement, global:IDB):Promise<{
         camera.setTarget(BABYLON.Vector3.Zero());
         camera.attachControl(canvas, true);
 
-        const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene)
+        const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 2, 0), scene)
         light.intensity = 0.7
         light.diffuse = new BABYLON.Color3(1, 1, 1)
 
@@ -58,26 +58,39 @@ export const useWebGl = async (canvas:HTMLCanvasElement, global:IDB):Promise<{
         scene.render();
     });
 
-    const gameUpdate = (tickData:IGameTickData) => {
+    const gameUpdate = (tickData:IGameTickData, game:IGameInitData) => {
         tickData.units.forEach(async (unitData:IUnitData) => {
-            const unit = scene.getMeshById(`${unitData.id}`)
+            const unit = scene.getMeshByName(`${unitData.id}`)
             if(unit){
-                unit.position = new BABYLON.Vector3(unitData.x, 1, unitData.y)
+                unit.position = new BABYLON.Vector3(unitData.x - game.size/2 + 0.5, 0.5, unitData.y - game.size/2 + 0.5)
             } else {
-                const newUnit = (await BABYLON.SceneLoader.ImportMeshAsync(unitData.id, 'assets/units/', `${unitData.type}.glb`, scene)).meshes[0]
-                newUnit.position = new BABYLON.Vector3(unitData.x, 1, unitData.y)
-                console.log('unit created')
+                const newUnit = (await BABYLON.SceneLoader.ImportMeshAsync('', 'assets/units/', `${unitData.type}.glb`, scene)).meshes[0]
+                newUnit.id = `unit`
+                newUnit.name = `${unitData.id}`
+                newUnit.position = new BABYLON.Vector3(unitData.x - game.size/2 + 0.5, 0.5, unitData.y - game.size/2 + 0.5)
             }
         })
 
         tickData.enemies.forEach(async (enemyData:IEnemyData) => {
-            const enemy = scene.getMeshById(`${enemyData.id}`)
+            const enemy = scene.getMeshByName(`${enemyData.id}`)
             if(enemy){
-                enemy.position = new BABYLON.Vector3(enemyData.x, 1, enemyData.y)
+                enemy.position = new BABYLON.Vector3(enemyData.x - game.size/2 + 0.5, 0.5, enemyData.y - game.size/2 + 0.5)
             } else {
-                const newEnemy = (await BABYLON.SceneLoader.ImportMeshAsync(enemyData.id, 'assets/enemies/', `${enemyData.type}.glb`, scene)).meshes[0]
-                newEnemy.position = new BABYLON.Vector3(enemyData.x, 1, enemyData.y)
-                console.log('enemy created')
+                const newEnemy = (await BABYLON.SceneLoader.ImportMeshAsync('', 'assets/enemies/', `${enemyData.type}.glb`, scene)).meshes[0]
+                newEnemy.id = `enemy`
+                newEnemy.name = `${enemyData.id}`
+                newEnemy.position = new BABYLON.Vector3(enemyData.x - game.size/2 + 0.5, 0.5, enemyData.y - game.size/2 + 0.5)
+            }
+        })
+
+        scene.getMeshesByID('unit').forEach((unit:BABYLON.AbstractMesh) => {
+            if(!tickData.units.find((v:IUnitData) => `${v.id}` === unit.name)){
+                unit.dispose()
+            }
+        })
+        scene.getMeshesByID('enemy').forEach((enemy:BABYLON.AbstractMesh) => {
+            if(!tickData.enemies.find((v:IEnemyData) => `${v.id}` === enemy.name)){
+                enemy.dispose()
             }
         })
     }
@@ -95,7 +108,7 @@ export const useWebGl = async (canvas:HTMLCanvasElement, global:IDB):Promise<{
 
         game.path.forEach((pathData:[number, number]) => {
             const path = BABYLON.MeshBuilder.CreateBox('path', {size:1}, scene)
-            path.position = new BABYLON.Vector3(pathData[0], 0.05, pathData[1])
+            path.position = new BABYLON.Vector3(pathData[0] - game.size/2 + 0.5, 0.05, pathData[1] - game.size/2 + 0.5)
             path.scaling = new BABYLON.Vector3(1, 0.01, 1)
             path.material = pathMat
             scene.getMeshByID('ground')?.addChild(path)
@@ -106,9 +119,9 @@ export const useWebGl = async (canvas:HTMLCanvasElement, global:IDB):Promise<{
         const pickResult = scene.pick(x, y)
         if(!pickResult.hit) return [-1, -1]
         if(pickResult.pickedPoint?.x && pickResult.pickedPoint?.z){
-            let posX = Math.round(pickResult.pickedPoint?.x)
-            let posZ = Math.round(pickResult.pickedPoint?.z)
-            console.log(posX, posZ)
+            let posX = Math.floor(pickResult.pickedPoint?.x) + game.size/2
+            let posZ = Math.floor(pickResult.pickedPoint?.z) + game.size/2
+            if(game.path.find((v:[number, number]) => v[0] === posX && v[1] === posZ)) return [-1, -1]
             if(posX > game.size || posX < 0) return [-1, -1]
             if(posZ > game.size || posZ < 0) return [-1, -1]
             return [posX, posZ]

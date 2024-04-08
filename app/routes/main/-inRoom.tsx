@@ -6,6 +6,7 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
     const [once, setOnce] = useState<boolean>(false)
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [lvl, setLvl] = useState<number>(0)
+    const [tester, setTester] = useState<string>('play')
 
     useEffect(() => {
         setOnce(true)
@@ -32,7 +33,7 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
         socket.on('gameStarted', () => {
             setIsFetching(false)
             setRoom(null)
-            set('play')
+            set(tester)
         })
         socket.on('roomLeveled', (res:number) => {
             if(room.ownerID == socket.id) return
@@ -44,7 +45,7 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
             socket.off('roomDeleted')
             socket.off('gameStarted')
         }
-    }, [once])
+    }, [once, tester])
 
     return <>
         <div className="flex flex-col justify-center items-center w-full h-full fixed top-0">
@@ -83,6 +84,10 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
                         }
                     </div>
                     <div className="absolute right-0 bottom-0 flex flex-col text-center">
+                        {user.admin && <select className='box p-2 w-40 text-center text-sm lg:text-md' name="" id="" onChange={e => setTester(e.target.value)} value={tester}>
+                            <option value="play">2D</option>
+                            <option value="play3d">3D</option>
+                        </select>}
                         {room.ownerID == socket.id && <button className="box p-2 w-40 text-sm lg:text-md"
                         onClick={e => {
                             setIsFetching(true)

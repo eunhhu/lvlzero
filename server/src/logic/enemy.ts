@@ -14,7 +14,7 @@ export class Enemy {
     debuffs:IDebuff[] = [];
 
     constructor(x: number, y: number, speed: number, health: number, type: string, path: [number, number][]) {
-        this.id = Date.now();
+        this.id = Math.floor(Math.random() * 1000000);
         this.x = x;
         this.y = y;
         this.speed = speed;

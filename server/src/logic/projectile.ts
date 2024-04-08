@@ -14,7 +14,7 @@ export class Projectile {
     event:EventEmitter = new EventEmitter();
 
     constructor(x: number, y: number, angle: number, damage: number, speed: number, tags:string[], type: string) {
-        this.id = Date.now();
+        this.id = Math.floor(Math.random() * 1000000);
         this.x = x;
         this.y = y;
         this.angle = angle;

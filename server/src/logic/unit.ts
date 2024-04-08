@@ -21,7 +21,7 @@ export class Unit {
     event:EventEmitter = new EventEmitter();
 
     constructor(x: number, y: number, damage: number[], rate: number[], range: number[], bulletSpeed:number[], upgradeCost:number[], cost:number, tags:string[], type: string, lvl: number) {
-        this.id = Date.now();
+        this.id = Math.floor(Math.random() * 1000000);
         this.x = x;
         this.y = y;
         this.damage = damage;

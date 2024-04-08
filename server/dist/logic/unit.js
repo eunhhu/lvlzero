@@ -20,7 +20,7 @@ class Unit {
     angle = 0;
     event = new events_1.EventEmitter();
     constructor(x, y, damage, rate, range, bulletSpeed, upgradeCost, cost, tags, type, lvl) {
-        this.id = Date.now();
+        this.id = Math.floor(Math.random() * 1000000);
         this.x = x;
         this.y = y;
         this.damage = damage;

@@ -13,7 +13,7 @@ class Projectile {
     type;
     event = new events_1.EventEmitter();
     constructor(x, y, angle, damage, speed, tags, type) {
-        this.id = Date.now();
+        this.id = Math.floor(Math.random() * 1000000);
         this.x = x;
         this.y = y;
         this.angle = angle;

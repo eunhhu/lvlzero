@@ -468,6 +468,10 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "en":"Pulse Turret",
         "ko":"펄스 터렛"
     },
+    "drrs":{
+        "en":"Deal Rating",
+        "ko":"딜 레이팅"
+    },
 }
 
 export function lng(lang:string, key:string){

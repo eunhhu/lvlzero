@@ -10,6 +10,7 @@ export class Projectile {
     speed: number;
     tags: string[];
     type: string;
+    size: number;
 
     event:EventEmitter = new EventEmitter();
 
@@ -22,6 +23,7 @@ export class Projectile {
         this.speed = speed;
         this.tags = tags;
         this.type = type;
+        this.size = 0.7;
     }
 
     tick(delta:number, enemies: Enemy[], projectiles: Projectile[]): void {
@@ -32,7 +34,7 @@ export class Projectile {
 
         // Check collision with enemies
         for (let enemy of enemies) {
-            if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 1 /* assuming size of hitbox */) {
+            if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < this.size /* assuming size of hitbox */) {
                 let debuffs = [];
                 for (let tag of this.tags.filter(tag => tag.split('-')[0] === 'debuff')) {
                     const main = tag.split('-')[1];
@@ -44,12 +46,13 @@ export class Projectile {
                 }
                 const splash = this.tags.find(tag => tag.split(':')[0] == 'splash');
                 if(splash){
-                    const radius = +(splash.split(':')[1]);
-                    for (let enemy of enemies) {
-                        if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < radius) {
-                            enemy.takeDamage(this.damage, debuffs, enemies);
-                        }
-                    }
+                    const radius = +(splash.split(':')[1]) + this.size;
+                    const in_ranged = enemies.filter(v => {
+                        return Math.hypot(this.x - v.x, this.y - v.y) < radius;
+                    });
+                    in_ranged.forEach(v => {
+                        v.takeDamage(this.damage, debuffs, enemies);
+                    });
                 } else {
                     enemy.takeDamage(this.damage, debuffs, enemies);
                 }

@@ -396,6 +396,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                     if(enemy.status.includes('bleed')) tint = 0xFF0000;
                     if(enemy.status.includes('slow')) tint = 0x0088FF;
                     if(enemy.status.includes('stun')) tint = 0xFFFF00;
+                    if(enemy.status.includes('electric')) tint = 0xFFFF00;
                     return <>
                         <Sprite
                             key={index}
@@ -425,8 +426,8 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                             key={index}
                             x={projectile.x * tileSize - game.size * tileSize/2 + tileSize/2}
                             y={projectile.y * tileSize - game.size * tileSize/2 + tileSize/2}
-                            angle={projectile.angle}
-                            texture={PIXI.Texture.from(`assets/projectiles/basic.png`)}
+                            angle={projectile.angle / Math.PI * 180 + 90}
+                            texture={PIXI.Texture.from(`assets/projectiles/${projectile.type}.png`)}
                             width={tileSize}
                             height={tileSize}
                             anchor={0.5}
@@ -572,7 +573,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                     const backHealth = isAnimating ? (health + (damage * (1 - ease))) / game.maxHealth : health / game.maxHealth;
                     const curHealth = isAnimating ? (health + (damage * ease)) / (health + damage) : 1;
                     return <div key={v} className="h-full bg-[#ffffff99] rounded-md" style={{width:`${backHealth * 100}%`}}>
-                        <div className="h-full bg-[#ffffffaa] rounded-md text-black text-center align-middle font-semibold text-sm lg:text-md" style={{width:`${curHealth * 100}%`}}>{health} / {game.maxHealth}</div>
+                        <div className="h-full bg-[#ffffffaa] rounded-md text-black text-center align-middle font-semibold text-sm lg:text-md" style={{width:`${curHealth * 100}%`}}>
+                            {health.toFixed(1)} / {game.maxHealth.toFixed(1)}
+                        </div>
                     </div>
                 })}
             </div>

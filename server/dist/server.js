@@ -119,7 +119,6 @@ client.connect().then(async () => {
                     io.to(room.ownerID).emit('gameStarted');
                 }
                 socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
-                console.log(rooms);
             });
             socket.on('ready', (user) => {
                 let room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
@@ -130,8 +129,7 @@ client.connect().then(async () => {
                         if (room.users.every(user => user.ready)) {
                             io.to(room.ownerID).emit('gameInit', room.game.getInitData());
                             let avg = room.users.reduce((a, b) => a + b.lvl, 0) / room.users.length;
-                            console.log('started');
-                            room.users.forEach(user => user.coin += 500);
+                            room.users.forEach(user => user.coin += 1000);
                             io.to(room.ownerID).emit('usersUpdate', room.users);
                             room.game.start(levels, enemies);
                             room.game.on('tick', (tickData) => {
@@ -158,7 +156,7 @@ client.connect().then(async () => {
                                 socket.broadcast.emit('getRooms', rooms);
                             });
                             room.game.on('enemyDead', (coin) => {
-                                room.users.forEach(user => user.coin += coin);
+                                room.users.forEach(user => user.coin += Math.round(coin / room.users.length));
                                 io.to(room.ownerID).emit('usersUpdate', room.users);
                             });
                             room.game.on('motion', (type, x, y, value) => {

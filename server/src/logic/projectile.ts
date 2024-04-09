@@ -35,7 +35,7 @@ export class Projectile {
         // Check collision with enemies
         for (let enemy of enemies) {
             if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < this.size /* assuming size of hitbox */) {
-                let debuffs = [];
+                let debuffs:IDebuff[] = [];
                 for (let tag of this.tags.filter(tag => tag.split('-')[0] === 'debuff')) {
                     const main = tag.split('-')[1];
                     const type = main.split(':')[0];

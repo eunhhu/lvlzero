@@ -286,6 +286,15 @@ client.connect().then(async () => {
                     }
                 }
             })
+
+            socket.on('chat', (data:{name:string;message:string}) => {
+                let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+                if(room){
+                    const chat:IChat = {socketId:socket.id, username: data.name, message: data.message}
+                    room.chats.push(chat);
+                    io.to(room.ownerID).emit('chat', chat);
+                }
+            })
         
             socket.on('skipWave', () => {
                 let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));

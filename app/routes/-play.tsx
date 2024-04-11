@@ -24,7 +24,7 @@ const Tilemap: FC<{
                 key={`${i}-${j}`}
                 x={j * tileSize - size * tileSize / 2 + tileSize / 2}
                 y={i * tileSize - size * tileSize / 2 + tileSize / 2}
-                texture={tilemapData.find(v => v[0] == j && v[1] == i) ? PIXI.Texture.from(tileset) : PIXI.Texture.from(notileset)}
+                texture={tilemapData.find(v => v[0] == j && v[1] == i) ? PIXI.Texture.from(tileset) : PIXI.Texture.from(notileset) as any}
                 width={tileSize}
                 height={tileSize}
                 anchor={0.5}
@@ -79,7 +79,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     const [resultGold, setResultGold] = useState<number>(0)
     const [resultExp, setResultExp] = useState<number>(0)
     const [onShop, setOnShop] = useState<boolean>(false)
-    const [error, setError] = useState<string>('')
+    const [chats, setChats] = useState<IChat[]>([])
+    const [onChat, setOnChat] = useState<boolean>(false)
+    const [input, setInput] = useState<string>('')
     
     useEffect(() => {
         setOnce(true)
@@ -244,6 +246,16 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     }, [once, socket])
 
     useEffect(() => {
+        if(!once) return
+        socket.on('chat', (res:IChat) => {
+            setChats([...chats, res])
+        })
+        return () => {
+            socket.off('chat')
+        }
+    }, [once, chats])
+
+    useEffect(() => {
         if(!finished) return
         let i = 0
         let loop = setInterval(() => {
@@ -390,7 +402,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                             x={unit.x * tileSize - game.size * tileSize/2 + tileSize/2}
                             y={unit.y * tileSize - game.size * tileSize/2 + tileSize/2}
                             angle={unit.angle / Math.PI * 180}
-                            texture={PIXI.Texture.from(`assets/units/top/${unit.type}.png`)}
+                            texture={PIXI.Texture.from(`assets/units/top/${unit.type}.png`) as any}
                             width={tileSize}
                             height={tileSize}
                             anchor={0.5}
@@ -410,7 +422,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                             key={index}
                             x={enemy.x * tileSize - game.size * tileSize/2 + tileSize/2}
                             y={enemy.y * tileSize - game.size * tileSize/2 + tileSize/2}
-                            texture={PIXI.Texture.from(`assets/enemies/${enemy.type}.webp`)}
+                            texture={PIXI.Texture.from(`assets/enemies/${enemy.type}.webp`) as any}
                             width={tileSize}
                             height={tileSize}
                             tint={tint}
@@ -435,7 +447,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                             x={projectile.x * tileSize - game.size * tileSize/2 + tileSize/2}
                             y={projectile.y * tileSize - game.size * tileSize/2 + tileSize/2}
                             angle={projectile.angle / Math.PI * 180 + 90}
-                            texture={PIXI.Texture.from(`assets/projectiles/${projectile.type}.png`)}
+                            texture={PIXI.Texture.from(`assets/projectiles/${projectile.type}.png`) as any}
                             width={tileSize}
                             height={tileSize}
                             anchor={0.5}
@@ -465,7 +477,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                         let value = motion.startValue + (motion.endValue - motion.startValue) * progress
                         props[motion.type] = value;
                     })
-                    return <Sprite key={index} texture={PIXI.Texture.from(animation.value)}
+                    return <Sprite key={index} texture={PIXI.Texture.from(animation.value) as any}
                     x={props.x} y={props.y} rotation={props.rotation}
                     scale={props.scale} alpha={props.opacity} anchor={[props.anchorX, props.anchorY]} />
                 })}
@@ -689,6 +701,38 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                 socket.emit('gameCommand', text)
                 setText('')
             }}>Submit</button>
+        </div>}
+        {!onChat && <button className="absolute top-1/2 right-0 p-2 text-lg lg:text-xl font-semibold"
+        onClick={e => setOnChat(true)}>&lt;</button>}
+        {onChat && <div className="absolute top-0 left-0 w-full h-full bg-[#00000099] flex flex-col justify-center items-center"
+        onClick={e => {
+            if(e.target != e.currentTarget) return
+            setOnChat(false)
+        } }>
+            <div className="box bg-[#000000aa] flex flex-col justify-center items-center text-center" style={{width:'80%', height:'70%'}}>
+                <div className='flex flex-col justify-start items-center flex-1 overflow-y-auto overflow-x-hidden gap-1 w-full p-1'>
+                    {chats.map((v, i) => {
+                        return <div key={i} className='flex flex-row gap-1 w-full'>
+                            <div className='text-white text-lg lg:text-2xl'>[{v.username}]</div>
+                            <div className='text-white text-lg lg:text-2xl'>{v.message}</div>
+                        </div>
+                    })}
+                </div>
+                <div className='flex flex-row w-full'>
+                    <input className='text-md lg:text-xl p-1 flex-1' type="text" name="" id="" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
+                        if(e.key == 'Enter'){
+                            if(input.trim() == '') return
+                            socket.emit('chat', {name:user.username, message:input})
+                            setInput('')
+                        }
+                    }} />
+                    <button className='text-md lg:text-xl p-1' onClick={e => {
+                        if(input.trim() == '') return
+                        socket.emit('chat', {name:user.username, message:input})
+                        setInput('')
+                    }}>{lng(lang, 'send')}</button>
+                </div>
+            </div>
         </div>}
         {/* Shop */}
         {onShop && <div className="absolute top-0 left-0 w-full h-full bg-[#000000aa] flex flex-col items-center justify-center"

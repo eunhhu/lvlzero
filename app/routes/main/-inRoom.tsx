@@ -7,6 +7,9 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [lvl, setLvl] = useState<number>(0)
     const [tester, setTester] = useState<string>('play')
+    const [onChat, setOnChat] = useState<boolean>(false)
+    const [chats, setChats] = useState<IChat[]>([])
+    const [input, setInput] = useState<string>('')
 
     useEffect(() => {
         setOnce(true)
@@ -39,13 +42,18 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
             if(room.ownerID == socket.id) return
             setLvl(res)
         })
+        socket.on('chat', (res:IChat) => {
+            setChats([...chats, res])
+        })
         return () => {
             socket.off('userJoined')
             socket.off('userLeft')
             socket.off('roomDeleted')
             socket.off('gameStarted')
+            socket.off('roomLeveled')
+            socket.off('chat')
         }
-    }, [once, tester])
+    }, [once, tester, chats])
 
     return <>
         <div className="flex flex-col justify-center items-center w-full h-full fixed top-0">
@@ -105,6 +113,38 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
                     </div>
                 </div>
             </div>
+            {!onChat && <button className="absolute right-0 p-2 text-lg lg:text-xl font-semibold"
+            onClick={e => setOnChat(true)}>&lt;</button>}
+            {onChat && <div className="fixed w-full h-full bg-[#00000099] flex flex-col justify-center items-center"
+            onClick={e => {
+                if(e.target != e.currentTarget) return
+                setOnChat(false)
+            } }>
+                <div className="box bg-[#000000aa] flex flex-col justify-center items-center text-center" style={{width:'80%', height:'70%'}}>
+                    <div className='flex flex-col justify-start items-center flex-1 overflow-y-auto overflow-x-hidden gap-1 w-full p-1'>
+                        {chats.map((v, i) => {
+                            return <div key={i} className='flex flex-row gap-1 w-full'>
+                                <div className='text-white text-lg lg:text-2xl'>[{v.username}]</div>
+                                <div className='text-white text-lg lg:text-2xl'>{v.message}</div>
+                            </div>
+                        })}
+                    </div>
+                    <div className='flex flex-row w-full'>
+                        <input className='text-md lg:text-xl p-1 flex-1' type="text" name="" id="" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
+                            if(e.key == 'Enter'){
+                                if(input.trim() == '') return
+                                socket.emit('chat', {name:user.username, message:input})
+                                setInput('')
+                            }
+                        }} />
+                        <button className='text-md lg:text-xl p-1' onClick={e => {
+                            if(input.trim() == '') return
+                            socket.emit('chat', {name:user.username, message:input})
+                            setInput('')
+                        }}>{lng(lang, 'send')}</button>
+                    </div>
+                </div>
+            </div>}
         </div>
     </>
 }

@@ -472,6 +472,14 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "en":"Deal Rating",
         "ko":"딜 레이팅"
     },
+    "room name required":{
+        "en":"Room name required",
+        "ko":"방 이름을 입력하세요"
+    },
+    "password required":{
+        "en":"Password required",
+        "ko":"비밀번호를 입력하세요"
+    },
 }
 
 export function lng(lang:string, key:string){

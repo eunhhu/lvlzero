@@ -63,15 +63,17 @@ client.connect().then(async () => {
             socket.emit('login');
 
             socket.on('getRooms', () => {
-                socket.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
+                socket.emit('getRooms', rooms.filter(room => room.status === 'waiting'));
             })
         
-            socket.on('createRoom', (data:{name:string;maxUsers:number;private:boolean;user:IUser}) => {
+            socket.on('createRoom', (data:{name:string;maxUsers:number;private:boolean;user:IUser;password:string}) => {
                 let room:IRoom = {
                     name: data.name,
                     users: [{username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0, lvl: data.user.lvl, ready: false, selection:{x:-1, y:-1, type:'', socketId:socket.id}}],
                     maxUsers: data.maxUsers,
                     private: data.private,
+                    password: data.password,
+                    chats: [],
                     status: 'waiting',
                     ownerName: data.user.username,
                     ownerID: socket.id,
@@ -80,7 +82,7 @@ client.connect().then(async () => {
                 rooms.push(room);
                 socket.join(room.ownerID);
                 socket.emit('roomCreated', room);
-                socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
+                socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting'));
             })
         
             socket.on('joinRoom', (data:{ownerId:string;user:IUser}) => {
@@ -91,7 +93,7 @@ client.connect().then(async () => {
                         socket.emit('roomJoined', room);
                         io.to(room.ownerID).emit('userJoined', room.users);
                         socket.join(room.ownerID);
-                        socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
+                        socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting'));
                     }
                 }
             })
@@ -103,12 +105,12 @@ client.connect().then(async () => {
                         rooms = rooms.filter(room => room.ownerID !== socket.id);
                         io.to(room.ownerID).emit('roomDeleted');
                         io.to(room.ownerID).socketsLeave(room.ownerID);
-                        socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
+                        socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting'));
                     } else {
                         room.users = room.users.filter(user => user.id !== data.user.id);
                         io.to(room.ownerID).emit('userLeft', room.users);
                         socket.leave(room.ownerID);
-                        socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
+                        socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting'));
                     }
                     socket.emit('roomLeft');
                 }
@@ -128,7 +130,7 @@ client.connect().then(async () => {
                     room.status = 'playing';
                     io.to(room.ownerID).emit('gameStarted');
                 }
-                socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
+                socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting'));
             })
         
             socket.on('ready', (user:IUser) => {
@@ -176,6 +178,12 @@ client.connect().then(async () => {
                             room.game.on('coin', (coin:number) => {
                                 room.users.forEach(user => user.coin += coin);
                                 io.to(room.ownerID).emit('usersUpdate', room.users);
+                            })
+                            room.game.on('healthUpgraded', (healthLvl:number, maxHealth:number) => {
+                                io.to(room.ownerID).emit('healthUpgraded', healthLvl, maxHealth);
+                            })
+                            room.game.on('healthRegenUpgraded', (healthRegenLvl:number) => {
+                                io.to(room.ownerID).emit('healthRegenUpgraded', healthRegenLvl);
                             })
                         }
                     }
@@ -272,13 +280,13 @@ client.connect().then(async () => {
             if(room){
                 rooms = rooms.filter(room => room.ownerID !== socket.id);
                 io.to(room.ownerID).emit('roomDeleted');
-                socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
+                socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting'));
             }
             room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
             if(room){
                 room.users = room.users.filter(user => user.socketId !== socket.id);
                 io.to(room.ownerID).emit('userLeft', room.users);
-                socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
+                socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting'));
             }
         });
     
@@ -307,7 +315,7 @@ client.connect().then(async () => {
                     if(room){
                         rooms = rooms.filter(room => room.ownerID !== params[1]);
                         io.to(room.ownerID).emit('roomDeleted');
-                        socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting' && room.private === false));
+                        socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting'));
                     } else {
                         socket.emit('command', 'Room not found');
                     }

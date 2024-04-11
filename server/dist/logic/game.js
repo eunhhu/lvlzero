@@ -12,6 +12,9 @@ class Game {
     path = [];
     level = 1;
     maxWave = 10;
+    maxHealthLvl = 0;
+    healthRegenLvl = 0;
+    regenTickCooldown = 1000;
     units = [];
     enemies = [];
     projectiles = [];
@@ -90,7 +93,9 @@ class Game {
             size: this.size,
             path: this.path,
             maxWave: this.maxWave,
-            maxHealth: this.maxHealth
+            maxHealth: this.maxHealth,
+            maxHealthLvl: this.maxHealthLvl,
+            healthRegenLvl: this.healthRegenLvl
         };
     }
     getTickData() {
@@ -171,6 +176,30 @@ class Game {
             if (this.health <= 0) {
                 this.gameOver(levels);
             }
+        }
+        if (this.healthRegenLvl > 0) {
+            this.regenTickCooldown -= delta;
+            if (this.regenTickCooldown <= 0) {
+                this.health += this.healthRegenLvl * 5;
+                if (this.health > this.maxHealth) {
+                    this.health = this.maxHealth;
+                }
+                this.regenTickCooldown = 1000;
+            }
+        }
+    }
+    upgradeHealth() {
+        if (this.maxHealthLvl < 3) {
+            this.maxHealthLvl++;
+            this.maxHealth = 1000 + this.maxHealthLvl * 500;
+            this.health += 500;
+            this.emit('healthUpgraded', this.maxHealthLvl, this.maxHealth);
+        }
+    }
+    upgradeRegen() {
+        if (this.healthRegenLvl < 3) {
+            this.healthRegenLvl++;
+            this.emit('healthRegenUpgraded', this.healthRegenLvl);
         }
     }
     parseEnemyRegex(enemyRegex) {
@@ -351,6 +380,16 @@ class Game {
                         if (+params[2] < 0 || isNaN(+params[2]))
                             return;
                         this.enemySpawnInterval = +params[2];
+                        break;
+                    case 'maxHealthLvl':
+                        if (+params[2] < 0 || isNaN(+params[2]))
+                            return;
+                        this.maxHealthLvl = +params[2];
+                        break;
+                    case 'healthRegenLvl':
+                        if (+params[2] < 0 || isNaN(+params[2]))
+                            return;
+                        this.healthRegenLvl = +params[2];
                         break;
                     default:
                         break;

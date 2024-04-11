@@ -43,8 +43,6 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     const [viewport, setViewport] = useState<[number, number]>([0, 0])
     const [zoom, setZoom] = useState<number>(1)
     const [tileSize, setTileSize] = useState<number>(Math.min(width, height) / (game || {size:1}).size * zoom)
-    const [isFetching, setIsFetching] = useState<boolean>(false)
-    const [error, setError] = useState<string>('')
     const [unitDatas, setUnitDatas] = useState<IUnitData[]>([])
     const [enemyDatas, setEnemyDatas] = useState<IEnemyData[]>([])
     const [projectileDatas, setProjectileDatas] = useState<IProjectileData[]>([])
@@ -80,7 +78,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     const [resultText, setResultText] = useState<string>('')
     const [resultGold, setResultGold] = useState<number>(0)
     const [resultExp, setResultExp] = useState<number>(0)
-
+    const [onShop, setOnShop] = useState<boolean>(false)
+    const [error, setError] = useState<string>('')
+    
     useEffect(() => {
         setOnce(true)
     }, [])
@@ -174,6 +174,14 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                     )
                     break;
             }
+        })
+        socket.on('healthUpgraded', (maxHealthLvl:number, maxHealth:number) => {
+            _game = {..._game, maxHealthLvl, maxHealth}
+            setGame(_game)
+        })
+        socket.on('healthRegenUpgraded', (healthRegenLvl:number) => {
+            _game = {..._game, healthRegenLvl}
+            setGame(_game)
         })
 
         let timelineloop = setInterval(() => {
@@ -282,7 +290,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
 
     useEffect(() => {
         const wheel = (e:WheelEvent) => {
-            setZoom(zoom + e.deltaY/1000)
+            setZoom(Math.min(2.5, Math.max(0.5, zoom - e.deltaY / 1000)))
         }
         document.addEventListener('wheel', wheel)
         return () => {

@@ -32,10 +32,18 @@ interface IRoom{
     users:IInRoomUser[];
     maxUsers:number;
     private:boolean;
+    password:string;
+    chats:IChat[];
     status:string; // waiting, playing
     ownerName:string;
     ownerID:string; // socket id
     game:Game;
+}
+
+interface IChat{
+    socketId:string;
+    username:string;
+    message:string;
 }
 
 interface IInRoomUser{
@@ -53,6 +61,8 @@ interface IGameInitData{
     size:number;
     maxWave:number;
     maxHealth:number;
+    maxHealthLvl:number;
+    healthRegenLvl:number;
 }
 
 interface IGameTickData{

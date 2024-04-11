@@ -645,7 +645,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                 <button disabled={!canPlace} className={`noshadow p-1 text-sm lg:text-md ${canPlace ? 'text-white' : 'text-red-700'}`}
                 onClick={e => {
                     const idx = user.equipped.findIndex(v => v == selectedUnit)
-                    const modules = user.equipped.filter((_, i) => i != idx)
+                    const modules = user.equippedModules[idx]
                     socket.emit('placeUnit', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit, modules})
                     setSelectedUnit('')
                 }}>{lng(lang, 'place')} - {cost}c</button>

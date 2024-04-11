@@ -404,7 +404,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                     if(enemy.status.includes('bleed')) tint = 0xFF0000;
                     if(enemy.status.includes('slow')) tint = 0x0088FF;
                     if(enemy.status.includes('stun')) tint = 0xFFFF00;
-                    if(enemy.status.includes('electric')) tint = 0xFFFF00;
+                    if(enemy.status.includes('weak')) tint = 0x775599;
                     return <>
                         <Sprite
                             key={index}
@@ -569,6 +569,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             <div className="text-sm lg:text-md">{lng(lang, 'waitingfornextwave')} : {Math.floor(waiting/1000)}s <button className="noshadow p-1"
             onClick={e => {socket.emit('skipWave')}}>{lng(lang, 'skipwave')}</button></div>
             <div className="text-sm lg:text-md">{lng(lang, 'coin')} : <span className="text-yellow-400">{coin}</span>c</div>
+            <button className="text-sm lg:text-md" onClick={e => {
+                setOnShop(true)
+            }}>{lng(lang, 'shop')}</button>
         </div>
         {/* Health Bar */}
         <div className="absolute bottom-2 flex flex-col p-1 box noshadow w-[40%] lg:w-[60%]" style={{left:`50%`, transform:`translate(-50%, -50%)`}}>
@@ -686,6 +689,45 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                 socket.emit('gameCommand', text)
                 setText('')
             }}>Submit</button>
+        </div>}
+        {/* Shop */}
+        {onShop && <div className="absolute top-0 left-0 w-full h-full bg-[#000000aa] flex flex-col items-center justify-center"
+        onMouseDown={e => {
+            if(e.target == e.currentTarget) setOnShop(false)
+        }}>
+            <div className="box w-[80%] h-[80%] flex flex-col items-center justify-center gap-2 lg:gap-3">
+                <div className="text-white text-2xl lg:text-4xl font-bold w-full text-center">{lng(lang, 'shop')}</div>
+                <div className="text-white text-xl lg:text-2xl font-bold w-full text-center">{lng(lang, 'coin')} : {coin}c</div>
+                <div className="w-full flex flex-row justify-between items-center gap-2 lg:gap-3 p-2 lg:p-3">
+                    {[''].map((_v) => {
+                        const upgradeCost = (game.maxHealthLvl+1) * 500;
+                        const canUpgrade = coin >= upgradeCost;
+                        return <div key={_v} className="box flex-1 h-full flex flex-col justify-center items-center text-center gap-1.5 lg:gap-3 p-2 lg:p-3">
+                            <div className="text-xl lg:text-3xl">Lv.{game.maxHealthLvl} {lng(lang, 'maxHealthLvl')}</div>
+                            <div className="text-lg lg:text-xl">{lng(lang, 'maxHealth')} : {game.maxHealth}</div>
+                            {game.maxHealthLvl < 3 && <div className="text-lg lg:text-xl">{lng(lang, 'upgradeCost')} : {upgradeCost}c</div>}
+                            {game.maxHealthLvl < 3 && <button disabled={!canUpgrade} className={`noshadow p-1 ${canUpgrade ? "text-white" : "text-red-400"}`} onClick={e => {
+                                socket.emit('upgradeHealth')
+                            }}>{lng(lang, 'upgrade')} - {upgradeCost}c</button>}
+                        </div>
+                    })}
+                    {[''].map((_v) => {
+                        const upgradeCost = (game.healthRegenLvl+1) * 800;
+                        const canUpgrade = coin >= upgradeCost;
+                        return <div key={_v} className="box flex-1 h-full flex flex-col justify-center items-center text-center gap-1.5 lg:gap-3 p-2 lg:p-3">
+                            <div className="text-xl lg:text-3xl">Lv.{game.healthRegenLvl} {lng(lang, 'healthRegenLvl')}</div>
+                            <div className="text-lg lg:text-xl">{lng(lang, 'healthRegen')} : {game.healthRegenLvl * 5} / 1s</div>
+                            {game.healthRegenLvl < 3 && <div className="text-lg lg:text-xl">{lng(lang, 'upgradeCost')} : {upgradeCost}c</div>}
+                            {game.healthRegenLvl < 3 && <button disabled={!canUpgrade} className={`noshadow p-1 ${canUpgrade ? "text-white" : "text-red-400"}`} onClick={e => {
+                                socket.emit('upgradeHealthRegen')
+                            }}>{lng(lang, 'upgrade')} - {upgradeCost}c</button>}
+                        </div>
+                    })}
+                </div>
+                <button className="noshadow p-2 pl-12 pr-12 text-white" onClick={e => {
+                    setOnShop(false)
+                }}>{lng(lang, 'close')}</button>
+            </div>
         </div>}
         {/* Finished */}
         {finished && <div className="absolute top-0 left-0 w-full h-full bg-[#000000aa] flex flex-col items-center justify-center" style={{opacity: finOpacity}}>

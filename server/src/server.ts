@@ -132,7 +132,7 @@ client.connect().then(async () => {
                 }
                 socket.broadcast.emit('getRooms', rooms.filter(room => room.status === 'waiting'));
             })
-        
+
             socket.on('ready', (user:IUser) => {
                 let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
                 if(room){
@@ -255,6 +255,34 @@ client.connect().then(async () => {
                             socket.emit('coinUpdate', user.coin);
                             io.to(room.ownerID).emit('unitSold', unit);
                         }
+                    }
+                }
+            })
+
+            socket.on('upgradeHealth', () => {
+                let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+                if(room){
+                    let user = room.users.find(user => user.socketId === socket.id);
+                    if(user){
+                        const cost = (room.game.maxHealthLvl + 1) * 500
+                        if(user.coin < cost) return;
+                        room.game.upgradeHealth();
+                        user.coin -= cost;
+                        socket.emit('coinUpdate', user.coin);
+                    }
+                }
+            })
+
+            socket.on('upgradeHealthRegen', () => {
+                let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+                if(room){
+                    let user = room.users.find(user => user.socketId === socket.id);
+                    if(user){
+                        const cost = (room.game.healthRegenLvl + 1) * 800
+                        if(user.coin < cost) return;
+                        room.game.upgradeRegen();
+                        user.coin -= cost;
+                        socket.emit('coinUpdate', user.coin);
                     }
                 }
             })

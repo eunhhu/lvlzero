@@ -248,6 +248,34 @@ client.connect().then(async () => {
                     }
                 }
             });
+            socket.on('upgradeHealth', () => {
+                let room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+                if (room) {
+                    let user = room.users.find(user => user.socketId === socket.id);
+                    if (user) {
+                        const cost = (room.game.maxHealthLvl + 1) * 500;
+                        if (user.coin < cost)
+                            return;
+                        room.game.upgradeHealth();
+                        user.coin -= cost;
+                        socket.emit('coinUpdate', user.coin);
+                    }
+                }
+            });
+            socket.on('upgradeHealthRegen', () => {
+                let room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+                if (room) {
+                    let user = room.users.find(user => user.socketId === socket.id);
+                    if (user) {
+                        const cost = (room.game.healthRegenLvl + 1) * 800;
+                        if (user.coin < cost)
+                            return;
+                        room.game.upgradeRegen();
+                        user.coin -= cost;
+                        socket.emit('coinUpdate', user.coin);
+                    }
+                }
+            });
             socket.on('skipWave', () => {
                 let room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
                 if (room) {

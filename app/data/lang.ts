@@ -480,6 +480,26 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "en":"Password required",
         "ko":"비밀번호를 입력하세요"
     },
+    "maxHealth":{
+        "en":"Max Health",
+        "ko":"최대 체력"
+    },
+    "maxHealthLvl":{
+        "en":"Max Health Level",
+        "ko":"최대 체력 레벨"
+    },
+    "healthRegen":{
+        "en":"Health Regen",
+        "ko":"체력 회복"
+    },
+    "healthRegenLvl":{
+        "en":"Health Regen Level",
+        "ko":"체력 회복 레벨"
+    },
+    "shop":{
+        "en":"Shop",
+        "ko":"상점"
+    },
 }
 
 export function lng(lang:string, key:string){

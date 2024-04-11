@@ -74,7 +74,7 @@ const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser
                     }): state == "modules" ?
                     global.modules.map((v, i) => {
                         return <div key={i} className="box bg-cover bg-center cursor-pointer w-16 h-16 lg:w-24 lg:h-24"
-                        style={{backgroundImage:`url(assets/modules/${v.type}.png)`}}
+                        style={{backgroundImage:`url(assets/modules/${v.type.split('-')[0]}.png)`}}
                         onClick={e => setSelectedModule(v.type)}>
                             {!user.unlockedModules.includes(v.type) && <div
                             className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000044] text-white text-sm lg:text-xl font-bold">

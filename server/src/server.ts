@@ -453,6 +453,7 @@ client.connect().then(async () => {
                     socket.emit('command', levels.map(level => `[Lv.${level.level}] ${level.enemyRegexes.length} Waves`).join('/n;'));
                     break;
                 }
+                case 'dsc':
                 case 'disconnect':{
                     let socketId = Object.keys(onlines).find(key => onlines[key] === params[1]);
                     if(socketId){

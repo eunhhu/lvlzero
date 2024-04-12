@@ -13,6 +13,7 @@ export class Unit {
     upgradeCost: number[];
     cost: number;
     tags: string[] = [];
+    modules: IModule[] = [];
     type: string;
     lvl: number;
     cooldown: number = 0; // To manage firing rate
@@ -20,7 +21,7 @@ export class Unit {
 
     event:EventEmitter = new EventEmitter();
 
-    constructor(x: number, y: number, damage: number[], rate: number[], range: number[], bulletSpeed:number[], upgradeCost:number[], cost:number, tags:string[], type: string, lvl: number) {
+    constructor(x: number, y: number, damage: number[], rate: number[], range: number[], bulletSpeed:number[], upgradeCost:number[], cost:number, tags:string[], modules:IModule[], type: string, lvl: number) {
         this.id = Math.floor(Math.random() * 1000000);
         this.x = x;
         this.y = y;
@@ -31,6 +32,7 @@ export class Unit {
         this.upgradeCost = upgradeCost;
         this.cost = cost;
         this.tags = tags;
+        this.modules = modules;
         this.type = type;
         this.lvl = lvl;
     }
@@ -52,7 +54,11 @@ export class Unit {
             // Calculate angle towards target
             const angle = Math.atan2(target.y - this.y, target.x - this.x);
             this.angle = angle + Math.PI/2;
-            const proj = new Projectile(this.x, this.y, angle, this.getCurStat().damage, this.getCurStat().bulletSpeed, this.tags, this.type)
+            let tags = [...this.tags];
+            for(let module of this.modules){
+                tags.push(`debuff-${module.effect.type}:${module.effect.duration}:${module.effect.value}`)
+            }
+            const proj = new Projectile(this.x, this.y, angle, this.getCurStat().damage, this.getCurStat().bulletSpeed, tags, this.type)
             proj.on('motion-hit', (type:string, x:number, y:number) => {
                 this.emit('motion-hit', type, x, y);
             });
@@ -62,7 +68,7 @@ export class Unit {
     }
 
     getTickData(): IUnitData{
-        return { x: this.x, y: this.y, angle:this.angle, type: this.type, lvl: this.lvl, id: this.id};
+        return { x: this.x, y: this.y, angle:this.angle, type: this.type, lvl: this.lvl, id: this.id, modules: this.modules};
     }
 
     getCurStat() {

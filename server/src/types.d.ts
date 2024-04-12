@@ -80,6 +80,7 @@ interface IUnitData{
     angle:number;
     type:string;
     lvl:number;
+    modules:IModule[];
 }
 
 interface IEnemyData{
@@ -133,6 +134,12 @@ interface ILevel{
     title:string;
 }
 
+interface IModule{
+    type:string; // module name
+    quality:number; // 0-4 "D", "C", "B", "A", "S"
+    effect:IDebuff;
+}
+
 interface IMotion{
     delay:number; // ms
     duration:number; // ms
@@ -171,7 +178,7 @@ interface IDefaultOptions{
 }
 
 interface IDebuff{
-    type:string;
+    type:DebuffType;
     duration:number;
     value:number;
 }
@@ -183,4 +190,5 @@ interface IDB{
     units:IUnit[];
     enemies:IEnemy[];
     levels:ILevel[];
+    modules:IModule[];
 }

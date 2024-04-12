@@ -276,7 +276,7 @@ export class Game{
             return this.emit('unitPlacementFailed', 'A unit already exists at the specified location');
         }
 
-        const unitData = units.find(unit => unit.type === unitType);
+        const unitData:IUnit = units.find(unit => unit.type === unitType);
         const newUnit = new Unit(x, y,
             unitData.damage,
             unitData.rate,
@@ -285,6 +285,7 @@ export class Game{
             unitData.upgradeCost,
             unitData.cost,
             unitData.tags,
+            [],
             unitType, 1);
         newUnit.on('motion-hit', (type:string, x:number, y:number) => {
             this.emit('motion', `projHit-${type}`, x, y);

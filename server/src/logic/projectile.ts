@@ -38,7 +38,7 @@ export class Projectile {
                 let debuffs:IDebuff[] = [];
                 for (let tag of this.tags.filter(tag => tag.split('-')[0] === 'debuff')) {
                     const main = tag.split('-')[1];
-                    const type = main.split(':')[0];
+                    const type:DebuffType = main.split(':')[0] as DebuffType;
                     const duration = +(main.split(':')[1]);
                     let value = +(main.split(':')[2]);
                     if(type === 'poison' || type === 'fire') value = value * this.damage;

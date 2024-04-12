@@ -23,7 +23,8 @@ const commandList:{[key:string]:string} = {
     "list-users": "List all users",
     "list-units": "List all units",
     "list-enemies": "List all enemies",
-    "list-levels": "List all levels"
+    "list-levels": "List all levels",
+    "disconnect (socketID)": "Disconnect a user by socket ID"
 }
 
 const client = new MongoClient(uri);
@@ -339,14 +340,17 @@ client.connect().then(async () => {
                     socket.emit('command', params.slice(1).join(' '));
                     break;
                 }
+                case 'lo':
                 case 'list-onlines':{
                     socket.emit('command', Object.keys(onlines).map(key => `[${key}] ${onlines[key]}`).join('/n;'));
                     break;
                 }
+                case 'lr':
                 case 'list-rooms':{
                     socket.emit('command', rooms.map(room => `[${room.ownerID}] ${room.name}`).join('/n;'));
                     break;
                 }
+                case 'dr':
                 case 'delete-room':{
                     let room = rooms.find(room => room.ownerID === params[1]);
                     if(room){
@@ -378,6 +382,7 @@ client.connect().then(async () => {
                     }
                     break;
                 }
+                case 'gu':
                 case 'get-user':{
                     let user = users.find(user => user.username === params[1]);
                     if(user){
@@ -387,6 +392,7 @@ client.connect().then(async () => {
                     }
                     break;
                 }
+                case 'gr':
                 case 'get-room':{
                     let room = rooms.find(room => room.name === params[1]);
                     if(room){
@@ -396,6 +402,7 @@ client.connect().then(async () => {
                     }
                     break;
                 }
+                case 'em':
                 case 'emit-command':{
                     let room = rooms.find(room => room.ownerID === params[1]);
                     if(room){
@@ -406,6 +413,7 @@ client.connect().then(async () => {
                     }
                     break;
                 }
+                case 'ku':
                 case 'kick-user':{
                     let room = rooms.find(room => room.ownerID === params[2]);
                     if(room){
@@ -416,6 +424,7 @@ client.connect().then(async () => {
                     }
                     break;
                 }
+                case 'ref':
                 case 'refresh': {
                     users = await db.collection('users').find({}).toArray() as any;
                     units = await db.collection('units').find({}).toArray() as any;
@@ -424,20 +433,34 @@ client.connect().then(async () => {
                     socket.emit('command', 'DB data refreshed');
                     break;
                 }
+                case 'lus':
                 case 'list-users':{
                     socket.emit('command', users.map(user => `[${user.id}] ${user.username}`).join('/n;'));
                     break;
                 }
+                case 'lun':
                 case 'list-units':{
                     socket.emit('command', units.map(unit => `${unit.type} - ${unit.cost}`).join('/n;'));
                     break;
                 }
+                case 'le':
                 case 'list-enemies':{
                     socket.emit('command', enemies.map(enemy => `${enemy.type} - ${enemy.health}`).join('/n;'));
                     break;
                 }
+                case 'll':
                 case 'list-levels':{
                     socket.emit('command', levels.map(level => `[Lv.${level.level}] ${level.enemyRegexes.length} Waves`).join('/n;'));
+                    break;
+                }
+                case 'disconnect':{
+                    let socketId = Object.keys(onlines).find(key => onlines[key] === params[1]);
+                    if(socketId){
+                        io.to(socketId).emit('disconnect');  
+                        socket.emit('command', 'User disconnected');
+                    } else {
+                        socket.emit('command', 'User not found');
+                    }
                     break;
                 }
                 default:{

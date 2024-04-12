@@ -24,7 +24,7 @@ const Tilemap: FC<{
                 key={`${i}-${j}`}
                 x={j * tileSize - size * tileSize / 2 + tileSize / 2}
                 y={i * tileSize - size * tileSize / 2 + tileSize / 2}
-                texture={tilemapData.find(v => v[0] == j && v[1] == i) ? PIXI.Texture.from(tileset) : PIXI.Texture.from(notileset) as any}
+                source={tilemapData.find(v => v[0] == j && v[1] == i) ? tileset : notileset}
                 width={tileSize}
                 height={tileSize}
                 anchor={0.5}
@@ -402,7 +402,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                             x={unit.x * tileSize - game.size * tileSize/2 + tileSize/2}
                             y={unit.y * tileSize - game.size * tileSize/2 + tileSize/2}
                             angle={unit.angle / Math.PI * 180}
-                            texture={PIXI.Texture.from(`assets/units/top/${unit.type}.png`) as any}
+                            source={`assets/units/top/${unit.type}.png`}
                             width={tileSize}
                             height={tileSize}
                             anchor={0.5}
@@ -422,7 +422,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                             key={index}
                             x={enemy.x * tileSize - game.size * tileSize/2 + tileSize/2}
                             y={enemy.y * tileSize - game.size * tileSize/2 + tileSize/2}
-                            texture={PIXI.Texture.from(`assets/enemies/${enemy.type}.webp`) as any}
+                            source={`assets/enemies/${enemy.type}.webp`}
                             width={tileSize}
                             height={tileSize}
                             tint={tint}
@@ -447,7 +447,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                             x={projectile.x * tileSize - game.size * tileSize/2 + tileSize/2}
                             y={projectile.y * tileSize - game.size * tileSize/2 + tileSize/2}
                             angle={projectile.angle / Math.PI * 180 + 90}
-                            texture={PIXI.Texture.from(`assets/projectiles/${projectile.type}.png`) as any}
+                            source={`assets/projectiles/${projectile.type}.png`}
                             width={tileSize}
                             height={tileSize}
                             anchor={0.5}
@@ -477,7 +477,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                         let value = motion.startValue + (motion.endValue - motion.startValue) * progress
                         props[motion.type] = value;
                     })
-                    return <Sprite key={index} texture={PIXI.Texture.from(animation.value) as any}
+                    return <Sprite key={index} source={animation.value}
                     x={props.x} y={props.y} rotation={props.rotation}
                     scale={props.scale} alpha={props.opacity} anchor={[props.anchorX, props.anchorY]} />
                 })}
@@ -625,24 +625,28 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
         </div>}
         {/* Unit Placement */}
         {selectedPos[0] != -1 && selectedUnit && !unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) && [''].map((_v, i) => {
-            const cost = (global.units.find(v => v.type == selectedUnit)?.cost as number)
-            const canPlace = coin >= cost
+            const un = global.units.find(v => v.type == selectedUnit);
+            if(!un) return null;
+            const cost = un.cost as number;
+            const canPlace = coin >= cost;
             return <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-1 lg:p-2 gap-1 lg:gap-2 box w-38">
                 <div className="flex flex-row items-center justify-between gap-2 lg:gap-3">
                     <img src={`assets/units/${selectedUnit}.png`} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
                     <div className="text-sm lg:text-md">{lng(lang, selectedUnit)}</div>
                 </div>
-                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'damage')} {global.units.find(v => v.type == selectedUnit)?.damage[0]}</div>
-                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'rate')} {(global.units.find(v => v.type == selectedUnit)?.rate as number[])[0]/1000}s</div>
-                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'range')} {global.units.find(v => v.type == selectedUnit)?.range[0]}m</div>
-                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'bulletSpeed')} {global.units.find(v => v.type == selectedUnit)?.bulletSpeed[0]}</div>
-                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'cost')} {global.units.find(v => v.type == selectedUnit)?.cost}c</div>
+                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'damage')} {un.damage[0]}</div>
+                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'rate')} {(un.rate as number[])[0]/1000}s</div>
+                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'range')} {un.range[0]}m</div>
+                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'bulletSpeed')} {un.bulletSpeed[0]}</div>
+                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'cost')} {un.cost}c</div>
                 <button className="noshadow p-1 text-sm lg:text-md text-white" onClick={e => {
                     setSelectedUnit('')
                 }}>{lng(lang, 'cancel')}</button>
                 <button disabled={!canPlace} className={`noshadow p-1 text-sm lg:text-md ${canPlace ? 'text-white' : 'text-red-700'}`}
                 onClick={e => {
-                    socket.emit('placeUnit', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit})
+                    const idx = user.equipped.findIndex(v => v == selectedUnit)
+                    const modules = user.equipped.filter((_, i) => i != idx)
+                    socket.emit('placeUnit', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit, modules})
                     setSelectedUnit('')
                 }}>{lng(lang, 'place')} - {cost}c</button>
             </div>

@@ -18,6 +18,8 @@ export const loader:LoaderFunction = async ({params}) => {
         banned: false,
         unlocked: ['stone-catapult', 'mini-cannon', 'auto-turret', 'ballista'],
         equipped: ['stone-catapult', 'mini-cannon', 'auto-turret', 'ballista', 'l', 'l'],
+        unlockedModules: [],
+        equippedModules: [[], [], [], [], [], []],
         avatar: 'default',
         win: 0,
         lose: 0,

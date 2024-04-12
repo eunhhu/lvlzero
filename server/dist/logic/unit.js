@@ -14,12 +14,13 @@ class Unit {
     upgradeCost;
     cost;
     tags = [];
+    modules = [];
     type;
     lvl;
     cooldown = 0; // To manage firing rate
     angle = 0;
     event = new events_1.EventEmitter();
-    constructor(x, y, damage, rate, range, bulletSpeed, upgradeCost, cost, tags, type, lvl) {
+    constructor(x, y, damage, rate, range, bulletSpeed, upgradeCost, cost, tags, modules, type, lvl) {
         this.id = Math.floor(Math.random() * 1000000);
         this.x = x;
         this.y = y;
@@ -30,6 +31,7 @@ class Unit {
         this.upgradeCost = upgradeCost;
         this.cost = cost;
         this.tags = tags;
+        this.modules = modules;
         this.type = type;
         this.lvl = lvl;
     }
@@ -48,7 +50,11 @@ class Unit {
             // Calculate angle towards target
             const angle = Math.atan2(target.y - this.y, target.x - this.x);
             this.angle = angle + Math.PI / 2;
-            const proj = new projectile_1.Projectile(this.x, this.y, angle, this.getCurStat().damage, this.getCurStat().bulletSpeed, this.tags, this.type);
+            let tags = [...this.tags];
+            for (let module of this.modules) {
+                tags.push(`debuff-${module.effect.type}:${module.effect.duration}:${module.effect.value}`);
+            }
+            const proj = new projectile_1.Projectile(this.x, this.y, angle, this.getCurStat().damage, this.getCurStat().bulletSpeed, tags, this.type);
             proj.on('motion-hit', (type, x, y) => {
                 this.emit('motion-hit', type, x, y);
             });
@@ -57,7 +63,7 @@ class Unit {
         }
     }
     getTickData() {
-        return { x: this.x, y: this.y, angle: this.angle, type: this.type, lvl: this.lvl, id: this.id };
+        return { x: this.x, y: this.y, angle: this.angle, type: this.type, lvl: this.lvl, id: this.id, modules: this.modules };
     }
     getCurStat() {
         return {

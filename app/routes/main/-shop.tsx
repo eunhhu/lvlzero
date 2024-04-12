@@ -12,7 +12,8 @@ const states = ["units", "modules", "skins"]
 
 const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser>>;global:IDB}> = ({lang, user, setUser, global}) => {
     const [once, setOnce] = useState<boolean>(false)
-    const [selected, setSelected] = useState<string>('')
+    const [selected, setSelected] = useState<string>('') // unit type
+    const [selectedModule, setSelectedModule] = useState<string>('') // module type
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [error, setError] = useState<string>('')
     const [lvl, setLvl] = useState<number>(0)
@@ -46,7 +47,7 @@ const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser
     return <div className="flex flex-col justify-center items-center w-full fixed top-0" style={{height: `calc(100% - 76px)`}}>
         <div className='flex flex-row flex-1 w-full'>
             {/* state selection bar */}
-            <div className='flex flex-col box p-1 lg:p-2 gap-1 lg:gap-2 justify-start items-center overflow-x-hidden overflow-y-auto'>
+            <div className='flex flex-col box p-1 lg:p-2 gap-1 lg:gap-2 justify-start items-center overflow-x-hidden overflow-y-auto w-32 lg:w-48'>
                 {states.map((v, i) => {
                     return <div key={i} className={`w-full box text-lg lg:text-xl p-2 lg:p-3 text-center cursor-pointer font-semibold ${state == v ? 'bg-[#ffffff44] hover:bg-[#ffffff55]' : 'hover:bg-[#ffffff11] shadow-inner shadow-white'}`}
                     onClick={e => {
@@ -64,11 +65,21 @@ const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser
                 {
                     state == "units" ?
                     global.units.map((v, i) => {
-                        return <div key={i} className="box bg-cover bg-center cursor-pointer"
-                        style={{width:'min(15vw,10vh)', height:'min(15vw,10vh)', backgroundImage:`url(assets/units/${v.type}.png)`}}
+                        return <div key={i} className="box bg-cover bg-center cursor-pointer w-16 h-16 lg:w-24 lg:h-24"
+                        style={{backgroundImage:`url(assets/units/${v.type}.png)`}}
                         onClick={e => setSelected(v.type)}>
                             {!user.unlocked.includes(v.type) && <div
                             className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000077] text-white text-sm lg:text-xl font-bold">{v.buy}</div>}
+                        </div>
+                    }): state == "modules" ?
+                    global.modules.map((v, i) => {
+                        return <div key={i} className="box bg-cover bg-center cursor-pointer w-16 h-16 lg:w-24 lg:h-24"
+                        style={{backgroundImage:`url(assets/modules/${v.type}.png)`}}
+                        onClick={e => setSelectedModule(v.type)}>
+                            {!user.unlockedModules.includes(v.type) && <div
+                            className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000044] text-white text-sm lg:text-xl font-bold">
+                                <img src="assets/icons/lock.svg" alt="" className="w-8 lg:w-12" />
+                            </div>}
                         </div>
                     }): <></>
                 }
@@ -78,8 +89,8 @@ const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser
         <div className="box flex flex-row gap-2 w-full justify-center items-center p-1 lg:p-2">
             {
                 user.equipped.map((v, i) => {
-                    return <div key={i} className="box bg-cover bg-center cursor-pointer"
-                    style={{width:'min(15vw,10vh)', height:'min(15vw,10vh)', backgroundImage:`${v ? `url(assets/units/${v == 'l' ? 'locked' : v}.png)` : ''}`}}
+                    return <div key={i} className="box bg-cover bg-center cursor-pointer w-16 h-16 lg:w-24 lg:h-24"
+                    style={{backgroundImage:`${v ? `url(assets/units/${v == 'l' ? 'locked' : v}.png)` : ''}`}}
                     onClick={e => setSelected(v)}>
                         {v == 'l' && <div
                         className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000077] text-white text-sm lg:text-xl font-bold">900</div>}
@@ -174,7 +185,7 @@ const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser
                             if(!res.res) return setError('something went wrong')
                             success(res.res)
                         })
-                    } else if(user.equipped.includes(selected)){
+                    } else if(user.equipped.find(v => v == selected)){
                         // unequip
                         setIsFetching(true)
                         fetch(`/updateUser/id/${user.id}/equip/${selected}`).then(res => res.json()).then((res:{res:IUser}) => {
@@ -182,7 +193,7 @@ const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser
                             success(res.res)
                         })
                     } else if(user.unlocked.includes(selected)){
-                        if(user.equipped.indexOf('') == -1) return setError('no empty slot')
+                        if(user.equipped.findIndex(v => v == '') == -1) return setError('no empty slot')
                         // equip
                         setIsFetching(true)
                         fetch(`/updateUser/id/${user.id}/equip/${selected}`).then(res => res.json()).then((res:{res:IUser}) => {
@@ -200,10 +211,21 @@ const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser
                         })
                     }
                 }}>{
-                    selected == 'l' ? `${lng(lang, 'buy')} - 900` : user.equipped.includes(selected) ? lng(lang, 'unequip') :
+                    selected == 'l' ? `${lng(lang, 'buy')} - 900` : user.equipped.find(v => v == selected) ? lng(lang, 'unequip') :
                     user.unlocked.includes(selected) ? lng(lang, 'equip') :
                     `${lng(lang, 'buy')} - ${global.units.find(v => v.type == selected)?.buy}`
                 }</button>
+            </div>
+        </div>}
+        {/* module info window */}
+        {selectedModule && <div className="fixed w-full h-full bg-[#00000099] flex flex-col justify-center items-center"
+        onClick={e => {
+            if(e.target != e.currentTarget) return
+            setError('')
+            setSelectedModule('')
+        }}>
+            <div className="box bg-[#000000aa] flex flex-col" style={{width:'80%', height:'80%'}}>
+                
             </div>
         </div>}
     </div>

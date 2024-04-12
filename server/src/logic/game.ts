@@ -270,7 +270,7 @@ export class Game{
         this.spawnInterval = spawnInterval;
     }
 
-    placeUnit(units:IUnit[], x: number, y: number, unitType: string) {
+    placeUnit(units:IUnit[], x: number, y: number, unitType: string, modules:IModule[] = []) {
         // 유닛을 배치하는 예시 메서드, 실제 구현은 유닛 유형과 게임 로직에 따라 달라질 것입니다
         if (this.units.some(unit => unit.x === x && unit.y === y)) {
             return this.emit('unitPlacementFailed', 'A unit already exists at the specified location');
@@ -285,7 +285,7 @@ export class Game{
             unitData.upgradeCost,
             unitData.cost,
             unitData.tags,
-            [],
+            modules,
             unitType, 1);
         newUnit.on('motion-hit', (type:string, x:number, y:number) => {
             this.emit('motion', `projHit-${type}`, x, y);

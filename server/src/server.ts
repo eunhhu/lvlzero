@@ -36,6 +36,7 @@ client.connect().then(async () => {
     let units:IUnit[] = await db.collection('units').find({}).toArray() as any;
     let enemies:IEnemy[] = await db.collection('enemies').find({}).toArray() as any;
     let levels:ILevel[] = await db.collection('levels').find({}).toArray() as any;
+    let modules:IModule[] = await db.collection('modules').find({}).toArray() as any;
 
     console.log('DB data loaded');
     const app = express();
@@ -49,7 +50,7 @@ client.connect().then(async () => {
             allowedHeaders: ['Access-Control-Allow-Origin'],
         }
     });
-    
+
     app.get('/', (request, res) => {
       res.sendFile('index.html', { root: __dirname.replace('dist', 'src') });
     });
@@ -203,7 +204,7 @@ client.connect().then(async () => {
                 socket.emit('userSelection', mySelectors)
             })
         
-            socket.on('placeUnit', (data:{x:number, y:number, type:string}) => {
+            socket.on('placeUnit', (data:{x:number, y:number, type:string, modules:IModule[]}) => {
                 let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
                 if(room){
                     let user = room.users.find(user => user.socketId === socket.id);
@@ -211,7 +212,7 @@ client.connect().then(async () => {
                         if(user.coin >= units.find(unit => unit.type === data.type).cost){
                             user.coin -= units.find(unit => unit.type === data.type).cost;
                             socket.emit('coinUpdate', user.coin);
-                            let unit = room.game.placeUnit(units, data.x, data.y, data.type);
+                            let unit = room.game.placeUnit(units, data.x, data.y, data.type, data.modules);
                             if(unit){
                                 io.to(room.ownerID).emit('unitPlaced', unit);
                             }

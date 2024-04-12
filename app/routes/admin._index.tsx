@@ -95,7 +95,8 @@ const Table:FC = () => {
                 const title = page === 'users' ? `[${v.lvl}] ${v.username}`:
                 page === 'units' ? `${v.type}`:
                 page === 'enemies' ? `${v.type}`:
-                page === 'levels' ? `Lv.${v.level}` : ``
+                page === 'levels' ? `Lv.${v.level}`:
+                page === 'modules' ? `${v.type}` : ``
                 return <details key={i} className="w-full flex flex-col justify-start items-center p-1 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-md">
                     <summary className="flex flex-row justify-between items-center">
                         <div className="text-xl text-white font-bold">{title}</div>

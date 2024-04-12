@@ -37,6 +37,7 @@ client.connect().then(async () => {
     let units = await db.collection('units').find({}).toArray();
     let enemies = await db.collection('enemies').find({}).toArray();
     let levels = await db.collection('levels').find({}).toArray();
+    let modules = await db.collection('modules').find({}).toArray();
     console.log('DB data loaded');
     const app = (0, express_1.default)();
     const httpServer = (0, http_1.createServer)(app); // Note: Non-null assertion (!) is used here for simplicity.
@@ -200,7 +201,7 @@ client.connect().then(async () => {
                         if (user.coin >= units.find(unit => unit.type === data.type).cost) {
                             user.coin -= units.find(unit => unit.type === data.type).cost;
                             socket.emit('coinUpdate', user.coin);
-                            let unit = room.game.placeUnit(units, data.x, data.y, data.type);
+                            let unit = room.game.placeUnit(units, data.x, data.y, data.type, data.modules);
                             if (unit) {
                                 io.to(room.ownerID).emit('unitPlaced', unit);
                             }
@@ -446,6 +447,7 @@ client.connect().then(async () => {
                     socket.emit('command', levels.map(level => `[Lv.${level.level}] ${level.enemyRegexes.length} Waves`).join('/n;'));
                     break;
                 }
+                case 'dsc':
                 case 'disconnect': {
                     let socketId = Object.keys(onlines).find(key => onlines[key] === params[1]);
                     if (socketId) {

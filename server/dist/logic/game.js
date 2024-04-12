@@ -246,13 +246,13 @@ class Game {
         const spawnInterval = setInterval(spawnEnemy, this.enemySpawnInterval);
         this.spawnInterval = spawnInterval;
     }
-    placeUnit(units, x, y, unitType) {
+    placeUnit(units, x, y, unitType, modules = []) {
         // 유닛을 배치하는 예시 메서드, 실제 구현은 유닛 유형과 게임 로직에 따라 달라질 것입니다
         if (this.units.some(unit => unit.x === x && unit.y === y)) {
             return this.emit('unitPlacementFailed', 'A unit already exists at the specified location');
         }
         const unitData = units.find(unit => unit.type === unitType);
-        const newUnit = new unit_1.Unit(x, y, unitData.damage, unitData.rate, unitData.range, unitData.bulletSpeed, unitData.upgradeCost, unitData.cost, unitData.tags, unitType, 1);
+        const newUnit = new unit_1.Unit(x, y, unitData.damage, unitData.rate, unitData.range, unitData.bulletSpeed, unitData.upgradeCost, unitData.cost, unitData.tags, modules, unitType, 1);
         newUnit.on('motion-hit', (type, x, y) => {
             this.emit('motion', `projHit-${type}`, x, y);
         });

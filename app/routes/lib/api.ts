@@ -43,7 +43,7 @@ export async function getAllUsers(): Promise<IUser[]> {
     return result;
 }
 
-export async function getAllDB(): Promise<{users:IUser[];units:IUnit[];enemies:IEnemy[];levels:ILevel[]}> {
+export async function getAllDB(): Promise<IDB> {
     await connectToMongoDB();
     const db = getMongoDB();
     const userCol = db.collection("users");
@@ -54,7 +54,9 @@ export async function getAllDB(): Promise<{users:IUser[];units:IUnit[];enemies:I
     const enemies = (await enemyCol.find({}).toArray()) as unknown as IEnemy[];
     const levelCol = db.collection("levels");
     const levels = (await levelCol.find({}).toArray()) as unknown as ILevel[];
-    return {users, units, enemies, levels};
+    const moduleCol = db.collection("modules");
+    const modules = (await moduleCol.find({}).toArray()) as unknown as IModule[];
+    return {users, units, enemies, levels, modules};
 }
 
 export async function deleteOne(col: string, id: string): Promise<any> {

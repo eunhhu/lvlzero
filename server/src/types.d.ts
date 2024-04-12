@@ -9,6 +9,8 @@ interface IUser{
     banned: boolean;
     unlocked: string[];
     equipped: string[];
+    unlockedModules: string[];
+    equippedModules: string[][];
     avatar: string;
     win: number;
     lose: number;

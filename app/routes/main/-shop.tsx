@@ -8,13 +8,15 @@ const suffix:{[key:string]:string} = {
     "cost":"c",
     "upgradeCost":"c"
 }
+const states = ["units", "modules", "skins"]
 
-const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser>>;global:IDB}> = ({lang, user, setUser, global}) => {
+const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser>>;global:IDB}> = ({lang, user, setUser, global}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [selected, setSelected] = useState<string>('')
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [error, setError] = useState<string>('')
     const [lvl, setLvl] = useState<number>(0)
+    const [state, setState] = useState<string>("units") // units modules skins
 
     const displayValue = (attrs:{[key:string]:any}, key:string):string => {
         let result = key == 'cost' ? attrs[key] : attrs[key][lvl];
@@ -42,19 +44,38 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
     }, [once])
 
     return <div className="flex flex-col justify-center items-center w-full fixed top-0" style={{height: `calc(100% - 76px)`}}>
-        <div className="w-full flex flex-row gap-2 flex-wrap items-center justify-center overflow-auto p-5" style={{}}>
-            {
-                global.units.map((v, i) => {
-                    return <div key={i} className="box bg-cover bg-center cursor-pointer"
-                    style={{width:'min(15vw,10vh)', height:'min(15vw,10vh)', backgroundImage:`url(assets/units/${v.type}.png)`}}
-                    onClick={e => setSelected(v.type)}>
-                        {!user.unlocked.includes(v.type) && <div
-                        className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000077] text-white text-sm lg:text-xl font-bold">{v.buy}</div>}
+        <div className='flex flex-row flex-1 w-full'>
+            {/* state selection bar */}
+            <div className='flex flex-col box p-1 lg:p-2 gap-1 lg:gap-2 justify-start items-center overflow-x-hidden overflow-y-auto'>
+                {states.map((v, i) => {
+                    return <div key={i} className={`w-full box text-lg lg:text-xl p-2 lg:p-3 text-center cursor-pointer font-semibold ${state == v ? 'bg-[#ffffff44] hover:bg-[#ffffff55]' : 'hover:bg-[#ffffff11] shadow-inner shadow-white'}`}
+                    onClick={e => {
+                        setState(v);
+                        setLvl(0)
+                        setSelected('')
+                    }}
+                    >
+                        {lng(lang, v)}
                     </div>
-                })
-            }
+                })}
+            </div>
+            {/* main shop menu */}
+            <div className='flex-1 w-full flex flex-row gap-2 flex-wrap items-center justify-center overflow-auto p-5'>
+                {
+                    state == "units" ?
+                    global.units.map((v, i) => {
+                        return <div key={i} className="box bg-cover bg-center cursor-pointer"
+                        style={{width:'min(15vw,10vh)', height:'min(15vw,10vh)', backgroundImage:`url(assets/units/${v.type}.png)`}}
+                        onClick={e => setSelected(v.type)}>
+                            {!user.unlocked.includes(v.type) && <div
+                            className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000077] text-white text-sm lg:text-xl font-bold">{v.buy}</div>}
+                        </div>
+                    }): <></>
+                }
+            </div>
         </div>
-        <div className="absolute bottom-0 flex flex-row gap-2">
+        {/* equipped bar */}
+        <div className="box flex flex-row gap-2 w-full justify-center items-center p-1 lg:p-2">
             {
                 user.equipped.map((v, i) => {
                     return <div key={i} className="box bg-cover bg-center cursor-pointer"
@@ -66,7 +87,9 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                 })
             }
         </div>
+        {/* gold ui */}
         <div className="absolute right-0 top-0 box p-2 w-40 text-right">{user.gold}G</div>
+        {/* unit info windows */}
         {selected && <div className="fixed w-full h-full bg-[#00000099] flex flex-col justify-center items-center"
         onClick={e => {
             if(e.target != e.currentTarget) return
@@ -82,7 +105,7 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
                     </div>
                     <div className='flex-1 flex flex-row justify-around items-center w-full'>
                         {selected !== 'l' && <div className='flex-1 flex flex-col justify-center items-center gap-5'>
-                            <div className='bg-cover bg-center w-24 h-24 lg:w-48 lg:h-48 rounded-full' style={{backgroundImage:`url(assets/units/${selected}.png)`}}></div>
+                            <div className='bg-cover bg-center w-24 h-24 lg:w-48 lg:h-48' style={{backgroundImage:`url(assets/units/${selected}.png)`}}></div>
                             <div className='text-md text-center text-white font-semibold'>{lng(lang, `${selected}-desc`)}</div>
                         </div>}
                         {selected !== 'l' && <div className='flex-1 flex flex-col justify-center items-center mr-4'>
@@ -186,4 +209,4 @@ const UnitsState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUse
     </div>
 }
 
-export default UnitsState
+export default ShopState

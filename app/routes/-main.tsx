@@ -2,12 +2,12 @@ import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { lng } from "~/data/lang";
 import InRoom from "./main/-inRoom";
 import PlayState from "./main/-play";
-import UnitsState from "./main/-units";
+import ShopState from "./main/-shop";
 import SettingsState from "./main/-settings";
 import ProfileState from "./main/-profile";
 import RankState from "./main/-rank";
 
-const states = ['rank', 'units', 'play', 'profile', 'settings']
+const states = ['rank', 'shop', 'play', 'profile', 'settings']
 
 const Main:FC<glFCProps> = ({lang, setLang, set, user, setUser, socket, setSocket, global, isMobile}) => {
     const [state, setState] = useState<string>('play')
@@ -21,7 +21,7 @@ const Main:FC<glFCProps> = ({lang, setLang, set, user, setUser, socket, setSocke
         {
             room ? <InRoom lang={lang} room={room} setRoom={setRoom} socket={socket} user={user} set={set} global={global} /> :
             state == 'play' ? <PlayState lang={lang} socket={socket} setRoom={setRoom} user={user} /> :
-            state == 'units' ? <UnitsState lang={lang} user={user} setUser={setUser} global={global}/> :
+            state == 'shop' ? <ShopState lang={lang} user={user} setUser={setUser} global={global}/> :
             state == 'settings' ? <SettingsState lang={lang} setLang={setLang} /> :
             state == 'profile' ? <ProfileState lang={lang} user={user} setUser={setUser as Dispatch<SetStateAction<IUser|null>>} set={set} isMobile={isMobile} /> :
             state == 'rank' ? <RankState lang={lang} /> :

@@ -500,6 +500,22 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "en":"Shop",
         "ko":"상점"
     },
+    "modules":{
+        "en":"Modules",
+        "ko":"모듈"
+    },
+    "skins":{
+        "en":"Skins",
+        "ko":"스킨"
+    },
+    "module":{
+        "en":"Module",
+        "ko":"모듈"
+    },
+    "skin":{
+        "en":"Skin",
+        "ko":"스킨"
+    },
 }
 
 export function lng(lang:string, key:string){

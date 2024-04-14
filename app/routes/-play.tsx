@@ -1,9 +1,12 @@
-import { Stage, Container, Sprite, Graphics, useApp, Text } from "@pixi/react"
-import { FC, useEffect, useRef, useState } from "react"
-import * as usehooks from "usehooks-ts"
-import * as PIXI from 'pixi.js';
-import { lng } from "~/data/lang"
+import { Stage, Container, Sprite, Graphics, useApp, Text } from "@pixi/react";
+import { FC, useEffect, useRef, useState, Suspense, lazy } from "react";
+import * as usehooks from "usehooks-ts";
+import * as PIXI from "pixi.js";
+import { lng } from "~/data/lang";
 import { getEase, gradient } from "~/data/utils";
+import { AdjustmentFilter, AdvancedBloomFilter, ShockwaveFilter, SimpleLightmapFilter } from "pixi-filters";
+import { ClientOnly } from "remix-utils/client-only";
+// const PIXIFilters = lazy(() => import("pixi-filters"));
 
 const Tilemap: FC<{
     tileset: string;
@@ -24,7 +27,7 @@ const Tilemap: FC<{
                 key={`${i}-${j}`}
                 x={j * tileSize - size * tileSize / 2 + tileSize / 2}
                 y={i * tileSize - size * tileSize / 2 + tileSize / 2}
-                source={tilemapData.find(v => v[0] == j && v[1] == i) ? tileset : notileset}
+                texture={PIXI.Texture.from(tilemapData.find(v => v[0] == j && v[1] == i) ? tileset : notileset)}
                 width={tileSize}
                 height={tileSize}
                 anchor={0.5}
@@ -82,6 +85,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     const [chats, setChats] = useState<IChat[]>([])
     const [onChat, setOnChat] = useState<boolean>(false)
     const [input, setInput] = useState<string>('')
+    const [filters, setFilters] = useState<PIXI.Filter[]>([])
     
     useEffect(() => {
         setOnce(true)
@@ -96,6 +100,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             setGame(game)
             setHealth(game.maxHealth)
             _game = game
+            setFilters([new AdvancedBloomFilter({threshold:0.1, bloomScale:0.5, brightness:0.8, blur:16, quality:12}) as any])
         })
         socket.on('usersUpdate', (users:IInRoomUser[]) => {
             setCoin(users.find(u => u.socketId === socket.id)?.coin || 0)
@@ -386,8 +391,9 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
 
     return (<>
         {/* Stage */}
-        {game ? <><Stage width={width} height={height}>
-            <Container pivot={[-width/2 + viewport[0], -height/2 + viewport[1]]}>
+        {game ? <>
+        <Stage width={width} height={height}>
+            <Container pivot={[-width/2 + viewport[0], -height/2 + viewport[1]]} filters={filters as any}>
                 <Tilemap
                     tileset="assets/tiles/grass.png"
                     notileset="assets/tiles/dirt.png"
@@ -402,7 +408,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                             x={unit.x * tileSize - game.size * tileSize/2 + tileSize/2}
                             y={unit.y * tileSize - game.size * tileSize/2 + tileSize/2}
                             angle={unit.angle / Math.PI * 180}
-                            source={`assets/units/top/${unit.type}.png`}
+                            texture={PIXI.Texture.from(`assets/units/top/${unit.type}.png`)}
                             width={tileSize}
                             height={tileSize}
                             anchor={0.5}
@@ -422,7 +428,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                             key={index}
                             x={enemy.x * tileSize - game.size * tileSize/2 + tileSize/2}
                             y={enemy.y * tileSize - game.size * tileSize/2 + tileSize/2}
-                            source={`assets/enemies/${enemy.type}.webp`}
+                            texture={PIXI.Texture.from(`assets/enemies/${enemy.type}.webp`)}
                             width={tileSize}
                             height={tileSize}
                             tint={tint}
@@ -447,7 +453,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                             x={projectile.x * tileSize - game.size * tileSize/2 + tileSize/2}
                             y={projectile.y * tileSize - game.size * tileSize/2 + tileSize/2}
                             angle={projectile.angle / Math.PI * 180 + 90}
-                            source={`assets/projectiles/${projectile.type}.png`}
+                            texture={PIXI.Texture.from(`assets/projectiles/${projectile.type}.png`)}
                             width={tileSize}
                             height={tileSize}
                             anchor={0.5}
@@ -477,7 +483,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                         let value = motion.startValue + (motion.endValue - motion.startValue) * progress
                         props[motion.type] = value;
                     })
-                    return <Sprite key={index} source={animation.value}
+                    return <Sprite key={index} texture={PIXI.Texture.from(animation.value)}
                     x={props.x} y={props.y} rotation={props.rotation}
                     scale={props.scale} alpha={props.opacity} anchor={[props.anchorX, props.anchorY]} />
                 })}

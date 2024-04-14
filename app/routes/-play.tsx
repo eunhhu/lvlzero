@@ -1,12 +1,10 @@
-import { Stage, Container, Sprite, Graphics, useApp, Text } from "@pixi/react";
-import { FC, useEffect, useRef, useState, Suspense, lazy } from "react";
+import { Stage, Graphics, Container, Text, Sprite } from "@pixi/react";
+import { FC, useEffect, useRef, useState } from "react";
 import * as usehooks from "usehooks-ts";
 import * as PIXI from "pixi.js";
 import { lng } from "~/data/lang";
 import { getEase, gradient } from "~/data/utils";
-import { AdjustmentFilter, AdvancedBloomFilter, ShockwaveFilter, SimpleLightmapFilter } from "pixi-filters";
-import { ClientOnly } from "remix-utils/client-only";
-// const PIXIFilters = lazy(() => import("pixi-filters"));
+import { AdvancedBloomFilter } from "../filters-6.0.2/src";
 
 const Tilemap: FC<{
     tileset: string;
@@ -401,6 +399,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                     tileSize={tileSize}
                     size={game.size}
                 />
+
                 {unitDatas.map((unit, index) => {
                     return (
                         <Sprite

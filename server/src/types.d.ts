@@ -169,6 +169,23 @@ interface ITextAnimation{
     options:PIXI.TextStyle;
 }
 
+interface IFilterAnimation{
+    start:number; // Date.now()
+    value:string; // filter type
+    duration:number; // ms
+    motions:IFilterMotion[];
+    defaultOptions:any; // default filter options
+}
+
+interface IFilterMotion{
+    delay:number; // ms
+    duration:number; // ms
+    type:string; // filter's property
+    ease:string; // linear, easeIn, easeOut, easeInOut
+    startValue:number; // filter's strength
+    endValue:number; // filter's strength
+}
+
 interface IDefaultOptions{
     x:number;
     y:number;

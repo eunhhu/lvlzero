@@ -68,7 +68,7 @@ export class Unit {
     }
 
     getTickData(): IUnitData{
-        return { x: this.x, y: this.y, angle:this.angle, type: this.type, lvl: this.lvl, id: this.id, modules: this.modules};
+        return { x: this.x, y: this.y, angle: +this.angle.toFixed(2), type: this.type, lvl: this.lvl, id: this.id, modules: this.modules};
     }
 
     getCurStat() {

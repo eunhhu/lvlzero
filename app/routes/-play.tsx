@@ -4,7 +4,7 @@ import * as usehooks from "usehooks-ts";
 import * as PIXI from "pixi.js";
 import { lng } from "~/data/lang";
 import { getEase, gradient } from "~/data/utils";
-import { AdvancedBloomFilter } from "../filters-6.0.2/src";
+import { AdvancedBloomFilter, ConvolutionFilter, GodrayFilter, ShockwaveFilter } from "pixi-filters";
 
 const Tilemap: FC<{
     tileset: string;
@@ -65,6 +65,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     const [spriteQueue, setSpriteQueue] = useState<ISpriteAnimation>()
     const [textQueue, setTextQueue] = useState<ITextAnimation>()
     const [globalTextQueue, setGlobalTextQueue] = useState<ITextAnimation>()
+    const [motionFilters, setMotionFilters] = useState<IFilterAnimation[]>([])
     const [timeline, setTimeline] = useState<number>(Date.now())
     const [dragging, setDragging] = useState<boolean>(false)
     const [draggingStart, setDraggingStart] = useState<[number, number]>([0, 0])
@@ -98,7 +99,6 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             setGame(game)
             setHealth(game.maxHealth)
             _game = game
-            setFilters([new AdvancedBloomFilter({threshold:0.1, bloomScale:0.5, brightness:0.8, blur:16, quality:12}) as any])
         })
         socket.on('usersUpdate', (users:IInRoomUser[]) => {
             setCoin(users.find(u => u.socketId === socket.id)?.coin || 0)
@@ -384,14 +384,18 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             setLastHealth(health)
             setHealthAniTimeStart(Date.now())
             setHealthAniTimeEnd(Date.now() + 500)
+            
         }
-    }, [health, lastHealth])
+    }, [health, lastHealth, filters])
 
     return (<>
         {/* Stage */}
         {game ? <>
         <Stage width={width} height={height}>
-            <Container pivot={[-width/2 + viewport[0], -height/2 + viewport[1]]} filters={filters as any}>
+            <Container pivot={[-width/2 + viewport[0], -height/2 + viewport[1]]} filters={[...filters,
+                new AdvancedBloomFilter({threshold:0.1, bloomScale:0.5, brightness:0.7, blur:4, quality:6}) as any,
+                new GodrayFilter({gain:0.4, lacunarity:3, alpha:0.5, parallel:true, angle:30, time:timeline}) as any
+            ]}>
                 <Tilemap
                     tileset="assets/tiles/grass.png"
                     notileset="assets/tiles/dirt.png"

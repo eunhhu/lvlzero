@@ -1,6 +1,8 @@
 import { Enemy } from './enemy';
 import { EventEmitter } from 'events';
 
+const splashAcceptDebuffs = ['fire']
+
 export class Projectile {
     id: number;
     x: number;
@@ -48,14 +50,13 @@ export class Projectile {
                 if(splash){
                     const radius = +(splash.split(':')[1]) + this.size;
                     const in_ranged = enemies.filter(v => {
-                        return Math.hypot(this.x - v.x, this.y - v.y) < radius;
+                        return Math.hypot(this.x - v.x, this.y - v.y) < radius && v.id !== enemy.id;
                     });
                     in_ranged.forEach(v => {
-                        v.takeDamage(this.damage, debuffs, enemies);
+                        v.takeDamage(this.damage, debuffs.filter(v => splashAcceptDebuffs.includes(v.type)), enemies);
                     });
-                } else {
-                    enemy.takeDamage(this.damage, debuffs, enemies);
                 }
+                enemy.takeDamage(this.damage, debuffs, enemies);
 
                 this.emit('motion-hit', this.type, this.x, this.y);
                 this.dispose(projectiles);
@@ -73,7 +74,7 @@ export class Projectile {
     }
 
     getTickData(): IProjectileData{
-        return { x: this.x, y: this.y, angle: this.angle, type: this.type, id: this.id};
+        return { x: +this.x.toFixed(2), y: +this.y.toFixed(2), angle: +this.angle.toFixed(2), type: this.type, id: this.id};
     }
 
     isOutOfBounds(size: number): boolean {

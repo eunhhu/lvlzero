@@ -86,7 +86,7 @@ export class Enemy {
     }
 
     getTickData(): IEnemyData{
-        return { x: this.x, y: this.y, health: this.health, maxHealth:this.maxHealth, status:this.debuffs.map(v => v.type), type: this.type, id: this.id};
+        return { x: +this.x.toFixed(2), y: +this.y.toFixed(2), health: +this.health.toFixed(2), maxHealth:this.maxHealth, status:this.debuffs.map(v => v.type), type: this.type, id: this.id};
     }
 
     die(enemies:Enemy[]): void {

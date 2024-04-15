@@ -384,7 +384,6 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             setLastHealth(health)
             setHealthAniTimeStart(Date.now())
             setHealthAniTimeEnd(Date.now() + 500)
-            
         }
     }, [health, lastHealth, filters])
 
@@ -423,9 +422,10 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                     if(enemy.status.includes('poison')) tint = 0x44FF44;
                     if(enemy.status.includes('fire')) tint = 0xFF9900;
                     if(enemy.status.includes('bleed')) tint = 0xFF0000;
-                    if(enemy.status.includes('slow')) tint = 0x0088FF;
+                    if(enemy.status.includes('slow')) tint = 0x00DDFF;
                     if(enemy.status.includes('stun')) tint = 0xFFFF00;
-                    if(enemy.status.includes('weak')) tint = 0x775599;
+                    if(enemy.status.includes('weak')) tint = 0x0000BB;
+                    if(enemy.status.includes('illusion')) tint = 0xFF00FF;
                     return <>
                         <Sprite
                             key={index}

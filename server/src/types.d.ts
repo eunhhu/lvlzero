@@ -202,7 +202,7 @@ interface IDebuff{
     value:number;
 }
 
-type DebuffType = 'fire' | 'slow' | 'poison' | 'bleed' | 'stun' | 'weak';
+type DebuffType = 'fire' | 'slow' | 'poison' | 'bleed' | 'stun' | 'weak' | 'illusion';
 
 interface IDB{
     users:IUser[];

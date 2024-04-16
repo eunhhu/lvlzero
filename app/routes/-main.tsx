@@ -1,11 +1,11 @@
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { lng } from "~/data/lang";
-import InRoom from "./main/-inRoom";
-import PlayState from "./main/-play";
-import ShopState from "./main/-shop";
-import SettingsState from "./main/-settings";
-import ProfileState from "./main/-profile";
-import RankState from "./main/-rank";
+import InRoom from "./main/room/index";
+import PlayState from "./main/play/index";
+import ShopState from "./main/shop/index";
+import SettingsState from "./main/settings/index";
+import ProfileState from "./main/profile/index";
+import RankState from "./main/rank/index";
 
 const states = ['rank', 'shop', 'play', 'profile', 'settings']
 

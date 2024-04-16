@@ -1,5 +1,6 @@
 import {FC, useEffect, useState} from 'react'
 import { lng } from '~/data/lang'
+import { getTotalExp } from '~/data/utils'
 
 const rankStates = ['level', 'winrate', 'rating']
 
@@ -28,7 +29,11 @@ const RankState:FC<{lang:string}> = ({lang}) => {
         </div>
         <div className='flex-1 flex flex-col justify-start items-center w-full overflow-x-hidden overflow-y-auto p-1 gap-1'>
             {(
-                state == 'level' ? users.sort((a, b) => b.lvl - a.lvl) :
+                state == 'level' ? users.sort((a, b) => {
+                    let aTotalExp = a.exp + getTotalExp(a.lvl-1);
+                    let bTotalExp = b.exp + getTotalExp(a.lvl-1);
+                    return bTotalExp - aTotalExp;
+                }) :
                 state == 'winrate' ? users.sort((a, b) => {
                     let awr = a.win / (a.win + a.lose == 0 ? 1 : a.win + a.lose)
                     let bwr = b.win / (b.win + b.lose == 0 ? 1 : b.win + b.lose)

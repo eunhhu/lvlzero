@@ -5,7 +5,9 @@ import { checkNick, checkPass, sha256 } from "~/data/utils";
 
 const opposite = (state:string) => state === 'login' ? 'register' : 'login'
 
-const socketDomain = process.env.NODE_ENV === 'production' ? 'https://lvlzero.onrender.com' : 'http://127.0.0.1:3002'
+const isProduction = process.env.NODE_ENV === 'production'
+const socketDomain = isProduction ? 'https://lvlzero.onrender.com' : 'http://127.0.0.1:3002'
+const socketNeed:boolean = isProduction;
 
 const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global, isMobile}) => {
   const [once, setOnce] = useState<boolean>(false)
@@ -28,13 +30,18 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global, isMobile}) 
         return;
       }
       setIsFetching(true)
-      let socket = io(socketDomain)
-      socket.emit('login', user)
-      socket.on('login', () => {
+      if(socketNeed) {
+        let socket = io(socketDomain)
+        socket.emit('login', user)
+        socket.on('login', () => {
+          setUser(user)
+          setSocket(socket)
+          set('main')
+        })
+      } else {
         setUser(user)
-        setSocket(socket)
         set('main')
-      })
+      }
     }
     
     useEffect(() => {

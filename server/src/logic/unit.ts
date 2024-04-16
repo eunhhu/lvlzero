@@ -56,6 +56,7 @@ export class Unit {
             this.angle = angle + Math.PI/2;
             let tags = [...this.tags];
             for(let module of this.modules){
+                if(module.type == "") continue;
                 tags.push(`debuff-${module.effect.type}:${module.effect.duration}:${module.effect.value}`)
             }
             const proj = new Projectile(this.x, this.y, angle, this.getCurStat().damage, this.getCurStat().bulletSpeed, tags, this.type)

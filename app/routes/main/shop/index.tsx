@@ -29,7 +29,7 @@ const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser
             <StateSelectionBar state={state} setState={setState} lang={lang}setSelected={setSelected} />
             <MainShopMenu state={state} setSelected={setSelected} setSelectedModule={setSelectedModule} user={user} global={global} />
         </div>
-        <EquiptionBar user={user} setSelected={setSelected} />
+        <EquiptionBar user={user} setSelected={setSelected} setSelectedModule={setSelectedModule} />
         <GoldUi gold={user.gold} />
         {selected && <UnitInfo user={user} setUser={setUser} lang={lang} selected={selected} setSelected={setSelected} isFetching={isFetching} setIsFetching={setIsFetching} global={global} />}
         {selectedModule && <ModuleInfo user={user} setUser={setUser} lang={lang} selectedModule={selectedModule} setSelectedModule={setSelectedModule} setIsFetching={setIsFetching} setOnEquip={setOnEquip}/>}

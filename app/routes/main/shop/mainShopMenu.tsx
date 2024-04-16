@@ -28,10 +28,11 @@ const MainShopMenu:FC<{
                 return <div key={i} className="box bg-cover bg-center cursor-pointer w-16 h-16 lg:w-24 lg:h-24"
                 style={{backgroundImage:`url(assets/modules/${v.type.split('-')[0]}.png)`}}
                 onClick={e => setSelectedModule(v.type)}>
-                    {!user.unlockedModules.includes(v.type) && <div
+                    {!user.unlockedModules.includes(v.type) ? <div
                     className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000044] text-white text-sm lg:text-xl font-bold">
                         <img src="assets/icons/lock.svg" alt="" className="w-8 lg:w-12" />
-                    </div>}
+                    </div>: <div className="w-full h-full flex flex-col justify-center items-center text-white text-2xl lg:text-4xl font-bold"
+                    >{v.type.split('-')[1].toUpperCase()}</div>}
                 </div>
             }): <></>
         }

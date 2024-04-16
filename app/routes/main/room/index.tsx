@@ -83,10 +83,21 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
                     <div className="flex flex-row gap-2 flex-wrap p-5">
                         {
                             user.equipped.map((v, i) => {
-                                return <div key={i} className="box bg-cover bg-center cursor-pointer"
-                                style={{width:'min(15vw,10vh)', height:'min(15vw,10vh)', backgroundImage:`${v ? `url(assets/units/${v == 'l' ? 'locked' : v}.png)` : ''}`}}>
-                                    {v == 'l' && <div
-                                    className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000077] text-white text-md lg:text-xl font-bold">900</div>}
+                                const mod = user.equippedModules[i]
+                                return <div key={i} className='flex flex-col justify-center items-center gap-1 lg:gap-1.5'>
+                                    <div className="box bg-cover bg-center cursor-pointer w-16 h-16 lg:w-24 lg:h-24"
+                                    style={{backgroundImage:`${v ? `url(assets/units/${v == 'l' ? 'locked' : v}.png)` : ''}`}}>
+                                        {v == 'l' && <div
+                                        className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000077] text-white text-md lg:text-xl font-bold">900</div>}
+                                    </div>
+                                    <div className='flex flex-row justify-center items-center gap-1 lg:gap-1.5'>
+                                        <div className='flex-1 box bg-cover bg-center w-8 lg:w-12 h-8 lg:h-12 cursor-pointer flex flex-col justify-center items-center font-bold text-lg lg:text-2xl' style={{
+                                            backgroundImage: mod[0] ? `url(assets/modules/${mod[0].split('-')[0]}.png)` : "none"
+                                        }}>{mod[0] ? mod[0].split("-")[1].toUpperCase() : ""}</div>
+                                        <div className='flex-1 box bg-cover bg-center w-8 lg:w-12 h-8 lg:h-12 cursor-pointer flex flex-col justify-center items-center font-bold text-lg lg:text-2xl' style={{
+                                            backgroundImage: mod[1] ? `url(assets/modules/${mod[1].split('-')[0]}.png)` : "none"
+                                        }}>{mod[1] ? mod[1].split("-")[1].toUpperCase() : ""}</div>
+                                    </div>
                                 </div>
                             })
                         }

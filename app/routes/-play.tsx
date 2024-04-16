@@ -339,7 +339,6 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     useEffect(() => {
         if(!textQueue) return
         setMotionTexts([...motionTexts, textQueue])
-        console.log(motionTexts)
         setTextQueue(undefined)
     }, [textQueue, motionTexts])
 
@@ -618,16 +617,25 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             {user.equipped.map((unit:string, index:number) => {
                 if(unit == 'l') return null;
                 let myUnit = global.units.find(v => v.type == unit) || {cost:0}
-                const canBuy = coin - myUnit.cost >= 0
+                const canBuy = coin - myUnit.cost >= 0;
+                const md = user.equippedModules[index];
                 return <button key={index} className={`noshadow p-1 flex flex-col items-center justify-between ${!canBuy ? "text-red-700" : "text-white"}`}
                 onClick={e => {
                     setSelectedUnit(unit)
                 }}>
-                    <div className="flex flex-row items-center justify-between gap-3">
+                    <div className="flex flex-row items-center justify-between gap-1.5 lg:gap-3">
                         <img src={`assets/units/${unit}.png`} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
                         <div className="text-sm lg:text-md">{lng(lang, unit)}</div>
                     </div>
                     <div className="text-sm lg:text-md">{myUnit.cost}c</div>
+                    <div className="flex flex-row items-center justify-center gap-1 lg:gap-1.5">
+                        <div className="box noshadow bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                            backgroundImage:md[0] ? `url("assets/modules/${md[0].split("-")[0]}.png")` : "none"
+                        }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>
+                        <div className="box noshadow bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                            backgroundImage:md[1] ? `url("assets/modules/${md[1].split("-")[0]}.png")` : "none"
+                        }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>
+                    </div>
                 </button>
             })}
             <button className="noshadow p-1 text-sm lg:text-md" onClick={e=> setSelectedPos([-1, -1])}>{lng(lang, 'cancel')}</button>
@@ -638,10 +646,19 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             if(!un) return null;
             const cost = un.cost as number;
             const canPlace = coin >= cost;
+            const md = user.equippedModules[user.equipped.findIndex(v => v == selectedUnit)]
             return <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-1 lg:p-2 gap-1 lg:gap-2 box w-38">
                 <div className="flex flex-row items-center justify-between gap-2 lg:gap-3">
                     <img src={`assets/units/${selectedUnit}.png`} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
                     <div className="text-sm lg:text-md">{lng(lang, selectedUnit)}</div>
+                </div>
+                <div className="w-full flex flex-row items-center justify-center gap-1 lg:gap-1.5">
+                    <div className="box noshadow bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                        backgroundImage:md[0] ? `url("assets/modules/${md[0].split("-")[0]}.png")` : "none"
+                    }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>
+                    <div className="box noshadow bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                        backgroundImage:md[1] ? `url("assets/modules/${md[1].split("-")[0]}.png")` : "none"
+                    }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>
                 </div>
                 <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'damage')} {un.damage[0]}</div>
                 <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'rate')} {(un.rate as number[])[0]/1000}s</div>
@@ -671,12 +688,21 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             const canUpgrade = coin >= upgCost;
             const allUpgCosts = selected.lvl == 1 ? 0 : selected.lvl == 2 ? thisUnit.upgradeCost[0] : thisUnit.upgradeCost.slice(0, selected.lvl-1).reduce((a, b) => a + b)
             const sellCost = Math.round((thisUnit.cost + allUpgCosts)/2);
+            const md = user.equippedModules[user.equipped.findIndex(v => v == selected.type)]
             return <>
                 <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-1 gap-1 lg:p-2 lg:gap-2 box w-38">
                     <div className="flex flex-row items-center justify-between gap-2 lg:gap-3">
                         <img src={`assets/units/${selected.type}.png`} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
                         <div className="text-sm lg:text-md">Lv.{selected.lvl}</div>
                         <div className="text-sm lg:text-md">{lng(lang, selected.type)}</div>
+                    </div>
+                    <div className="w-full flex flex-row items-center justify-center gap-1 lg:gap-1.5">
+                        <div className="box noshadow bg-cover bg-center w-10 h-10 lg:w-12 lg:h-12 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                            backgroundImage:md[0] ? `url("assets/modules/${md[0].split("-")[0]}.png")` : "none"
+                        }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>
+                        <div className="box noshadow bg-cover bg-center w-10 h-10 lg:w-12 lg:h-12 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                            backgroundImage:md[1] ? `url("assets/modules/${md[1].split("-")[0]}.png")` : "none"
+                        }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>
                     </div>
                     <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'damage')} {thisUnit.damage[selected.lvl-1]}
                     {!isMaxLvl && ` -> ${thisUnit.damage[selected.lvl]}`}</div>

@@ -449,7 +449,7 @@ client.connect().then(async () => {
                 }
                 case 'dsc':
                 case 'disconnect': {
-                    let socketId = Object.keys(onlines).find(key => onlines[key] === params[1]);
+                    let socketId = Object.keys(onlines).find(key => key === params[1]);
                     if (socketId) {
                         io.to(socketId).emit('disconnect');
                         socket.emit('command', 'User disconnected');

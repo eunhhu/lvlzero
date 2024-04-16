@@ -1,17 +1,22 @@
 import { FC, Dispatch, SetStateAction } from "react";
+import { lng } from "~/data/lang";
 
 const MainShopMenu:FC<{
+    lang:string;
     state:string;
     setSelected:Dispatch<SetStateAction<string>>;
     setSelectedModule:Dispatch<SetStateAction<string>>;
     user:IUser;
     global:IDB;
+    setOnBox:Dispatch<SetStateAction<boolean>>;
 }> = ({
+    lang,
     state,
     setSelected,
     setSelectedModule,
     user,
-    global
+    global,
+    setOnBox
 }) => {
     return <div className='flex-1 w-full h-full flex flex-row gap-2 flex-wrap items-center justify-center overflow-y-auto p-5'>
         {
@@ -36,6 +41,7 @@ const MainShopMenu:FC<{
                 </div>
             }): <></>
         }
+        {state == "modules" && <div className="box w-16 h-16 lg:w-24 lg:h-24 cursor-pointer bg-cover bg-center flex flex-col justify-center items-center text-4xl lg:text-6xl font-bold text-center" onClick={e => setOnBox(true)}>+</div>}
     </div>
 }
 

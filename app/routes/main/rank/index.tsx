@@ -30,8 +30,8 @@ const RankState:FC<{lang:string}> = ({lang}) => {
         <div className='flex-1 flex flex-col justify-start items-center w-full overflow-x-hidden overflow-y-auto p-1 gap-1'>
             {(
                 state == 'level' ? users.sort((a, b) => {
-                    let aTotalExp = a.exp + getTotalExp(a.lvl-1);
-                    let bTotalExp = b.exp + getTotalExp(a.lvl-1);
+                    let aTotalExp = (a.exp + getTotalExp(a.lvl-1));
+                    let bTotalExp = (b.exp + getTotalExp(b.lvl-1));
                     return bTotalExp - aTotalExp;
                 }) :
                 state == 'winrate' ? users.sort((a, b) => {
@@ -47,7 +47,7 @@ const RankState:FC<{lang:string}> = ({lang}) => {
                     <div className='flex flex-row justify-start items-center gap-3'>
                         <img src={v.avatar == "default" ? "assets/icons/profile.svg" : v.avatar} alt="" width={50} className='box' />
                         <div className='flex flex-col'>
-                            <h1 className='text-lg lg:text-xl font-semibold'>{v.username}</h1>
+                            <h1 className='text-lg lg:text-xl font-semibold'>{i+1}. {v.username}</h1>
                             <h2 className='text-md lg:text-lg font-semibold'>Lv.{v.lvl}</h2>
                             <h3 className='text-sm lg:text-md'>{v.exp}/{100 + v.lvl**2*10}</h3>
                         </div>

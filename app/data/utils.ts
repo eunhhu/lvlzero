@@ -56,6 +56,7 @@ export function generateRandomAlphabets(count: number): string {
 }
 
 export function getTotalExp(lvl:number):number{
+  if(lvl <= 0) return 0;
   if(lvl === 1) return 110;
   return 100 + lvl ** 2 * 10 + getTotalExp(lvl-1);
 }

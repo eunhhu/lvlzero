@@ -91,3 +91,12 @@ export async function createOne(col: string, obj: any): Promise<any> {
     const result = (await collection.insertOne(obj)) as unknown as any;
     return result;
 }
+
+export async function modifyAll(col: string, obj: any): Promise<any> {
+    await connectToMongoDB();
+    const db = getMongoDB();
+    const collection = db.collection(col);
+    await collection.updateMany({}, {$set: obj});
+    const result = collection.find({}).toArray() as unknown as any;
+    return result;
+}

@@ -91,6 +91,11 @@ const Table:FC = () => {
             <button className="w-full p-1 noshadow" disabled={isFetching} onClick={e => setRefresh(true)}>Refresh</button>
         </div>
         <div className="flex-1 h-full flex flex-col justify-start items-center overflow-y-auto overflow-x-hidden p-2 gap-2" style={{opacity: isFetching ? "0.5" : "1"}}>
+            <button disabled={isFetching} className="p-1 noshadow w-full" onClick={e => {
+                setEditKey('modify')
+                setTa(JSON.stringify({}))
+            }}
+            >Modify</button>
             {(global as any)[page].map((v:any, i:number) => {
                 const title = page === 'users' ? `[${v.lvl}] ${v.username}`:
                 page === 'units' ? `${v.type}`:
@@ -146,6 +151,17 @@ const Table:FC = () => {
                         setEditKey('')
                         setTa('')
                     })
+                } else if(editKey == 'modify') {
+                    fetch(`/modify/col/${page}`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: ta
+                    }).then(res => res.json()).then(res => {
+                        setRefresh(true)
+                        setIsFetching(false)
+                        setEditKey('')
+                        setTa('')
+                    })
                 } else if(editKey) {
                     fetch(`/updateOne/col/${page}/id/${editKey}`, {
                         method: 'POST',
@@ -158,7 +174,7 @@ const Table:FC = () => {
                         setTa('')
                     })
                 }
-            }}>{editKey == 'create' ? "Create" : "Save"}</button>
+            }}>{editKey == 'create' ? "Create" : editKey == 'modify' ? "Modify" : "Save"}</button>
         </div>
     </div>}
     </>

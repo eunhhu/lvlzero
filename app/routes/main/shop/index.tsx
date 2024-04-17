@@ -6,6 +6,7 @@ import GoldUi from './goldUi'
 import UnitInfo from './unitInfo'
 import ModuleInfo from './moduleInfo'
 import ModuleEquiption from './moduleEquiption'
+import BoxSelection from './boxSelection'
 
 const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser>>;global:IDB}> = ({lang, user, setUser, global}) => {
     const [once, setOnce] = useState<boolean>(false)
@@ -35,6 +36,7 @@ const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser
         {selected && <UnitInfo user={user} setUser={setUser} lang={lang} selected={selected} setSelected={setSelected} isFetching={isFetching} setIsFetching={setIsFetching} global={global} />}
         {selectedModule && <ModuleInfo user={user} setUser={setUser} lang={lang} selectedModule={selectedModule} setSelectedModule={setSelectedModule} setIsFetching={setIsFetching} setOnEquip={setOnEquip}/>}
         {onEquip && <ModuleEquiption user={user} setUser={setUser} lang={lang} selectedModule={selectedModule} setIsFetching={setIsFetching} setOnEquip={setOnEquip} />}
+        {onBox && <BoxSelection lang={lang} user={user} setUser={setUser} setOnBox={setOnBox} />}
     </div>
 }
 

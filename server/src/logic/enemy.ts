@@ -34,14 +34,14 @@ export class Enemy {
                 this.debuffs = this.debuffs.filter(v => v !== debuff);
             }
             if (debuff.type === 'poison') {
-                this.damage(debuff.value * delta / 1000)
+                this.damage(debuff.value * delta / 1000, true)
             }
         }
         if(this.debuffs.some(v => v.type === 'fire')){
-            this.damage(this.debuffs.filter(v => v.type === 'fire').sort((a, b) => b.value - a.value)[0].value * delta / 1000)
+            this.damage(this.debuffs.filter(v => v.type === 'fire').sort((a, b) => b.value - a.value)[0].value * delta / 1000, true)
         }
         if(this.debuffs.some(v => v.type === 'bleed')){
-            this.damage(this.maxHealth * this.debuffs.filter(v => v.type === 'bleed').sort((a, b) => b.value - a.value)[0].value * delta / 1000);
+            this.damage(this.maxHealth * this.debuffs.filter(v => v.type === 'bleed').sort((a, b) => b.value - a.value)[0].value * delta / 1000, true);
         }
         if (this.health <= 0) {
             this.die(enemies);
@@ -80,9 +80,14 @@ export class Enemy {
         }
     }
 
-    damage(damage: number): void {
+    damage(damage: number, isDebuff = false): void {
+        if (this.debuffs.some(v => v.type === 'weak')) {
+            damage *= 1 + this.debuffs.filter(v => v.type === 'weak').sort((a, b) => b.value - a.value)[0].value;
+            damage = Math.max(0, damage);
+            damage = Math.round(damage);
+        }
         this.health -= damage;
-        this.emit('motion-damaged', this.x, this.y, damage);
+        if(!isDebuff) this.emit('motion-damaged', this.x, this.y, damage);
     }
 
     getTickData(): IEnemyData{

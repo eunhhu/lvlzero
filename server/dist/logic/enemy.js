@@ -32,14 +32,14 @@ class Enemy {
                 this.debuffs = this.debuffs.filter(v => v !== debuff);
             }
             if (debuff.type === 'poison') {
-                this.damage(debuff.value * delta / 1000);
+                this.damage(debuff.value * delta / 1000, true);
             }
         }
         if (this.debuffs.some(v => v.type === 'fire')) {
-            this.damage(this.debuffs.filter(v => v.type === 'fire').sort((a, b) => b.value - a.value)[0].value * delta / 1000);
+            this.damage(this.debuffs.filter(v => v.type === 'fire').sort((a, b) => b.value - a.value)[0].value * delta / 1000, true);
         }
         if (this.debuffs.some(v => v.type === 'bleed')) {
-            this.damage(this.maxHealth * this.debuffs.filter(v => v.type === 'bleed').sort((a, b) => b.value - a.value)[0].value * delta / 1000);
+            this.damage(this.maxHealth * this.debuffs.filter(v => v.type === 'bleed').sort((a, b) => b.value - a.value)[0].value * delta / 1000, true);
         }
         if (this.health <= 0) {
             this.die(enemies);
@@ -76,9 +76,15 @@ class Enemy {
             this.die(enemies);
         }
     }
-    damage(damage) {
+    damage(damage, isDebuff = false) {
+        if (this.debuffs.some(v => v.type === 'weak')) {
+            damage *= 1 + this.debuffs.filter(v => v.type === 'weak').sort((a, b) => b.value - a.value)[0].value;
+            damage = Math.max(0, damage);
+            damage = Math.round(damage);
+        }
         this.health -= damage;
-        this.emit('motion-damaged', this.x, this.y, damage);
+        if (!isDebuff)
+            this.emit('motion-damaged', this.x, this.y, damage);
     }
     getTickData() {
         return { x: +this.x.toFixed(2), y: +this.y.toFixed(2), health: +this.health.toFixed(2), maxHealth: this.maxHealth, status: this.debuffs.map(v => v.type), type: this.type, id: this.id };

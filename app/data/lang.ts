@@ -516,6 +516,10 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "en":"Skin",
         "ko":"스킨"
     },
+    "purchase":{
+        "en":"Purchase",
+        "ko":"구매"
+    },
 }
 
 export function lng(lang:string, key:string){

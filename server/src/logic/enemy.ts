@@ -61,6 +61,10 @@ export class Enemy {
         if (this.debuffs.some(v => v.type === 'slow')) {
             speed *= this.debuffs.filter(v => v.type === 'slow').sort((a, b) => a.value - b.value)[0].value;
         }
+        if(this.debuffs.some(v => v.type === 'illusion')){
+            // need to make the enemy move in the opposite direction
+            speed *= - this.debuffs.filter(v => v.type === 'illusion').sort((a, b) => b.value - a.value)[0].value;
+        }
 
         if (distance <= speed) {
             this.x = nextX;

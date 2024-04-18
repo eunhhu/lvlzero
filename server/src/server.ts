@@ -54,7 +54,7 @@ client.connect().then(async () => {
     app.get('/', (request, res) => {
       res.sendFile('index.html', { root: __dirname.replace('dist', 'src') });
     });
-    
+
     let rooms:IRoom[] = [];
     let onlines:{[key:string]:string} = {};
     
@@ -99,6 +99,13 @@ client.connect().then(async () => {
                     }
                 }
             })
+
+            socket.on('getLevel', () => {
+                let room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+                if(room){
+                    socket.emit('getLevel', room.game.level);
+                }
+            })
         
             socket.on('leaveRoom', (data:{ownerId:string;user:IUser}) => {
                 let room = rooms.find(room => room.ownerID === data.ownerId);
@@ -121,6 +128,7 @@ client.connect().then(async () => {
             socket.on('levelRoom', (ownerId:string, lvl:number) => {
                 let room = rooms.find(room => room.ownerID === ownerId);
                 if(room){
+                    room.game.level = lvl;
                     io.to(room.ownerID).emit('roomLeveled', lvl);
                 }
             })

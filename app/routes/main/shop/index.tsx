@@ -27,7 +27,7 @@ const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser
     }, [once])
 
     return <div className="flex flex-col justify-center items-center w-full fixed top-0" style={{height: `calc(100% - 76px)`}}>
-        <div className='flex flex-row flex-1 w-full'>
+        <div className='flex flex-row flex-1 w-full h-full overflow-hidden'>
             <StateSelectionBar state={state} setState={setState} lang={lang}setSelected={setSelected} />
             <MainShopMenu lang={lang} state={state} setSelected={setSelected} setSelectedModule={setSelectedModule} user={user} global={global} setOnBox={setOnBox} />
         </div>

@@ -45,6 +45,9 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
         socket.on('chat', (res:IChat) => {
             setChats([...chats, res])
         })
+        socket.on('getLevel', (res:number) => {
+            setLvl(res)
+        })
         return () => {
             socket.off('userJoined')
             socket.off('userLeft')
@@ -52,8 +55,14 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
             socket.off('gameStarted')
             socket.off('roomLeveled')
             socket.off('chat')
+            socket.off('getLevel')
         }
     }, [once, tester, chats])
+
+    useEffect(() => {
+        if(!once) return
+        socket.emit('getLevel', room.ownerID)
+    }, [once])
 
     return <>
         <div className="flex flex-col justify-center items-center w-full h-full fixed top-0">

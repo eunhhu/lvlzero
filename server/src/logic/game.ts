@@ -9,7 +9,7 @@ export class Game{
     health:number = 1000;
     maxHealth:number = 1000;
     path:[number, number][] = [];
-    level:number = 1;
+    level:number = 0;
     maxWave:number = 10;
 
     maxHealthLvl:number = 0;

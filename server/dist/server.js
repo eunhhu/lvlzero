@@ -91,6 +91,12 @@ client.connect().then(async () => {
                     }
                 }
             });
+            socket.on('getLevel', () => {
+                let room = rooms.find(room => room.users.find(user => user.socketId === socket.id));
+                if (room) {
+                    socket.emit('getLevel', room.game.level);
+                }
+            });
             socket.on('leaveRoom', (data) => {
                 let room = rooms.find(room => room.ownerID === data.ownerId);
                 if (room) {
@@ -112,6 +118,7 @@ client.connect().then(async () => {
             socket.on('levelRoom', (ownerId, lvl) => {
                 let room = rooms.find(room => room.ownerID === ownerId);
                 if (room) {
+                    room.game.level = lvl;
                     io.to(room.ownerID).emit('roomLeveled', lvl);
                 }
             });

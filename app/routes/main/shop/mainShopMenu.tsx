@@ -18,7 +18,7 @@ const MainShopMenu:FC<{
     global,
     setOnBox
 }) => {
-    return <div className='flex-1 w-full h-full flex flex-row gap-2 flex-wrap items-center justify-center overflow-y-auto p-5'>
+    return <div className='w-full h-full flex flex-row gap-2 flex-wrap items-center justify-center overflow-y-auto p-5'>
         {
             state == "units" ?
             global.units.map((v, i) => {

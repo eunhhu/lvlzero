@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Projectile = void 0;
 const events_1 = require("events");
-const splashAcceptDebuffs = ['fire'];
+const splashAcceptDebuffs = ['fire', 'poison', 'bleed', 'weak'];
 class Projectile {
     id;
     x;

@@ -10,7 +10,7 @@ class Game {
     health = 1000;
     maxHealth = 1000;
     path = [];
-    level = 1;
+    level = 0;
     maxWave = 10;
     maxHealthLvl = 0;
     healthRegenLvl = 0;

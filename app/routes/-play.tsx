@@ -416,7 +416,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                         />
                     );
                 })}
-                {enemyDatas.map((enemy, index) => {
+                {enemyDatas.sort((a, b) => a.x - b.x).sort((a, b) => a.y - b.y).map((enemy, index) => {
                     let tint = 0xFFFFFF;
                     if(enemy.status.includes('poison')) tint = 0x44FF44;
                     if(enemy.status.includes('fire')) tint = 0xFF9900;
@@ -613,32 +613,34 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
         </div>
         {/* Unit Selection */}
         {selectedPos[0] != -1 && !selectedUnit && !unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) &&
-        <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-1 lg:p-2 gap-1 lg:gap-2 box w-38">
-            {user.equipped.map((unit:string, index:number) => {
-                if(unit == 'l') return null;
-                let myUnit = global.units.find(v => v.type == unit) || {cost:0}
-                const canBuy = coin - myUnit.cost >= 0;
-                const md = user.equippedModules[index];
-                return <button key={index} className={`noshadow p-1 flex flex-col items-center justify-between ${!canBuy ? "text-red-700" : "text-white"}`}
-                onClick={e => {
-                    setSelectedUnit(unit)
-                }}>
-                    <div className="flex flex-row items-center justify-between gap-1.5 lg:gap-3">
-                        <img src={`assets/units/${unit}.png`} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
-                        <div className="text-sm lg:text-md">{lng(lang, unit)}</div>
-                    </div>
-                    <div className="text-sm lg:text-md">{myUnit.cost}c</div>
-                    <div className="flex flex-row items-center justify-center gap-1 lg:gap-1.5">
-                        <div className="box noshadow bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
-                            backgroundImage:md[0] ? `url("assets/modules/${md[0].split("-")[0]}.png")` : "none"
-                        }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>
-                        <div className="box noshadow bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
-                            backgroundImage:md[1] ? `url("assets/modules/${md[1].split("-")[0]}.png")` : "none"
-                        }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>
-                    </div>
-                </button>
-            })}
-            <button className="noshadow p-1 text-sm lg:text-md" onClick={e=> setSelectedPos([-1, -1])}>{lng(lang, 'cancel')}</button>
+        <div className="absolute left-0 top-0 w-38 flex flex-col justify-start items-center overflow-hidden h-full">
+            <div className="box p-1 lg:p-2 text-white flex flex-col font-semibold gap-1 lg:gap-2 overflow-auto w-full h-min">
+                {user.equipped.map((unit:string, index:number) => {
+                    if(unit == 'l') return null;
+                    let myUnit = global.units.find(v => v.type == unit) || {cost:0}
+                    const canBuy = coin - myUnit.cost >= 0;
+                    const md = user.equippedModules[index];
+                    return <button key={index} className={`noshadow p-1 flex flex-col items-center justify-between ${!canBuy ? "text-red-700" : "text-white"}`}
+                    onClick={e => {
+                        setSelectedUnit(unit)
+                    }}>
+                        <div className="flex flex-row items-center justify-between gap-1.5 lg:gap-3">
+                            <img src={`assets/units/${unit}.png`} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
+                            <div className="text-sm lg:text-md">{lng(lang, unit)}</div>
+                        </div>
+                        <div className="text-sm lg:text-md">{myUnit.cost}c</div>
+                        <div className="flex flex-row items-center justify-center gap-1 lg:gap-1.5">
+                            <div className="box noshadow bg-cover bg-center w-6 h-6 lg:w-8 lg:h-8 flex flex-row justify-center items-center font-bold text-sm lg:text-md" style={{
+                                backgroundImage:md[0] ? `url("assets/modules/${md[0].split("-")[0]}.png")` : "none"
+                            }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>
+                            <div className="box noshadow bg-cover bg-center w-6 h-6 lg:w-8 lg:h-8 flex flex-row justify-center items-center font-bold text-sm lg:text-md" style={{
+                                backgroundImage:md[1] ? `url("assets/modules/${md[1].split("-")[0]}.png")` : "none"
+                            }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>
+                        </div>
+                    </button>
+                })}
+                <button className="noshadow p-1 text-sm lg:text-md" onClick={e=> setSelectedPos([-1, -1])}>{lng(lang, 'cancel')}</button>
+            </div>
         </div>}
         {/* Unit Placement */}
         {selectedPos[0] != -1 && selectedUnit && !unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) && [''].map((_v, i) => {
@@ -647,34 +649,36 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             const cost = un.cost as number;
             const canPlace = coin >= cost;
             const md = user.equippedModules[user.equipped.findIndex(v => v == selectedUnit)]
-            return <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-1 lg:p-2 gap-1 lg:gap-2 box w-38">
-                <div className="flex flex-row items-center justify-between gap-2 lg:gap-3">
-                    <img src={`assets/units/${selectedUnit}.png`} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
-                    <div className="text-sm lg:text-md">{lng(lang, selectedUnit)}</div>
+            return <div className="absolute left-0 top-0 flex flex-col w-38 justify-start items-center h-full overflow-hidden">
+                <div className="text-white flex flex-col font-semibold p-1 lg:p-2 gap-1 lg:gap-2 box w-full h-min overflow-auto">
+                    <div className="flex flex-row items-center justify-between gap-2 lg:gap-3">
+                        <img src={`assets/units/${selectedUnit}.png`} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
+                        <div className="text-sm lg:text-md">{lng(lang, selectedUnit)}</div>
+                    </div>
+                    <div className="w-full flex flex-row items-center justify-center gap-1 lg:gap-1.5">
+                        <div className="box noshadow bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                            backgroundImage:md[0] ? `url("assets/modules/${md[0].split("-")[0]}.png")` : "none"
+                        }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>
+                        <div className="box noshadow bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                            backgroundImage:md[1] ? `url("assets/modules/${md[1].split("-")[0]}.png")` : "none"
+                        }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>
+                    </div>
+                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'damage')} {un.damage[0]}</div>
+                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'rate')} {(un.rate as number[])[0]/1000}s</div>
+                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'range')} {un.range[0]}m</div>
+                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'bulletSpeed')} {un.bulletSpeed[0]}</div>
+                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'cost')} {un.cost}c</div>
+                    <button className="noshadow p-1 text-sm lg:text-md text-white" onClick={e => {
+                        setSelectedUnit('')
+                    }}>{lng(lang, 'cancel')}</button>
+                    <button disabled={!canPlace} className={`noshadow p-1 text-sm lg:text-md ${canPlace ? 'text-white' : 'text-red-700'}`}
+                    onClick={e => {
+                        const idx = user.equipped.findIndex(v => v == selectedUnit)
+                        const modules = user.equippedModules[idx].map(v => global.modules.find(m => m.type == v) || {type:""})
+                        socket.emit('placeUnit', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit, modules})
+                        setSelectedUnit('')
+                    }}>{lng(lang, 'place')} - {cost}c</button>
                 </div>
-                <div className="w-full flex flex-row items-center justify-center gap-1 lg:gap-1.5">
-                    <div className="box noshadow bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
-                        backgroundImage:md[0] ? `url("assets/modules/${md[0].split("-")[0]}.png")` : "none"
-                    }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>
-                    <div className="box noshadow bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
-                        backgroundImage:md[1] ? `url("assets/modules/${md[1].split("-")[0]}.png")` : "none"
-                    }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>
-                </div>
-                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'damage')} {un.damage[0]}</div>
-                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'rate')} {(un.rate as number[])[0]/1000}s</div>
-                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'range')} {un.range[0]}m</div>
-                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'bulletSpeed')} {un.bulletSpeed[0]}</div>
-                <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'cost')} {un.cost}c</div>
-                <button className="noshadow p-1 text-sm lg:text-md text-white" onClick={e => {
-                    setSelectedUnit('')
-                }}>{lng(lang, 'cancel')}</button>
-                <button disabled={!canPlace} className={`noshadow p-1 text-sm lg:text-md ${canPlace ? 'text-white' : 'text-red-700'}`}
-                onClick={e => {
-                    const idx = user.equipped.findIndex(v => v == selectedUnit)
-                    const modules = user.equippedModules[idx].map(v => global.modules.find(m => m.type == v) || {type:""})
-                    socket.emit('placeUnit', {x:selectedPos[0], y:selectedPos[1], type:selectedUnit, modules})
-                    setSelectedUnit('')
-                }}>{lng(lang, 'place')} - {cost}c</button>
             </div>
         })}
         {/* Unit attributes & Upgrade */}

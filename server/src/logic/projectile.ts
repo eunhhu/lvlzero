@@ -1,7 +1,7 @@
 import { Enemy } from './enemy';
 import { EventEmitter } from 'events';
 
-const splashAcceptDebuffs = ['fire']
+const splashAcceptDebuffs = ['fire', 'poison', 'bleed', 'weak']
 
 export class Projectile {
     id: number;

@@ -84,11 +84,10 @@ class Enemy {
         if (this.debuffs.some(v => v.type === 'weak')) {
             damage *= 1 + this.debuffs.filter(v => v.type === 'weak').sort((a, b) => b.value - a.value)[0].value;
             damage = Math.max(0, damage);
-            damage = Math.round(damage);
         }
         this.health -= damage;
         if (!isDebuff)
-            this.emit('motion-damaged', this.x, this.y, damage);
+            this.emit('motion-damaged', this.x, this.y, Math.round(damage));
     }
     getTickData() {
         return { x: +this.x.toFixed(2), y: +this.y.toFixed(2), health: +this.health.toFixed(2), maxHealth: this.maxHealth, status: this.debuffs.map(v => v.type), type: this.type, id: this.id };

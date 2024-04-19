@@ -411,7 +411,7 @@ client.connect().then(async () => {
                     }
                     break;
                 }
-                case 'em':
+                case 'ec':
                 case 'emit-command':{
                     let room = rooms.find(room => room.ownerID === params[1]);
                     if(room){

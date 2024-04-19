@@ -13,6 +13,7 @@ class Projectile {
     tags;
     type;
     size;
+    pierced = []; // enemies' id that have been pierced
     event = new events_1.EventEmitter();
     constructor(x, y, angle, damage, speed, tags, type) {
         this.id = Math.floor(Math.random() * 1000000);
@@ -32,7 +33,7 @@ class Projectile {
         this.y += Math.sin(this.angle) * speed;
         // Check collision with enemies
         for (let enemy of enemies) {
-            if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < this.size /* assuming size of hitbox */) {
+            if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < this.size /* assuming size of hitbox */ && !this.pierced.includes(enemy.id)) {
                 let debuffs = [];
                 for (let tag of this.tags.filter(tag => tag.split('-')[0] === 'debuff')) {
                     const main = tag.split('-')[1];
@@ -55,7 +56,15 @@ class Projectile {
                 }
                 enemy.takeDamage(this.damage, debuffs, enemies);
                 this.emit('motion-hit', this.type, this.x, this.y);
-                this.dispose(projectiles);
+                const pierce = this.tags.find(tag => tag.split(':')[0] == 'pierce');
+                if (pierce) {
+                    this.pierced.push(enemy.id);
+                    if (this.pierced.length >= +(pierce.split(':')[1]))
+                        this.dispose(projectiles);
+                }
+                else {
+                    this.dispose(projectiles);
+                }
                 break;
             }
         }

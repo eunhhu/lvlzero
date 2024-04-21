@@ -23,7 +23,8 @@ export const loader:LoaderFunction = async ({params}) => {
         avatar: 'default',
         win: 0,
         lose: 0,
-        lastPvp: -1
+        lastPvp: -1,
+        rate: 0
     }
     res = await createUser(newUser);
     return json({res:newUser});

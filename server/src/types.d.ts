@@ -15,6 +15,7 @@ interface IUser{
     win: number;
     lose: number;
     lastPvp: number;
+    rate: number;
 }
 
 interface glFCProps{
@@ -210,4 +211,16 @@ interface IDB{
     enemies:IEnemy[];
     levels:ILevel[];
     modules:IModule[];
+    clans:IClan[];
+}
+
+interface IClan{
+    name:string; // clan name
+    members:string[]; // userId
+    owner:string; // userId
+    description:string; // clan description
+    icon:string; // 64x64 sized uri string
+    level:number; // clan level
+    exp:number; // clan exp
+    gold:number; // clan gold
 }

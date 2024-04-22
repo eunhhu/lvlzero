@@ -4,10 +4,9 @@ import { Enemy } from './enemy';
 import { Projectile } from './projectile';
 
 export class PVP{
-    eventEmitter: EventEmitter;
     teams: [];
+    eventEmitter: EventEmitter = new EventEmitter();
 
     constructor(players:number){
-        this.eventEmitter = new EventEmitter();
     }
 }

@@ -1,4 +1,4 @@
-import {FC, Dispatch, SetStateAction, useEffect, useState} from 'react'
+import {FC, Dispatch, SetStateAction, useEffect, useState, useRef} from 'react'
 import { Socket } from 'socket.io-client';
 import { lng } from '~/data/lang';
 
@@ -10,6 +10,7 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
     const [onChat, setOnChat] = useState<boolean>(false)
     const [chats, setChats] = useState<IChat[]>([])
     const [input, setInput] = useState<string>('')
+    const chatRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         setOnce(true)
@@ -64,46 +65,51 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
         socket.emit('getLevel', room.ownerID)
     }, [once])
 
+    useEffect(() => {
+        // auto scroll
+        chatRef.current?.scrollTo(0, chatRef.current.scrollHeight)
+    }, [chats, onChat])
+
     return <>
-        <div className="flex flex-col justify-center items-center w-full h-full fixed top-0">
-            <div className="w-full p-2 box flex flex-row justify-between items-center">
-                <div className="text-left text-lg lg:text-2xl font-bold">
+        <div className="fccc w-full h-full fixed top-0 gap-1.5 lg:gap-2 p-1.5 lg:p-2">
+            <div className="w-full p-2 f-backl s-0-5 frbc">
+                <div className="text-left text-lg lg:text-2xl font-bold text-white">
                     {room.name} [{room.ownerName}]
                 </div>
-                <div className="absolute right-0 p-3 text-sm lg:text-md text-center font-bold w-40 box">{room.users.length} / {room.maxUsers}</div>
+                <div className="absolute right-3 p-2 text-sm lg:text-md text-center font-bold w-40 f-back2l s-0-5 text-white">{room.users.length} / {room.maxUsers}</div>
             </div>
-            <div className="w-full h-full flex flex-row justify-center items-center">
-                <div className="box h-full flex flex-col p-1 gap-1">
+            <div className="w-full h-full frcc">
+                <div className="f-backl s-0-5 h-full flex flex-col p-1 gap-1">
                     {
                         room.users.map((v, i) => {
-                            return <div key={i} className="flex w-40 flex-row justify-between items-center p-2 box hover:bg-[#ffffff33] cursor-pointer rounded-md">
-                                    <div className="text-lg lg:text-xl text-white font-bold">{v.username}</div>
-                                    <div className="text-md lg:text-lg text-white">Lv.{v.lvl}</div>
+                            return <div key={i} className="w-40 frbc p-2 f-backl f-out f-mc s-0-8 hover:bg-[#ffffff33] cursor-pointer rounded-md">
+                                <div className="text-lg lg:text-xl text-white font-bold">{v.username}</div>
+                                <div className="text-md lg:text-lg text-white">Lv.{v.lvl}</div>
                             </div>
                         })
                     }
                 </div>
-                <div className="w-full h-full flex flex-col justify-center items-center">
-                    <div className='flex flex-row justify-center items-center p-5 gap-3'>
-                        {room.ownerID == socket.id && <button className='p-1 noshadow' onClick={e => changeLvl(-1)}>&nbsp;&lt;&nbsp;</button>}
+                <div className="w-full h-full fccc">
+                    <div className='frcc p-5 gap-3'>
+                        {room.ownerID == socket.id && <div className='cursor-pointer text-white p-1 f-back font-semibold f-out f-mc s-0-5' onClick={e => changeLvl(-1)}>&nbsp;&lt;&nbsp;</div>}
                         <h1 className='text-white font-semibold text-lg lg:text-2xl'>{lng(lang, 'level')} {lvl+1} - {lng(lang, global.levels.find(v => v.level == lvl+1)?.title.toUpperCase() || "")}</h1>
-                        {room.ownerID == socket.id && <button className='p-1 noshadow' onClick={e => changeLvl(1)}>&nbsp;&gt;&nbsp;</button>}
+                        {room.ownerID == socket.id && <div className='cursor-pointer text-white p-1 f-back font-semibold f-out f-mc s-0-5' onClick={e => changeLvl(1)}>&nbsp;&gt;&nbsp;</div>}
                     </div>
-                    <div className="flex flex-row gap-2 flex-wrap p-5">
+                    <div className="frs gap-2 flex-wrap p-5">
                         {
                             user.equipped.map((v, i) => {
                                 const mod = user.equippedModules[i]
-                                return <div key={i} className='flex flex-col justify-center items-center gap-1 lg:gap-1.5'>
-                                    <div className="box bg-cover bg-center cursor-pointer w-16 h-16 lg:w-24 lg:h-24"
+                                return <div key={i} className='fccc gap-1 lg:gap-1.5'>
+                                    <div className="f-out f-mc f-backwl s-0-5 bg-cover bg-center cursor-pointer w-16 h-16 lg:w-24 lg:h-24"
                                     style={{backgroundImage:`${v ? `url(assets/units/${v == 'l' ? 'locked' : v}.png)` : ''}`}}>
                                         {v == 'l' && <div
-                                        className="w-full h-full flex flex-col justify-center items-center rounded-md bg-[#00000077] text-white text-md lg:text-xl font-bold">900</div>}
+                                        className="w-full h-full fccc rounded-md bg-[#00000077] text-white text-md lg:text-xl font-bold">900</div>}
                                     </div>
-                                    <div className='flex flex-row justify-center items-center gap-1 lg:gap-1.5'>
-                                        <div className='flex-1 box bg-cover bg-center w-8 lg:w-12 h-8 lg:h-12 cursor-pointer flex flex-col justify-center items-center font-bold text-lg lg:text-2xl' style={{
+                                    <div className='frcc gap-1 lg:gap-1.5'>
+                                        <div className='flex-1 f-out f-mc f-backwl s-0-5 text-white bg-cover bg-center w-8 lg:w-12 h-8 lg:h-12 cursor-pointer fccc font-bold text-lg lg:text-2xl' style={{
                                             backgroundImage: mod[0] ? `url(assets/modules/${mod[0].split('-')[0]}.png)` : "none"
                                         }}>{mod[0] ? mod[0].split("-")[1].toUpperCase() : ""}</div>
-                                        <div className='flex-1 box bg-cover bg-center w-8 lg:w-12 h-8 lg:h-12 cursor-pointer flex flex-col justify-center items-center font-bold text-lg lg:text-2xl' style={{
+                                        <div className='flex-1 f-out f-mc f-backwl s-0-5 text-white bg-cover bg-center w-8 lg:w-12 h-8 lg:h-12 cursor-pointer fccc font-bold text-lg lg:text-2xl' style={{
                                             backgroundImage: mod[1] ? `url(assets/modules/${mod[1].split('-')[0]}.png)` : "none"
                                         }}>{mod[1] ? mod[1].split("-")[1].toUpperCase() : ""}</div>
                                     </div>
@@ -111,17 +117,17 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
                             })
                         }
                     </div>
-                    <div className="absolute right-0 bottom-0 flex flex-col text-center">
-                        {user.admin && <select className='box p-2 w-40 text-center text-sm lg:text-md' name="" id="" onChange={e => setTester(e.target.value)} value={tester}>
+                    <div className="absolute right-1.5 bottom-1.5 flex flex-col text-center gap-1.5 lg:gap-2">
+                        {user.admin && <div className='f-out w-40 f-mc s-0-8'><select className='f-sel f-mc s-0-8 p-2 w-full text-center text-sm lg:text-md' name="" id="" onChange={e => setTester(e.target.value)} value={tester}>
                             <option value="play">2D</option>
                             <option value="play3d">3D</option>
-                        </select>}
-                        {room.ownerID == socket.id && <button className="box p-2 w-40 text-sm lg:text-md"
+                        </select></div>}
+                        {room.ownerID == socket.id && <button className="f-btn f-mc s-0-8 f-out p-2 w-40 text-sm lg:text-md"
                         onClick={e => {
                             setIsFetching(true)
                             socket.emit('startGame', room.ownerID, lvl+1)
                         }}>{lng(lang, 'start')}</button>}
-                        <button className="box p-2 w-40 text-sm lg:text-md"
+                        <button className="f-btn f-mc s-0-8 f-out p-2 w-40 text-sm lg:text-md"
                         onClick={e => {
                             setIsFetching(true)
                             socket.emit('leaveRoom', {ownerId:room.ownerID, user})
@@ -133,31 +139,33 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
                     </div>
                 </div>
             </div>
-            {!onChat && <button className="absolute right-0 p-2 text-lg lg:text-xl font-semibold"
-            onClick={e => setOnChat(true)}>&lt;</button>}
-            {onChat && <div className="fixed w-full h-full bg-[#00000099] flex flex-col justify-center items-center"
+            {!onChat && <div className='absolute right-1'><button className="f-btn f-out f-cm s-0-6 p-2 text-lg lg:text-xl font-semibold"
+            onClick={e => setOnChat(true)}>&lt;</button></div>}
+            {onChat && <div className="fixed w-full h-full bg-[#00000099] fccc"
             onClick={e => {
                 if(e.target != e.currentTarget) return
                 setOnChat(false)
             } }>
-                <div className="box bg-[#000000aa] flex flex-col justify-center items-center text-center" style={{width:'80%', height:'70%'}}>
-                    <div className='flex flex-col justify-start items-center flex-1 overflow-y-auto overflow-x-hidden gap-1 w-full p-1'>
+                <div className="f-backl s-0-9 fccc text-center gap-2" style={{width:'80%', height:'70%'}}>
+                    <div className='fcsc flex-1 overflow-y-auto overflow-x-hidden gap-1 w-full p-1' ref={chatRef}>
                         {chats.map((v, i) => {
-                            return <div key={i} className='flex flex-row gap-1 w-full'>
+                            return <div key={i} className='frs gap-1 w-full font-bold'>
                                 <div className='text-white text-lg lg:text-2xl'>[{v.username}]</div>
                                 <div className='text-white text-lg lg:text-2xl'>{v.message}</div>
                             </div>
                         })}
                     </div>
-                    <div className='flex flex-row w-full'>
-                        <input className='text-md lg:text-xl p-1 flex-1' type="text" name="" id="" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
-                            if(e.key == 'Enter'){
-                                if(input.trim() == '') return
-                                socket.emit('chat', {name:user.username, message:input})
-                                setInput('')
-                            }
-                        }} />
-                        <button className='text-md lg:text-xl p-1' onClick={e => {
+                    <div className='frs w-full gap-4'>
+                        <div className='f-out f-mc s-0-6 w-full'>
+                            <input className='f-inp f-mc s-0-6 text-md lg:text-xl p-1 flex-1 w-full' type="text" name="" id="" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
+                                if(e.key == 'Enter'){
+                                    if(input.trim() == '') return
+                                    socket.emit('chat', {name:user.username, message:input})
+                                    setInput('')
+                                }
+                            }} />
+                        </div>
+                        <button className='f-btn f-out f-mc s-0-6 text-md lg:text-xl p-1' onClick={e => {
                             if(input.trim() == '') return
                             socket.emit('chat', {name:user.username, message:input})
                             setInput('')

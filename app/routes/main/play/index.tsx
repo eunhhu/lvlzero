@@ -34,15 +34,17 @@ const PlayState:FC<{lang:string; socket:Socket; setRoom:Dispatch<SetStateAction<
     }, [once])
 
     return <>
-        <div className="flex flex-col justify-center items-center w-full fixed top-0" style={{height: `calc(100% - 76px)`}}>
+        <div className="fccc w-full fixed top-0" style={{height: `calc(100% - 76px)`}}>
             <h1 className="text-xl lg:text-4xl text-white font-bold mt-5">{lng(lang, "room list")}</h1>
-            <div className="w-full flex flex-row gap-1 p-5">
-                <button className="text-sm lg:text-lg w-40" onClick={e => setCreate(true)}>{lng(lang, 'create')}</button>
-                <input className="text-sm lg:text-lg w-full" type="text" name="" id="" placeholder={lng(lang, 'search')} value={search} onChange={e => setSearch(e.target.value)}/>
+            <div className="w-full flex flex-row gap-3 p-5">
+                <button className="f-btn f-out f-mc s-0-9 text-sm lg:text-lg w-40" onClick={e => setCreate(true)}>{lng(lang, 'create')}</button>
+                <div className='f-out f-mc s-0-9 w-full'>
+                    <input className="f-inp f-mc s-0-9 text-sm lg:text-lg w-full" type="text" name="" id="" placeholder={lng(lang, 'search')} value={search} onChange={e => setSearch(e.target.value)}/>
+                </div>
             </div>
             <div className="w-full h-full overflow-auto flex flex-col gap-2 items-center p-5">
                 {rooms.filter(v => v.name.match(search)).map((room, i) => {
-                    return <div key={i} className="w-full flex flex-row justify-between items-center p-5 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-md"
+                    return <div key={i} className="f-out  w-full frbc p-5 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-md"
                     onClick={e => {
                         if(room.private){
                             setPassRoom(room)
@@ -78,28 +80,34 @@ const PlayState:FC<{lang:string; socket:Socket; setRoom:Dispatch<SetStateAction<
                 setPassword('')
                 setOnError('')
             }}>
-                <div className="box bg-[#000000aa] flex flex-col justify-center items-center text-center" style={{width:'80%', height:'70%'}}>
+                <div className="f-backl s-1 flex flex-col justify-center items-center text-center text-white" style={{width:'80%', height:'70%'}}>
                     <div className="w-full h-full flex flex-col justify-center items-center gap-5">
-                        <div className="flex justify-center items-center gap-5">
+                        <div className="frbc w-[60%]">
                             <div className="text-lg lg:text-3xl font-semibold">{lng(lang, 'room name')}</div>
-                            <input className="text-sm lg:text-lg w-64 font-semibold" type="text" name="" id="" placeholder={lng(lang, 'room name')} value={roomname} onChange={e => {setRoomname(e.target.value);setOnError('')}} />
+                            <div className='w-64 f-out f-mc s-0-9'>
+                                <input className="f-inp text-sm lg:text-lg w-full font-semibold" type="text" name="" id="" placeholder={lng(lang, 'room name')} value={roomname} onChange={e => {setRoomname(e.target.value);setOnError('')}} />
+                            </div>
                         </div>
-                        <div className="flex justify-center items-center gap-5">
+                        <div className="frbc w-[60%]">
                             <div className="text-lg lg:text-3xl font-semibold">{lng(lang, 'max users')}</div>
-                            <input className="text-sm lg:text-lg w-20" type="number" name="" id="" placeholder={lng(lang, 'max users')} value={maxUsers}
-                            onChange={e => {setMaxUsers(Math.min(Math.max(1, +e.target.value), 4));setOnError('')}} />
+                            <div className='f-out f-mc s-0-9 w-32'>
+                                <input className="f-inp text-sm lg:text-lg w-full" type="number" name="" id="" placeholder={lng(lang, 'max users')} value={maxUsers}
+                                onChange={e => {setMaxUsers(Math.min(Math.max(1, +e.target.value), 4));setOnError('')}} />
+                            </div>
                         </div>
-                        <div className="flex justify-center items-center gap-5">
+                        <div className="frbc w-[60%]">
                             <div className="text-lg lg:text-3xl font-semibold">{lng(lang, 'private')}</div>
                             <input type="checkbox" name="" id="" className="w-7 h-7" checked={isPrivate} onChange={e => {setIsPrivate(e.target.checked);setOnError('')}} />
                         </div>
-                        {isPrivate && <div className="flex justify-center items-center gap-5">
+                        {isPrivate && <div className="frbc w-[60%]">
                             <div className="text-lg lg:text-3xl font-semibold">{lng(lang, 'password')}</div>
-                            <input className="text-sm lg:text-lg w-64 font-semibold" type="password" name="" id="" placeholder={lng(lang, 'password')} value={password} onChange={e => {setPassword(e.target.value);setOnError('')}} />
+                            <div className='w-64 f-out f-mc s-0-9'>
+                                <input className="f-inp text-sm lg:text-lg w-full font-semibold" type="password" name="" id="" placeholder={lng(lang, 'password')} value={password} onChange={e => {setPassword(e.target.value);setOnError('')}} />
+                            </div>
                         </div>}
-                        <div className="text-sm lg:text-lg text-red-500 font-semibold noshadow">{lng(lang, onError)}</div>
+                        <div className="text-center text-sm lg:text-lg text-red-500 font-semibold noshadow">{lng(lang, onError)}</div>
                     </div>
-                    <button className="w-full text-lg lg:text-3xl"
+                    <button className="f-btn f-out f-mc s-0-7 w-full text-lg lg:text-2xl"
                     onClick={e => {
                         if(!roomname) return setOnError('room name required')
                         if(isPrivate && !password) return setOnError('password required')
@@ -123,7 +131,7 @@ const PlayState:FC<{lang:string; socket:Socket; setRoom:Dispatch<SetStateAction<
                 setPassInput('')
                 setPassError('')
             }}>
-                <div className="box bg-[#000000aa] flex flex-col justify-center items-center text-center" style={{width:'50%', height:'40%'}}>
+                <div className="f-backwl s-0-9 flex flex-col justify-center items-center text-center" style={{width:'50%', height:'40%'}}>
                     <div className="w-full h-full flex flex-col justify-center items-center gap-5">
                         <div className="text-lg lg:text-3xl font-semibold">{lng(lang, 'password')}</div>
                         <input className="text-sm lg:text-lg w-64" type="password" name="" id="" placeholder={lng(lang, 'password')} value={passInput} onChange={e => {setPassInput(e.target.value);setPassError('')}}/>

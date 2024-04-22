@@ -37,7 +37,7 @@ body{
     user-select: none;
 }
 
-button, input, textarea, select, .box{
+button:not(.f-btn), input:not(.f-inp), textarea, select:not(.f-sel), .box{
     border: none;
     border-radius: 10px;
     color: #fff;
@@ -46,13 +46,13 @@ button, input, textarea, select, .box{
     transition: all 0.2s ease-in-out;
     border: 3px solid #fff;
 }
-button, input, textarea, select{
+button:not(.f-btn), input:not(.f-inp), textarea, select:not(.f-sel){
     background-color: transparent;
     padding: 10px 20px;
     font-size: 16px;
     font-weight: bold;
 }
-button:disabled, input:disabled, textarea:disabled, select:disabled{
+button:not(.f-btn):disabled, input:not(.f-inp):disabled, textarea:disabled, select:not(.f-sel):disabled{
     cursor: not-allowed;
     opacity: 0.5;
 }
@@ -62,19 +62,19 @@ button:disabled, input:disabled, textarea:disabled, select:disabled{
     text-shadow: none !important;
 }
 
-button{cursor: pointer;}
-input::placeholder, textarea::placeholder{text-shadow: 0 0 4px #aaa; color: #aaa;}
+button:not(.f-btn){cursor: pointer;}
+input:not(.f-inp)::placeholder, textarea::placeholder{text-shadow: 0 0 4px #aaa; color: #aaa;}
 
-button:focus, input:focus, textarea:focus, select:focus {outline: none;}
-button:hover, input:hover, textarea:hover, select:hover {background-color: #ffffff22;}
-button:active, input:active, textarea:active, select:active {background-color: #ffffff44;}
+button:not(.f-btn):focus, input:not(.f-inp):focus, textarea:focus, select:not(.f-sel):focus {outline: none;}
+button:not(.f-btn):hover, input:not(.f-inp):hover, textarea:hover, select:not(.f-sel):hover {background-color: #ffffff22;}
+button:not(.f-btn):active, input:not(.f-inp):active, textarea:active, select:not(.f-sel):active {background-color: #ffffff44;}
 option{background-color: #000;}
-input[type="number"]{
+input:not(.f-inp)[type="number"]{
     -moz-appearance: textfield;
     appearance: textfield;
 }
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
+input:not(.f-inp)::-webkit-outer-spin-button,
+input:not(.f-inp)::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }

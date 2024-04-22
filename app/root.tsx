@@ -1,6 +1,7 @@
 import { cssBundleHref } from "@remix-run/css-bundle";
 import type { LinksFunction } from "@remix-run/node";
 import './styles/global.css'
+import './styles/style.css'
 import {
   Links,
   LiveReload,

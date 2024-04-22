@@ -102,12 +102,16 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global, isMobile}) 
 
     return (<>
         {
-            <div className="cover flex-col space-y-5" style={{backgroundImage:'url(assets/loginbg.png)'}}>
-                <input className="text-sm lg:text-md" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} type="text" name="" id="" placeholder={lng(lang, 'username')} value={username} onChange={e => {setError('');setUsername(e.target.value)}}/>
-                <input className="text-sm lg:text-md" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} type="password" name="" id="" placeholder={lng(lang, 'password')} value={password} onChange={e => {setError('');setPassword(e.target.value)}}/>
-                {state === 'register' && <input className="text-sm lg:text-md" type="password" name="" id="" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}}
-                placeholder={lng(lang, 'confirm password')} value={confirmPassword} onChange={e => {setError('');setConfirmPassword(e.target.value)}}/> }
-                <button className="text-sm lg:text-md" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} onClick={e => {
+            <div className="cover flex-col space-y-5" style={{backgroundImage:'url(assets/loginbg.png)', filter:`blur(0px))`}}>
+                <div className="f-out f-mc s-0-9 w-48">
+                  <input className="f-inp f-mc s-0-9 text-sm lg:text-md w-full" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} type="text" name="" id="" placeholder={lng(lang, 'username')} value={username} onChange={e => {setError('');setUsername(e.target.value)}}/>
+                </div>
+                <div className="f-out f-mc s-0-9 w-48">
+                  <input className="f-inp f-mc s-0-9 text-sm lg:text-md w-full" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} type="password" name="" id="" placeholder={lng(lang, 'password')} value={password} onChange={e => {setError('');setPassword(e.target.value)}}/>
+                </div>
+                {state === 'register' && <div className="f-out f-mc s-0-9 w-48"><input className="f-inp f-mc s-0-9 text-sm lg:text-md w-full" type="password" name="" id="" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}}
+                placeholder={lng(lang, 'confirm password')} value={confirmPassword} onChange={e => {setError('');setConfirmPassword(e.target.value)}}/></div> }
+                <button className="f-btn f-out f-mc s-0-9 text-sm lg:text-md" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} onClick={e => {
                     if (state === 'login') login()
                     else register()
                 }}>{lng(lang, state)}</button>

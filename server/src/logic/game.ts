@@ -24,16 +24,95 @@ export class Game{
     spawnInterval:NodeJS.Timeout;
     event:EventEmitter = new EventEmitter();
 
+    usePinnedQueue:boolean = false;
+    pinnedQueue:Enemy[] = [];
     enemySpawnQueue:Enemy[] = [];
 
+    defaultCoin:number = 1000;
+    waveCoin:number = 100;
     enemySpawnInterval = 1000
     waitingTimer:number = 0;
     waitingTimerMax:number = 10000;
     status:"waiting"|"started" = "waiting"
     lastTick: number = Date.now();
 
+    players:InGameUser[] = [];
+
     constructor(){
         this.generatePath();
+
+        this.on('userSelect', (socketId:string, data:IUserSelectionData) => {
+            let player = this.players.find(player => player.socketId === socketId);
+            if(player){
+                player.selection = data;
+                this.emit('userSelection', this.players.map(player => player.selection));
+            }
+        })
+
+        this.on('placeUnit', (socketId:string, data:{x:number, y:number, type:string, modules:IModule[]}, units:IUnit[]) => {
+            let player = this.players.find(player => player.socketId === socketId);
+            if(player){
+                if(player.coin >= units.find(unit => unit.type === data.type).cost){
+                    player.coin -= units.find(unit => unit.type === data.type).cost;
+                    this.emit('usersUpdate', this.players);
+                    let unit = this.placeUnit(units, data.x, data.y, data.type, data.modules);
+                }
+            }
+        })
+
+        this.on('upgradeUnit', (socketId:string, data:{x:number, y:number}, units:IUnit[]) => {
+            let player = this.players.find(player => player.socketId === socketId);
+            if(player){
+                const unit:IUnitData = this.findUnit(data.x, data.y)
+                if(!unit) return;
+                const unitData:IUnit = units.find(v => v.type == unit.type)
+                if(unit){
+                    const cost = unitData.upgradeCost[unit.lvl - 1];
+                    if(player.coin < cost) return;
+                    this.upgradeUnit(data.x, data.y)
+                    player.coin -= cost;
+                    this.emit('usersUpdate', this.players);
+                }
+            }
+        })
+
+        this.on('sellUnit', (socketId:string, data:{x:number, y:number}, units:IUnit[]) => {
+            let player = this.players.find(player => player.socketId === socketId);
+            if(player){
+                const unit:IUnitData = this.findUnit(data.x, data.y)
+                if(!unit) return;
+                const unitData:IUnit = units.find(v => v.type == unit.type)
+                if(unit){
+                    const allUpgCosts = unit.lvl == 1 ? 0 : unit.lvl == 2 ? unitData.upgradeCost[0] : unitData.upgradeCost.slice(0, unit.lvl-1).reduce((a, b) => a + b)
+                    const sellCost = Math.round((unitData.cost + allUpgCosts)/2);
+                    this.sellUnit(data.x, data.y)
+                    player.coin += sellCost;
+                    this.emit('usersUpdate', this.players);
+                }
+            }
+        })
+
+        this.on('upgradeHealth', (socketId:string) => {
+            let player = this.players.find(player => player.socketId === socketId);
+            if(player){
+                const cost = (this.maxHealthLvl + 1) * 500
+                if(player.coin < cost) return;
+                this.upgradeHealth();
+                player.coin -= cost;
+                this.emit('usersUpdate', this.players);
+            }
+        })
+
+        this.on('upgradeHealthRegen', (socketId:string) => {
+            let player = this.players.find(player => player.socketId === socketId);
+            if(player){
+                const cost = (this.healthRegenLvl + 1) * 800
+                if(player.coin < cost) return;
+                this.upgradeRegen();
+                player.coin -= cost;
+                this.emit('usersUpdate', this.players);
+            }
+        })
     }
 
     generatePath() {
@@ -83,9 +162,41 @@ export class Game{
         this.waitingTimer = this.waitingTimerMax * 2;
     }
 
-    start(levels:ILevel[], enemies:IEnemy[]){
+    start(levels:ILevel[], enemies:IEnemy[], users:IInRoomUser[]){
         this.lastTick = Date.now();
+        this.players = users.map(user => {
+            return {
+                id: user.id,
+                username: user.username,
+                lvl: user.lvl,
+                socketId: user.socketId,
+                coin: this.defaultCoin,
+                selection: {
+                    x: -1,
+                    y: -1,
+                    type: '',
+                    socketId: user.socketId
+                }
+            }
+        });
+        this.emit('gameInit', this.getInitData());
+        this.emit('usersUpdate', this.players);
         this.run(levels, enemies);
+    }
+
+    giveAllCoin(coin:number){
+        this.players.forEach(player => {
+            player.coin += coin;
+        });
+        this.emit('usersUpdate', this.players);
+    }
+
+    giveCoinToPlayer(socketId:string, coin:number){
+        const player = this.players.find(player => player.socketId === socketId);
+        if(player){
+            player.coin += coin;
+            this.emit('usersUpdate', this.players);
+        }
     }
 
     on(event:string, listener:(...args: any[]) => void){
@@ -144,7 +255,7 @@ export class Game{
                     if (!enemyData) enemy = new Enemy(0, 0, 0.05, 100, 'basic', this.path);
                     enemy = new Enemy(0, 0, enemyData.speed, enemyData.health, enemyType, this.path);
                     enemy.on('dead', (type:string) => {
-                        this.emit('enemyDead', enemies.find(enemy => enemy.type === type).coin);
+                        this.giveAllCoin(Math.round(enemies.find(enemy => enemy.type === type).coin / this.players.length));
                     });
                     enemy.on('motion-killed', (x:number, y:number) => {
                         this.emit('motion', `enemyKilled-${enemy.type}`, x, y);
@@ -173,6 +284,7 @@ export class Game{
 
             // 적이 모두 제거되었는지 확인
             if (this.enemies.length === 0 && this.enemySpawnQueue.length === 0) {
+                this.giveAllCoin(this.waveCoin);
                 this.emit('waveComplete', this.wave);
                 this.projectiles = [];
                 this.status = "waiting";
@@ -432,7 +544,7 @@ export class Game{
                 if(params.length < 2) return;
                 if(+params[1] < 0) return;
                 if(isNaN(+params[1])) return;
-                this.emit('coin', +params[1]);
+                this.giveAllCoin(+params[1]);
                 break;
             default:
                 break;

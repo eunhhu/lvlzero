@@ -21,14 +21,91 @@ class Game {
     loop;
     spawnInterval;
     event = new events_1.EventEmitter();
+    usePinnedQueue = false;
+    pinnedQueue = [];
     enemySpawnQueue = [];
+    defaultCoin = 1000;
+    waveCoin = 100;
     enemySpawnInterval = 1000;
     waitingTimer = 0;
     waitingTimerMax = 10000;
     status = "waiting";
     lastTick = Date.now();
+    players = [];
     constructor() {
         this.generatePath();
+        this.on('userSelect', (socketId, data) => {
+            let player = this.players.find(player => player.socketId === socketId);
+            if (player) {
+                player.selection = data;
+                this.emit('userSelection', this.players.map(player => player.selection));
+            }
+        });
+        this.on('placeUnit', (socketId, data, units) => {
+            let player = this.players.find(player => player.socketId === socketId);
+            if (player) {
+                if (player.coin >= units.find(unit => unit.type === data.type).cost) {
+                    player.coin -= units.find(unit => unit.type === data.type).cost;
+                    this.emit('usersUpdate', this.players);
+                    let unit = this.placeUnit(units, data.x, data.y, data.type, data.modules);
+                }
+            }
+        });
+        this.on('upgradeUnit', (socketId, data, units) => {
+            let player = this.players.find(player => player.socketId === socketId);
+            if (player) {
+                const unit = this.findUnit(data.x, data.y);
+                if (!unit)
+                    return;
+                const unitData = units.find(v => v.type == unit.type);
+                if (unit) {
+                    const cost = unitData.upgradeCost[unit.lvl - 1];
+                    if (player.coin < cost)
+                        return;
+                    this.upgradeUnit(data.x, data.y);
+                    player.coin -= cost;
+                    this.emit('usersUpdate', this.players);
+                }
+            }
+        });
+        this.on('sellUnit', (socketId, data, units) => {
+            let player = this.players.find(player => player.socketId === socketId);
+            if (player) {
+                const unit = this.findUnit(data.x, data.y);
+                if (!unit)
+                    return;
+                const unitData = units.find(v => v.type == unit.type);
+                if (unit) {
+                    const allUpgCosts = unit.lvl == 1 ? 0 : unit.lvl == 2 ? unitData.upgradeCost[0] : unitData.upgradeCost.slice(0, unit.lvl - 1).reduce((a, b) => a + b);
+                    const sellCost = Math.round((unitData.cost + allUpgCosts) / 2);
+                    this.sellUnit(data.x, data.y);
+                    player.coin += sellCost;
+                    this.emit('usersUpdate', this.players);
+                }
+            }
+        });
+        this.on('upgradeHealth', (socketId) => {
+            let player = this.players.find(player => player.socketId === socketId);
+            if (player) {
+                const cost = (this.maxHealthLvl + 1) * 500;
+                if (player.coin < cost)
+                    return;
+                this.upgradeHealth();
+                player.coin -= cost;
+                this.emit('usersUpdate', this.players);
+            }
+        });
+        this.on('upgradeHealthRegen', (socketId) => {
+            let player = this.players.find(player => player.socketId === socketId);
+            if (player) {
+                const cost = (this.healthRegenLvl + 1) * 800;
+                if (player.coin < cost)
+                    return;
+                this.upgradeRegen();
+                player.coin -= cost;
+                this.emit('usersUpdate', this.players);
+            }
+        });
     }
     generatePath() {
         let cur = [0, 0];
@@ -75,9 +152,39 @@ class Game {
         this.status = "waiting";
         this.waitingTimer = this.waitingTimerMax * 2;
     }
-    start(levels, enemies) {
+    start(levels, enemies, users) {
         this.lastTick = Date.now();
+        this.players = users.map(user => {
+            return {
+                id: user.id,
+                username: user.username,
+                lvl: user.lvl,
+                socketId: user.socketId,
+                coin: this.defaultCoin,
+                selection: {
+                    x: -1,
+                    y: -1,
+                    type: '',
+                    socketId: user.socketId
+                }
+            };
+        });
+        this.emit('gameInit', this.getInitData());
+        this.emit('usersUpdate', this.players);
         this.run(levels, enemies);
+    }
+    giveAllCoin(coin) {
+        this.players.forEach(player => {
+            player.coin += coin;
+        });
+        this.emit('usersUpdate', this.players);
+    }
+    giveCoinToPlayer(socketId, coin) {
+        const player = this.players.find(player => player.socketId === socketId);
+        if (player) {
+            player.coin += coin;
+            this.emit('usersUpdate', this.players);
+        }
     }
     on(event, listener) {
         this.event.on(event, listener);
@@ -129,7 +236,7 @@ class Game {
                         enemy = new enemy_1.Enemy(0, 0, 0.05, 100, 'basic', this.path);
                     enemy = new enemy_1.Enemy(0, 0, enemyData.speed, enemyData.health, enemyType, this.path);
                     enemy.on('dead', (type) => {
-                        this.emit('enemyDead', enemies.find(enemy => enemy.type === type).coin);
+                        this.giveAllCoin(Math.round(enemies.find(enemy => enemy.type === type).coin / this.players.length));
                     });
                     enemy.on('motion-killed', (x, y) => {
                         this.emit('motion', `enemyKilled-${enemy.type}`, x, y);
@@ -157,6 +264,7 @@ class Game {
             });
             // 적이 모두 제거되었는지 확인
             if (this.enemies.length === 0 && this.enemySpawnQueue.length === 0) {
+                this.giveAllCoin(this.waveCoin);
                 this.emit('waveComplete', this.wave);
                 this.projectiles = [];
                 this.status = "waiting";
@@ -414,7 +522,7 @@ class Game {
                     return;
                 if (isNaN(+params[1]))
                     return;
-                this.emit('coin', +params[1]);
+                this.giveAllCoin(+params[1]);
                 break;
             default:
                 break;

@@ -54,8 +54,15 @@ interface IInRoomUser{
     username:string;
     lvl:number;
     socketId:string;
-    coin:number;
     ready:boolean;
+}
+
+interface InGameUser{
+    id:string;
+    username:string;
+    lvl:number;
+    socketId:string;
+    coin:number;
     selection:IUserSelectionData;
 }
 
@@ -74,6 +81,12 @@ interface IGameTickData{
     enemies:EnemyData[];
     projectiles:ProjectileData[];
     waitingTimer:number;
+}
+
+interface ITeam{
+    id:number;
+    game:Game;
+    queue:string[]; // enemy type
 }
 
 interface IUnitData{

@@ -22,12 +22,12 @@ const RankState:FC<{lang:string}> = ({lang}) => {
     }, [once])
 
     return <><div className="fixed top-0 flex flex-col justify-center items-center w-full" style={{height: `calc(100% - 76px)`}}>
-        <div className='flex flex-row justify-center items-center w-full gap-1'>
+        <div className='frac w-full gap-3 p-2'>
             {rankStates.map((sta, i) => {
-                return <button key={i} className={`text-sm lg:text-lg flex-1 ${sta == state ? "bg-[#ffffff66]" : ""}`} onClick={e => setState(sta)}>{lng(lang, sta)}</button>
+                return <div key={i} className={`text-white text-center font-semibold cursor-pointer f-back f-out f-mc s-0-8 text-sm lg:text-lg flex-1 ${sta == state ? "f-back2" : ""}`} onClick={e => setState(sta)}>{lng(lang, sta)}</div>
             })}
         </div>
-        <div className='flex-1 flex flex-col justify-start items-center w-full overflow-x-hidden overflow-y-auto p-1 gap-1'>
+        <div className='flex-1 fcsc w-full overflow-x-hidden overflow-y-auto p-1 gap-1'>
             {(
                 state == 'level' ? users.sort((a, b) => {
                     let aTotalExp = (a.exp + getTotalExp(a.lvl-1));
@@ -67,16 +67,16 @@ const RankState:FC<{lang:string}> = ({lang}) => {
         if(e.target != e.currentTarget) return
         setProfile(undefined)
     }}>
-        <div className="box w-80 bg-[#ffffff22] p-3 lg:p-5 flex flex-col justify-center items-center gap-1.5 lg:gap-3">
-            <div className='w-full flex flex-row justify-between items-center gap-1 lg:gap-2'>
-                <img src={profile.avatar == "default" ? "assets/icons/profile.svg" : profile.avatar} alt="" width={100} className='box' />
-                <div className='flex flex-col w-full'>
+        <div className="f-backl s-0-8 w-80 p-3 lg:p-5 flex flex-col justify-center items-center gap-1.5 lg:gap-3">
+            <div className='w-full frbc gap-2 lg:gap-3'>
+                <img src={profile.avatar == "default" ? "assets/icons/profile.svg" : profile.avatar} alt="" width={100} className='f-back2l s-0-8' />
+                <div className='flex flex-col w-full text-white'>
                     <h1 className='text-lg lg:text-xl font-semibold'>{profile.username}</h1>
                     <h2 className='text-md lg:text-lg font-semibold'>Lv.{profile.lvl}</h2>
                     <h3 className='text-sm lg:text-md'>{profile.exp}/{100 + profile.lvl**2*10}</h3>
                 </div>
             </div>
-            <div className="box flex-1 w-full p-2 font-semibold text-lg flex flex-col justify-center items-center gap-3">
+            <div className="f-back2l s-0-8 flex-1 w-full p-1 lg:p-2 font-semibold text-lg fccc gap-3 text-white">
                 <div className='text-sm lg:text-md'>{lng(lang, 'win')} {profile.win}</div>
                 <div className='text-sm lg:text-md'>{lng(lang, 'lose')} {profile.lose}</div>
                 <div className='text-sm lg:text-md'>{lng(lang, 'winrate')} {profile.lose == 0 ? 0 : (profile.win / (profile.win + profile.lose) * 100).toFixed(2)}%</div>

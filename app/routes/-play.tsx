@@ -100,11 +100,8 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             setHealth(game.maxHealth)
             _game = game
         })
-        socket.on('usersUpdate', (users:IInRoomUser[]) => {
+        socket.on('usersUpdate', (users:InGameUser[]) => {
             setCoin(users.find(u => u.socketId === socket.id)?.coin || 0)
-        })
-        socket.on('coinUpdate', (coin:number) => {
-            setCoin(coin)
         })
         socket.on('gameUpdate', (tickData:IGameTickData) => {
             setUnitDatas(tickData.units)
@@ -117,9 +114,8 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             set('main')
         })
         socket.on('userSelection', (data:IUserSelectionData[]) => {
-            setSelectors(data.filter(d => d.x != selectedPos[0] && d.y != selectedPos[1]))
+            setSelectors(data.filter(d => d.socketId !== socket.id))
         })
-        
         socket.on('waveComplete', (wave:number) => {
             setWave(wave)
             if(wave == _game.maxWave) return;

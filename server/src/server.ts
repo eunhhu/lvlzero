@@ -1,6 +1,6 @@
 import express from 'express';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { Game } from './logic/game';
 import { MongoClient, WithId } from 'mongodb';
 
@@ -58,7 +58,7 @@ client.connect().then(async () => {
     let rooms:IRoom[] = [];
     let onlines:{[key:string]:string} = {};
     
-    io.on('connection', (socket) => {
+    io.on('connection', (socket:Socket) => {
         socket.on('login', (user:IUser) => {
             console.log('a user connected');
             onlines[socket.id] = user.id;
@@ -71,7 +71,7 @@ client.connect().then(async () => {
             socket.on('createRoom', (data:{name:string;maxUsers:number;private:boolean;user:IUser;password:string}) => {
                 let room:IRoom = {
                     name: data.name,
-                    users: [{username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0, lvl: data.user.lvl, ready: false, selection:{x:-1, y:-1, type:'', socketId:socket.id}}],
+                    users: [{username: data.user.username, id: data.user.id, socketId:socket.id, lvl: data.user.lvl, ready: false}],
                     maxUsers: data.maxUsers,
                     private: data.private,
                     password: data.password,
@@ -91,7 +91,7 @@ client.connect().then(async () => {
                 let room = rooms.find(room => room.ownerID === data.ownerId);
                 if(room){
                     if(room.users.length < room.maxUsers){
-                        room.users.push({username: data.user.username, id: data.user.id, socketId:socket.id, coin: 0, lvl: data.user.lvl, ready: false, selection:{x:-1, y:-1, type:'', socketId:socket.id}});
+                        room.users.push({username: data.user.username, id: data.user.id, socketId:socket.id, lvl: data.user.lvl, ready: false});
                         socket.emit('roomJoined', room);
                         io.to(room.ownerID).emit('userJoined', room.users);
                         socket.join(room.ownerID);
@@ -150,151 +150,64 @@ client.connect().then(async () => {
                     if(user){
                         user.ready = true;
                         if(room.users.every(user => user.ready)){
-                            io.to(room.ownerID).emit('gameInit', room.game.getInitData());
+                            io.to(room.ownerID)
                             let avg = room.users.reduce((a, b) => a + b.lvl, 0) / room.users.length;
-                            room.users.forEach(user => user.coin += 1000);
-                            io.to(room.ownerID).emit('usersUpdate', room.users);
-                            room.game.start(levels, enemies);
-                            room.game.on('tick', (tickData:IGameTickData) => {
-                                io.to(room.ownerID).emit('gameUpdate', tickData);
-                            })
-                            room.game.on('waveComplete', (wave:number) => {
-                                room.users.forEach(user => user.coin += 100);
-                                io.to(room.ownerID).emit('usersUpdate', room.users);
-                                io.to(room.ownerID).emit('waveComplete', wave);
-                            })
-                            room.game.on('waveStarted', (wave:number) => {
-                                io.to(room.ownerID).emit('waveStarted', wave);
-                            })
+                            room.game.on('gameInit', (data:IGameInitData) => { io.to(room.ownerID).emit('gameInit', data); })
                             room.game.on('gameOver', (level:number, wave:number) => {
-                                io.to(room.ownerID).emit('gameOver', level, wave);
                                 rooms = rooms.filter(r => r.ownerID !== room.ownerID);
                                 socket.emit('getRooms', rooms);
                                 socket.broadcast.emit('getRooms', rooms);
+                                io.to(room.ownerID).emit('gameOver', level, wave);
                             })
                             room.game.on('gameComplete', (level:number) => {
-                                io.to(room.ownerID).emit('gameComplete', level);
                                 rooms = rooms.filter(r => r.ownerID !== room.ownerID);
                                 socket.emit('getRooms', rooms);
                                 socket.broadcast.emit('getRooms', rooms);
+                                io.to(room.ownerID).emit('gameComplete', level);
                             })
-                            room.game.on('enemyDead', (coin:number) => {
-                                room.users.forEach(user => user.coin += Math.round(coin/room.users.length));
-                                io.to(room.ownerID).emit('usersUpdate', room.users);
-                            })
-                            room.game.on('motion', (type:string, x:number, y:number, value?:string) => {
-                                io.to(room.ownerID).emit('motion', type, x, y, value);
-                            })
-                            room.game.on('coin', (coin:number) => {
-                                room.users.forEach(user => user.coin += coin);
-                                io.to(room.ownerID).emit('usersUpdate', room.users);
-                            })
-                            room.game.on('healthUpgraded', (healthLvl:number, maxHealth:number) => {
-                                io.to(room.ownerID).emit('healthUpgraded', healthLvl, maxHealth);
-                            })
-                            room.game.on('healthRegenUpgraded', (healthRegenLvl:number) => {
-                                io.to(room.ownerID).emit('healthRegenUpgraded', healthRegenLvl);
-                            })
+                            room.game.on('userSelection', (data:IUserSelectionData[]) => { io.to(room.ownerID).emit('userSelection', data); })
+                            room.game.on('usersUpdate', (data:InGameUser[]) => { io.to(room.ownerID).emit('usersUpdate', data); })
+                            room.game.on('motion', (type:string, x:number, y:number, value?:string) => { io.to(room.ownerID).emit('motion', type, x, y, value); })
+                            room.game.on('tick', (data:IGameTickData) => { io.to(room.ownerID).emit('gameUpdate', data); })
+                            room.game.on('waveComplete', (wave:number) => { io.to(room.ownerID).emit('waveComplete', wave); })
+                            room.game.on('waveStarted', (wave:number) => { io.to(room.ownerID).emit('waveStarted', wave); })
+                            room.game.on('healthUpgraded', (lvl:number, max:number) => { io.to(room.ownerID).emit('healthUpgraded', lvl, max); })
+                            room.game.on('healthRegenUpgraded', (lvl:number) => { io.to(room.ownerID).emit('healthRegenUpgraded', lvl); })
+
+                            room.game.start(levels, enemies, room.users);
                         }
                     }
                 }
             })
-        
+
             socket.on('userSelect', (data:IUserSelectionData) => {
                 let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
-                if(!room) return;
-                let user:IInRoomUser = room.users.find(user => user.socketId === socket.id);
-                if(!user) return;
-                user.selection = data;
-                let selectors:IUserSelectionData[] = room.users.map(v => v.selection)
-                let mySelectors:IUserSelectionData[] = room.users.filter(v => v.socketId != socket.id).map(v => v.selection)
-                io.to(room.ownerID).emit('userSelection', selectors)
-                socket.emit('userSelection', mySelectors)
+                if(room) room.game.emit('userSelect', socket.id, data);
             })
         
             socket.on('placeUnit', (data:{x:number, y:number, type:string, modules:IModule[]}) => {
                 let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
-                if(room){
-                    let user = room.users.find(user => user.socketId === socket.id);
-                    if(user){
-                        if(user.coin >= units.find(unit => unit.type === data.type).cost){
-                            user.coin -= units.find(unit => unit.type === data.type).cost;
-                            socket.emit('coinUpdate', user.coin);
-                            let unit = room.game.placeUnit(units, data.x, data.y, data.type, data.modules);
-                            if(unit){
-                                io.to(room.ownerID).emit('unitPlaced', unit);
-                            }
-                        }
-                    }
-                }
+                if(room) room.game.emit('placeUnit', socket.id, data, units);
             })
         
             socket.on('upgradeUnit', (data:{x:number, y:number}) => {
                 let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
-                if(room){
-                    let user = room.users.find(user => user.socketId === socket.id);
-                    if(user){
-                        const unit:IUnitData = room.game.findUnit(data.x, data.y)
-                        if(!unit) return;
-                        const unitData:IUnit = units.find(v => v.type == unit.type)
-                        if(unit){
-                            const cost = unitData.upgradeCost[unit.lvl - 1];
-                            if(user.coin < cost) return;
-                            room.game.upgradeUnit(data.x, data.y)
-                            user.coin -= cost;
-                            socket.emit('coinUpdate', user.coin);
-                            io.to(room.ownerID).emit('unitUpgraded', unit);
-                        }
-                    }
-                }
+                if(room) room.game.emit('upgradeUnit', socket.id, data, units);
             })
 
             socket.on('sellUnit', (data:{x:number, y:number}) => {
                 let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
-                if(room){
-                    let user = room.users.find(user => user.socketId === socket.id);
-                    if(user){
-                        const unit:IUnitData = room.game.findUnit(data.x, data.y)
-                        if(!unit) return;
-                        const unitData:IUnit = units.find(v => v.type == unit.type)
-                        if(unit){
-                            const allUpgCosts = unit.lvl == 1 ? 0 : unit.lvl == 2 ? unitData.upgradeCost[0] : unitData.upgradeCost.slice(0, unit.lvl-1).reduce((a, b) => a + b)
-                            const sellCost = Math.round((unitData.cost + allUpgCosts)/2);
-                            room.game.sellUnit(data.x, data.y)
-                            user.coin += sellCost;
-                            socket.emit('coinUpdate', user.coin);
-                            io.to(room.ownerID).emit('unitSold', unit);
-                        }
-                    }
-                }
+                if(room) room.game.emit('sellUnit', socket.id, data, units);
             })
 
             socket.on('upgradeHealth', () => {
                 let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
-                if(room){
-                    let user = room.users.find(user => user.socketId === socket.id);
-                    if(user){
-                        const cost = (room.game.maxHealthLvl + 1) * 500
-                        if(user.coin < cost) return;
-                        room.game.upgradeHealth();
-                        user.coin -= cost;
-                        socket.emit('coinUpdate', user.coin);
-                    }
-                }
+                if(room) room.game.emit('upgradeHealth', socket.id);
             })
 
             socket.on('upgradeHealthRegen', () => {
                 let room:IRoom = rooms.find(room => room.users.find(user => user.socketId === socket.id));
-                if(room){
-                    let user = room.users.find(user => user.socketId === socket.id);
-                    if(user){
-                        const cost = (room.game.healthRegenLvl + 1) * 800
-                        if(user.coin < cost) return;
-                        room.game.upgradeRegen();
-                        user.coin -= cost;
-                        socket.emit('coinUpdate', user.coin);
-                    }
-                }
+                if(room) room.game.emit('upgradeHealthRegen', socket.id);
             })
 
             socket.on('chat', (data:{name:string;message:string}) => {

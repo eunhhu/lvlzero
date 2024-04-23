@@ -10,7 +10,6 @@ const PlayState:FC<{stateHeight:string;lang:string; socket:Socket; setRoom:Dispa
     const [roomname, setRoomname] = useState<string>('')
     const [maxUsers, setMaxUsers] = useState<number>(2)
     const [password, setPassword] = useState<string>('')
-    const [isFetching, setIsFetching] = useState<boolean>(false)
     const [isPrivate, setIsPrivate] = useState<boolean>(false)
     const [passRoom, setPassRoom] = useState<IRoom|null>(null)
     const [passInput, setPassInput] = useState<string>('')

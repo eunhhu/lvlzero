@@ -27,6 +27,7 @@ const ModuleInfo:FC<{
     const [error, setError] = useState<string>('')
 
     const mod = global.modules.find(v => v.type == selectedModule)
+    const selspl = selectedModule.split('-')
 
     return <div className="fixed w-full h-full bg-[#00000099] fccc"
     onClick={e => {
@@ -36,10 +37,10 @@ const ModuleInfo:FC<{
     }}>
         <div className="f-back2l s-0-9 bg-[#000000aa] fccc" style={{width:'80%', height:'80%'}}>
             <div className='flex-1 fccc gap-2 lg:gap-5'>
-                <div className='w-full text-lg lg:text-4xl font-bold text-white text-center'>{lng(lang, selectedModule)}</div>
-                <div className='bg-cover bg-center w-24 h-24 lg:w-48 lg:h-48' style={{backgroundImage:`url(assets/modules/${selectedModule.split('-')[0]}.png)`}}></div>
-                <div className='text-md lg:text-xl text-center text-white font-semibold'>{lng(lang, `${selectedModule.split('-')[0]}-desc`)}</div>
-                {!noneValues.includes(selectedModule.split('-')[0]) && <div className='text-md lg:text-xl text-center text-white font-semibold'>{lng(lang, "value")} - {(mod?.effect.value as number)*100}%</div>}
+                <div className='w-full text-lg lg:text-4xl font-bold text-white text-center'>{lng(lang, selspl[0])} {selspl[1].toUpperCase()}</div>
+                <div className='bg-cover bg-center w-24 h-24 lg:w-48 lg:h-48' style={{backgroundImage:`url(assets/modules/${selspl[0]}.png)`}}></div>
+                <div className='text-md lg:text-xl text-center text-white font-semibold'>{lng(lang, `${selspl[0]}-desc`)}</div>
+                {!noneValues.includes(selspl[0]) && <div className='text-md lg:text-xl text-center text-white font-semibold'>{lng(lang, "value")} - {(mod?.effect.value as number)*100}%</div>}
                 <div className='text-md lg:text-xl text-center text-white font-semibold'>{lng(lang, "duration")} - {(mod?.effect.duration as number)/1000}s</div>
                 <p className='text-sm lg:text-md text-red-500 font-semibold'>{lng(lang, error)}</p>
             </div>

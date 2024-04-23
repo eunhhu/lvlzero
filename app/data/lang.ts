@@ -2,523 +2,2271 @@
 const keys:{[key:string]:{[key:string]:string}} = {
     "":{
         "en":"",
-        "ko":""
+        "ko":"",
+        "jp":"",
+        "cn":"",
+        "es":"",
+        "fr":"",
+        "de":"",
+        "ru":"",
+        "pt":"",
+        "it":""
     },
     "to register":{
         "en":"To Register",
-        "ko":"회원가입으로"
+        "ko":"회원가입으로",
+        "jp":"登録へ",
+        "cn":"注册",
+        "es":"Registrarse",
+        "fr":"S'inscrire",
+        "de":"Registrieren",
+        "ru":"Регистрация",
+        "pt":"Registrar",
+        "it":"Registrati"
     },
     "to login":{
         "en":"To Login",
-        "ko":"로그인으로"
+        "ko":"로그인으로",
+        "jp":"ログインへ",
+        "cn":"登录",
+        "es":"Iniciar sesión",
+        "fr":"Se connecter",
+        "de":"Anmelden",
+        "ru":"Войти",
+        "pt":"Entrar",
+        "it":"Accedi"
     },
     "logout":{
         "en":"Logout",
-        "ko":"로그아웃"
+        "ko":"로그아웃",
+        "jp":"ログアウト",
+        "cn":"登出",
+        "es":"Cerrar sesión",
+        "fr":"Se déconnecter",
+        "de":"Ausloggen",
+        "ru":"Выйти",
+        "pt":"Sair",
+        "it":"Esci"
     },
     "settings":{
         "en":"Settings",
-        "ko":"설정"
+        "ko":"설정",
+        "jp":"設定",
+        "cn":"设置",
+        "es":"Ajustes",
+        "fr":"Paramètres",
+        "de":"Einstellungen",
+        "ru":"Настройки",
+        "pt":"Configurações",
+        "it":"Impostazioni"
     },
     "about":{
         "en":"About",
-        "ko":"소개"
+        "ko":"소개",
+        "jp":"約",
+        "cn":"关于",
+        "es":"Acerca de",
+        "fr":"Sur",
+        "de":"Über",
+        "ru":"О",
+        "pt":"Sobre",
+        "it":"Di"
     },
     "username":{
         "en":"Username",
-        "ko":"사용자 이름"
+        "ko":"사용자 이름",
+        "jp":"ユーザー名",
+        "cn":"用户名",
+        "es":"Nombre de usuario",
+        "fr":"Nom d'utilisateur",
+        "de":"Nutzername",
+        "ru":"имя пользователя",
+        "pt":"Nome de usuário",
+        "it":"Nome utente"
     },
     "password":{
         "en":"Password",
-        "ko":"비밀번호"
+        "ko":"비밀번호",
+        "jp":"パスワード",
+        "cn":"密码",
+        "es":"Contraseña",
+        "fr":"Mot de passe",
+        "de":"Passwort",
+        "ru":"пароль",
+        "pt":"Senha",
+        "it":"Parola d'ordine"
     },
     "confirm password":{
         "en":"Confirm Password",
-        "ko":"비밀번호 확인"
+        "ko":"비밀번호 확인",
+        "jp":"パスワードを認証する",
+        "cn":"确认密码",
+        "es":"Confirmar contraseña",
+        "fr":"Confirmer le mot de passe",
+        "de":"Passwort bestätigen",
+        "ru":"Подтвердите пароль",
+        "pt":"Confirme a senha",
+        "it":"Conferma password"
     },
     "avatar":{
         "en":"Avatar",
-        "ko":"아바타"
+        "ko":"아바타",
+        "jp":"アバター",
+        "cn":"头像",
+        "es":"Avatar",
+        "fr":"Avatar",
+        "de":"Avatar",
+        "ru":"аватар",
+        "pt":"Avatar",
+        "it":"Avatar"
     },
     "win":{
         "en":"Win",
-        "ko":"승"
+        "ko":"승",
+        "jp":"勝つ",
+        "cn":"赢",
+        "es":"Ganar",
+        "fr":"Gagner",
+        "de":"Gewinnen",
+        "ru":"победа",
+        "pt":"Ganhar",
+        "it":"Vincere"
     },
     "lose":{
         "en":"Lose",
-        "ko":"패"
+        "ko":"패",
+        "jp":"負ける",
+        "cn":"输",
+        "es":"Perder",
+        "fr":"Perdre",
+        "de":"Verlieren",
+        "ru":"потерять",
+        "pt":"Perder",
+        "it":"Perdere"
     },
     "register":{
         "en":"Register",
-        "ko":"회원가입"
+        "ko":"회원가입",
+        "jp":"登録",
+        "cn":"注册",
+        "es":"Registrarse",
+        "fr":"S'inscrire",
+        "de":"Registrieren",
+        "ru":"Регистрация",
+        "pt":"Registrar",
+        "it":"Registrati"
     },
     "login":{
         "en":"Login",
-        "ko":"로그인"
+        "ko":"로그인",
+        "jp":"ログイン",
+        "cn":"登录",
+        "es":"Iniciar sesión",
+        "fr":"Se connecter",
+        "de":"Anmelden",
+        "ru":"Войти",
+        "pt":"Entrar",
+        "it":"Accedi"
     },
     "profile":{
         "en":"Profile",
-        "ko":"프로필"
+        "ko":"프로필",
+        "jp":"プロフィール",
+        "cn":"轮廓",
+        "es":"Perfil",
+        "fr":"Profil",
+        "de":"Profil",
+        "ru":"профиль",
+        "pt":"Perfil",
+        "it":"Profilo"
     },
     "rank":{
         "en":"Rank",
-        "ko":"랭킹"
+        "ko":"랭킹",
+        "jp":"ランク",
+        "cn":"排名",
+        "es":"Rango",
+        "fr":"Rang",
+        "de":"Rang",
+        "ru":"ранг",
+        "pt":"Classificação",
+        "it":"Rango"
     },
     "language":{
         "en":"Language",
-        "ko":"언어"
+        "ko":"언어",
+        "jp":"言語",
+        "cn":"语言",
+        "es":"Idioma",
+        "fr":"Langue",
+        "de":"Sprache",
+        "ru":"язык",
+        "pt":"Língua",
+        "it":"Lingua"
     },
     "save":{
         "en":"Save",
-        "ko":"저장"
+        "ko":"저장",
+        "jp":"セーブ",
+        "cn":"保存",
+        "es":"Guardar",
+        "fr":"Sauvegarder",
+        "de":"Sparen",
+        "ru":"спасти",
+        "pt":"Salve",
+        "it":"Salva"
     },
     "cancel":{
         "en":"Cancel",
-        "ko":"취소"
+        "ko":"취소",
+        "jp":"キャンセル",
+        "cn":"取消",
+        "es":"Cancelar",
+        "fr":"Annuler",
+        "de":"Stornieren",
+        "ru":"отменить",
+        "pt":"Cancelar",
+        "it":"Annulla"
     },
     "delete":{
         "en":"Delete",
-        "ko":"삭제"
+        "ko":"삭제",
+        "jp":"削除",
+        "cn":"删除",
+        "es":"Eliminar",
+        "fr":"Effacer",
+        "de":"Löschen",
+        "ru":"удалять",
+        "pt":"Excluir",
+        "it":"Elimina"
     },
     "update":{
         "en":"Update",
-        "ko":"수정"
+        "ko":"수정",
+        "jp":"更新",
+        "cn":"更新",
+        "es":"Actualizar",
+        "fr":"Mettre à jour",
+        "de":"Aktualisieren",
+        "ru":"обновлять",
+        "pt":"Atualizar",
+        "it":"Aggiornare"
     },
     "delete account":{
         "en":"Delete Account",
-        "ko":"계정 삭제"
+        "ko":"계정 삭제",
+        "jp":"アカウントを削除",
+        "cn":"删除帐户",
+        "es":"Eliminar cuenta",
+        "fr":"Supprimer le compte",
+        "de":"Konto löschen",
+        "ru":"удалить аккаунт",
+        "pt":"Excluir conta",
+        "it":"Elimina account"
     },
     "delete account confirm":{
         "en":"Are you sure you want to delete your account?",
-        "ko":"정말 계정을 삭제하시겠습니까?"
+        "ko":"정말 계정을 삭제하시겠습니까?",
+        "jp":"本当にアカウントを削除しますか？",
+        "cn":"您确定要删除您的帐户吗？",
+        "es":"¿Estás seguro de que quieres eliminar tu cuenta?",
+        "fr":"Êtes-vous sûr de vouloir supprimer votre compte?",
+        "de":"Möchten Sie Ihr Konto wirklich löschen?",
+        "ru":"Вы уверены, что хотите удалить свою учетную запись?",
+        "pt":"Tem certeza de que deseja excluir sua conta?",
+        "it":"Sei sicuro di voler eliminare il tuo account?"
     },
     "delete account success":{
         "en":"Your account has been deleted.",
-        "ko":"계정이 삭제되었습니다."
+        "ko":"계정이 삭제되었습니다.",
+        "jp":"アカウントが削除されました。",
+        "cn":"您的帐户已被删除。",
+        "es":"Tu cuenta ha sido eliminada.",
+        "fr":"Votre compte a été supprimé.",
+        "de":"Ihr Konto wurde gelöscht.",
+        "ru":"Ваша учетная запись была удалена.",
+        "pt":"Sua conta foi excluída.",
+        "it":"Il tuo account è stato eliminato."
     },
     "delete account fail":{
         "en":"Failed to delete your account.",
-        "ko":"계정 삭제에 실패했습니다."
+        "ko":"계정 삭제에 실패했습니다.",
+        "jp":"アカウントの削除に失敗しました。",
+        "cn":"删除您的帐户失败。",
+        "es":"Error al eliminar tu cuenta.",
+        "fr":"Échec de la suppression de votre compte.",
+        "de":"Fehler beim Löschen Ihres Kontos.",
+        "ru":"Не удалось удалить вашу учетную запись.",
+        "pt":"Falha ao excluir sua conta.",
+        "it":"Impossibile eliminare il tuo account."
     },
     "update success":{
         "en":"Successfully updated.",
-        "ko":"성공적으로 수정되었습니다."
+        "ko":"성공적으로 수정되었습니다.",
+        "jp":"正常に更新されました。",
+        "cn":"更新成功。",
+        "es":"Actualizado con éxito.",
+        "fr":"Mis à jour avec succès.",
+        "de":"Erfolgreich aktualisiert.",
+        "ru":"Успешно обновлено.",
+        "pt":"Atualizado com sucesso.",
+        "it":"Aggiornato con successo."
     },
     "update fail":{
         "en":"Failed to update.",
-        "ko":"수정에 실패했습니다."
+        "ko":"수정에 실패했습니다.",
+        "jp":"更新に失敗しました。",
+        "cn":"更新失败。",
+        "es":"Error al actualizar.",
+        "fr":"Échec de la mise à jour.",
+        "de":"Aktualisierung fehlgeschlagen.",
+        "ru":"Не удалось обновить.",
+        "pt":"Falha ao atualizar.",
+        "it":"Aggiornamento fallito."
     },
     "not found":{
         "en":"Not Found",
-        "ko":"찾을 수 없음"
+        "ko":"찾을 수 없음",
+        "jp":"見つかりません",
+        "cn":"未找到",
+        "es":"No encontrado",
+        "fr":"Pas trouvé",
+        "de":"Nicht gefunden",
+        "ru":"Не найдено",
+        "pt":"Não encontrado",
+        "it":"Non trovato"
     },
     "not found message":{
         "en":"The page you are looking for was not found.",
-        "ko":"찾을 수 없는 페이지입니다."
+        "ko":"찾을 수 없는 페이지입니다.",
+        "jp":"お探しのページが見つかりませんでした。",
+        "cn":"您要查找的页面未找到。",
+        "es":"La página que buscas no se encontró.",
+        "fr":"La page que vous recherchez est introuvable.",
+        "de":"Die von Ihnen gesuchte Seite wurde nicht gefunden.",
+        "ru":"Страница, которую вы ищете, не найдена.",
+        "pt":"A página que você procura não foi encontrada.",
+        "it":"La pagina che stai cercando non è stata trovata."
     },
     "change":{
         "en":"Change",
-        "ko":"변경"
+        "ko":"변경",
+        "jp":"変更",
+        "cn":"更改",
+        "es":"Cambio",
+        "fr":"Changement",
+        "de":"Ändern",
+        "ru":"Изменить",
+        "pt":"Mudança",
+        "it":"Cambiamento"
     },
     "username already exists":{
         "en":"Username already exists",
-        "ko":"이미 존재하는 이름입니다"
+        "ko":"이미 존재하는 이름입니다",
+        "jp":"ユーザー名はすでに存在します",
+        "cn":"用户名已经存在",
+        "es":"Nombre de usuario ya existe",
+        "fr":"Le nom d'utilisateur existe déjà",
+        "de":"Benutzername existiert bereits",
+        "ru":"Имя пользователя уже существует",
+        "pt":"Nome de usuário já existe",
+        "it":"Il nome utente esiste già"
     },
     "cant find account":{
         "en":"Can't find account",
-        "ko":"계정을 찾을 수 없습니다"
+        "ko":"계정을 찾을 수 없습니다",
+        "jp":"アカウントが見つかりません",
+        "cn":"找不到帐户",
+        "es":"No se puede encontrar la cuenta",
+        "fr":"Impossible de trouver le compte",
+        "de":"Konto nicht gefunden",
+        "ru":"Не могу найти аккаунт",
+        "pt":"Não consigo encontrar a conta",
+        "it":"Impossibile trovare l'account"
     },
     "wrong password":{
         "en":"Wrong password",
-        "ko":"잘못된 비밀번호입니다"
+        "ko":"잘못된 비밀번호입니다",
+        "jp":"間違ったパスワード",
+        "cn":"密码错误",
+        "es":"Contraseña incorrecta",
+        "fr":"Mauvais mot de passe",
+        "de":"Falsches Passwort",
+        "ru":"Неправильный пароль",
+        "pt":"Senha errada",
+        "it":"Password errata"
     },
     "invalid username":{
         "en":"Invalid username",
-        "ko":"잘못된 이름입니다"
+        "ko":"잘못된 이름입니다",
+        "jp":"無効なユーザー名",
+        "cn":"无效的用户名",
+        "es":"Nombre de usuario inválido",
+        "fr":"Nom d'utilisateur invalide",
+        "de":"Ungültiger Benutzername",
+        "ru":"Недопустимое имя пользователя",
+        "pt":"Nome de usuário inválido",
+        "it":"Nome utente non valido"
     },
     "invalid password":{
         "en":"Invalid password",
-        "ko":"잘못된 비밀번호입니다"
+        "ko":"잘못된 비밀번호입니다",
+        "jp":"無効なパスワード",
+        "cn":"无效的密码",
+        "es":"Contraseña inválida",
+        "fr":"Mot de passe invalide",
+        "de":"Ungültiges Passwort",
+        "ru":"Недопустимый пароль",
+        "pt":"Senha inválida",
+        "it":"Password non valida"
     },
     "enter username":{
         "en":"Enter username",
-        "ko":"이름을 입력하세요"
+        "ko":"이름을 입력하세요",
+        "jp":"ユーザー名を入力してください",
+        "cn":"输入用户名",
+        "es":"Ingrese el nombre de usuario",
+        "fr":"Entrez le nom d'utilisateur",
+        "de":"Benutzernamen eingeben",
+        "ru":"Введите имя пользователя",
+        "pt":"Digite o nome de usuário",
+        "it":"Inserisci il nome utente"
     },
     "enter password":{
         "en":"Enter password",
-        "ko":"비밀번호를 입력하세요"
+        "ko":"비밀번호를 입력하세요",
+        "jp":"パスワードを入力してください",
+        "cn":"输入密码",
+        "es":"Ingrese la contraseña",
+        "fr":"Entrez le mot de passe",
+        "de":"Passwort eingeben",
+        "ru":"Введите пароль",
+        "pt":"Digite a senha",
+        "it":"Inserisci la password"
     },
     "enter confirm password":{
         "en":"Enter confirm password",
-        "ko":"비밀번호 확인을 입력하세요"
+        "ko":"비밀번호 확인을 입력하세요",
+        "jp":"パスワードを確認してください",
+        "cn":"输入确认密码",
+        "es":"Ingrese la contraseña de confirmación",
+        "fr":"Entrez le mot de passe de confirmation",
+        "de":"Bestätigungskennwort eingeben",
+        "ru":"Введите подтверждение пароля",
+        "pt":"Digite a senha de confirmação",
+        "it":"Inserisci la password di conferma"
     },
     "passwords do not match":{
         "en":"Passwords do not match",
-        "ko":"비밀번호가 일치하지 않습니다"
+        "ko":"비밀번호가 일치하지 않습니다",
+        "jp":"パスワードが一致しません",
+        "cn":"密码不匹配",
+        "es":"Las contraseñas no coinciden",
+        "fr":"Les mots de passe ne correspondent pas",
+        "de":"Passwörter stimmen nicht überein",
+        "ru":"Пароли не совпадают",
+        "pt":"As senhas não coincidem",
+        "it":"Le password non corrispondono"
     },
     "username must be 3~12 characters long including numbers and alphabets":{
         "en":"Username must be 3~12 characters long including numbers and alphabets",
-        "ko":"이름은 숫자와 영문자를 포함한 3~12자여야 합니다"
+        "ko":"이름은 숫자와 영문자를 포함한 3~12자여야 합니다",
+        "jp":"ユーザー名は、数字とアルファベットを含む3〜12文字である必要があります",
+        "cn":"用户名必须包含数字和字母，长度为3~12个字符",
+        "es":"El nombre de usuario debe tener entre 3 y 12 caracteres, incluidos números y letras",
+        "fr":"Le nom d'utilisateur doit comporter entre 3 et 12 caractères, y compris des chiffres et des lettres",
+        "de":"Der Benutzername muss 3 bis 12 Zeichen lang sein und Zahlen und Buchstaben enthalten",
+        "ru":"Имя пользователя должно содержать от 3 до 12 символов, включая цифры и буквы",
+        "pt":"O nome de usuário deve ter entre 3 e 12 caracteres, incluindo números e letras",
+        "it":"Il nome utente deve essere lungo 3-12 caratteri, compresi numeri e lettere"
     },
     "password must be more than 8 characters long including numbers and alphabets":{
         "en":"Password must be more than 8 characters long including numbers and alphabets",
-        "ko":"비밀번호는 숫자와 영문자를 포함한 8자 이상이어야 합니다"
+        "ko":"비밀번호는 숫자와 영문자를 포함한 8자 이상이어야 합니다",
+        "jp":"パスワードは数字とアルファベットを含む8文字以上である必要があります",
+        "cn":"密码必须包含数字和字母，长度超过8个字符",
+        "es":"La contraseña debe tener más de 8 caracteres, incluidos números y letras",
+        "fr":"Le mot de passe doit comporter plus de 8 caractères, y compris des chiffres et des lettres",
+        "de":"Das Passwort muss länger als 8 Zeichen sein und Zahlen und Buchstaben enthalten",
+        "ru":"Пароль должен содержать более 8 символов, включая цифры и буквы",
+        "pt":"A senha deve ter mais de 8 caracteres, incluindo números e letras",
+        "it":"La password deve essere più lunga di 8 caratteri, compresi numeri e lettere"
     },
     "play":{
         "en":"Play",
-        "ko":"플레이"
+        "ko":"플레이",
+        "jp":"遊ぶ",
+        "cn":"玩",
+        "es":"Jugar",
+        "fr":"Jouer",
+        "de":"Spielen",
+        "ru":"играть",
+        "pt":"Jogar",
+        "it":"Giocare"
     },
     "units":{
         "en":"Units",
-        "ko":"유닛"
+        "ko":"유닛",
+        "jp":"ユニット",
+        "cn":"单位",
+        "es":"Unidades",
+        "fr":"Unités",
+        "de":"Einheiten",
+        "ru":"Единицы",
+        "pt":"Unidades",
+        "it":"Unità"
     },
     "unit":{
         "en":"Unit",
-        "ko":"유닛"
+        "ko":"유닛",
+        "jp":"ユニット",
+        "cn":"单位",
+        "es":"Unidad",
+        "fr":"Unité",
+        "de":"Einheit",
+        "ru":"Единица",
+        "pt":"Unidade",
+        "it":"Unità"
     },
     "create":{
         "en":"Create",
-        "ko":"생성"
+        "ko":"생성",
+        "jp":"作成する",
+        "cn":"创建",
+        "es":"Crear",
+        "fr":"Créer",
+        "de":"Erstellen",
+        "ru":"Создать",
+        "pt":"Crio",
+        "it":"Creare"
     },
     "search":{
         "en":"Search",
-        "ko":"검색"
+        "ko":"검색",
+        "jp":"サーチ",
+        "cn":"搜索",
+        "es":"Buscar",
+        "fr":"Chercher",
+        "de":"Suche",
+        "ru":"Поиск",
+        "pt":"Pesquisa",
+        "it":"Ricerca"
     },
     "l":{
         "en":"Unlock Slot",
-        "ko":"슬롯 잠금 해제"
+        "ko":"슬롯 잠금 해제",
+        "jp":"スロットを解除",
+        "cn":"解锁插槽",
+        "es":"Desbloquear ranura",
+        "fr":"Déverrouiller la fente",
+        "de":"Slot entsperren",
+        "ru":"Разблокировать слот",
+        "pt":"Desbloquear slot",
+        "it":"Sblocca slot"
     },
     "buy":{
         "en":"Buy",
-        "ko":"구매"
+        "ko":"구매",
+        "jp":"購入",
+        "cn":"购买",
+        "es":"Comprar",
+        "fr":"Acheter",
+        "de":"Kaufen",
+        "ru":"купить",
+        "pt":"Comprar",
+        "it":"Acquistare"
     },
     "equip":{
         "en":"Equip",
-        "ko":"장착"
+        "ko":"장착",
+        "jp":"装備",
+        "cn":"装备",
+        "es":"Equipar",
+        "fr":"Équiper",
+        "de":"Ausrüsten",
+        "ru":"оснащать",
+        "pt":"Equipar",
+        "it":"Equipaggiare"
     },
     "unequip":{
         "en":"Unequip",
-        "ko":"장착 해제"
+        "ko":"장착 해제",
+        "jp":"装備解除",
+        "cn":"解除装备",
+        "es":"Desequipar",
+        "fr":"Déséquiper",
+        "de":"Ausrüstung entfernen",
+        "ru":"снять снаряжение",
+        "pt":"Desequipar",
+        "it":"Disequipaggiare"
     },
     "damage":{
         "en":"Damage",
-        "ko":"공격력"
+        "ko":"공격력",
+        "jp":"ダメージ",
+        "cn":"损坏",
+        "es":"Daño",
+        "fr":"Dommages",
+        "de":"Beschädigung",
+        "ru":"Ущерб",
+        "pt":"Dano",
+        "it":"Danno"
     },
     "range":{
         "en":"Range",
-        "ko":"사거리"
+        "ko":"사거리",
+        "jp":"範囲",
+        "cn":"范围",
+        "es":"Alcance",
+        "fr":"Portée",
+        "de":"Reichweite",
+        "ru":"Диапазон",
+        "pt":"Alcance",
+        "it":"Gamma"
     },
     "rate":{
         "en":"Rate",
-        "ko":"공격속도"
+        "ko":"공격속도",
+        "jp":"レート",
+        "cn":"率",
+        "es":"Velocidad",
+        "fr":"Taux",
+        "de":"Rate",
+        "ru":"Темп",
+        "pt":"Taxa",
+        "it":"Tasso"
     },
     "cost":{
         "en":"Cost",
-        "ko":"가격"
+        "ko":"가격",
+        "jp":"コスト",
+        "cn":"成本",
+        "es":"Costo",
+        "fr":"Coût",
+        "de":"Kosten",
+        "ru":"Стоимость",
+        "pt":"Custo",
+        "it":"Costo"
     },
     "dps":{
         "en":"DPS",
-        "ko":"초당 공격력"
+        "ko":"DPS",
+        "jp":"DPS",
+        "cn":"DPS",
+        "es":"DPS",
+        "fr":"DPS",
+        "de":"DPS",
+        "ru":"DPS",
+        "pt":"DPS",
+        "it":"DPS"
     },
     "not enough gold":{
         "en":"Not enough gold",
-        "ko":"골드가 부족합니다"
+        "ko":"골드가 부족합니다",
+        "jp":"ゴールドが足りません",
+        "cn":"金币不足",
+        "es":"No hay suficiente oro",
+        "fr":"Pas assez d'or",
+        "de":"Nicht genug Gold",
+        "ru":"Недостаточно золота",
+        "pt":"Ouro insuficiente",
+        "it":"Oro insufficiente"
     },
     "not enough slot":{
         "en":"Not enough slot",
-        "ko":"슬롯이 부족합니다"
+        "ko":"슬롯이 부족합니다",
+        "jp":"スロットが足りません",
+        "cn":"插槽不足",
+        "es":"No hay suficiente ranura",
+        "fr":"Pas assez de fente",
+        "de":"Nicht genug Slot",
+        "ru":"Недостаточно слота",
+        "pt":"Slot insuficiente",
+        "it":"Slot insufficiente"
     },
     "something went wrong":{
         "en":"Something went wrong",
-        "ko":"오류가 발생했습니다"
+        "ko":"오류가 발생했습니다",
+        "jp":"何かが間違っている",
+        "cn":"出了点问题",
+        "es":"Algo salió mal",
+        "fr":"Quelque chose s'est mal passé",
+        "de":"Etwas ist schief gelaufen",
+        "ru":"Что-то пошло не так",
+        "pt":"Algo deu errado",
+        "it":"Qualcosa è andato storto"
     },
     "no empty slot":{
         "en":"No empty slot",
-        "ko":"빈 슬롯이 없습니다"
+        "ko":"빈 슬롯이 없습니다",
+        "jp":"空きスロットなし",
+        "cn":"没有空插槽",
+        "es":"Sin ranura vacía",
+        "fr":"Pas de fente vide",
+        "de":"Kein leerer Steckplatz",
+        "ru":"Нет пустого слота",
+        "pt":"Nenhum slot vazio",
+        "it":"Nessuna fessura vuota"
     },
     "room name":{
         "en":"Room Name",
-        "ko":"방 이름"
+        "ko":"방 이름",
+        "jp":"部屋の名前",
+        "cn":"房间名称",
+        "es":"Nombre de la sala",
+        "fr":"Nom de la salle",
+        "de":"Raumname",
+        "ru":"Имя комнаты",
+        "pt":"Nome da sala",
+        "it":"Nome della stanza"
     },
     "max users":{
         "en":"Max Users",
-        "ko":"최대 인원"
+        "ko":"최대 인원",
+        "jp":"最大ユーザー数",
+        "cn":"最大用户数",
+        "es":"Máximo de usuarios",
+        "fr":"Nombre maximal d'utilisateurs",
+        "de":"Maximale Benutzer",
+        "ru":"Максимальные пользователи",
+        "pt":"Usuários máximos",
+        "it":"Utenti massimi"
     },
     "private":{
         "en":"Private",
-        "ko":"비공개"
+        "ko":"비공개",
+        "jp":"プライベート",
+        "cn":"私人的",
+        "es":"Privado",
+        "fr":"Privé",
+        "de":"Privat",
+        "ru":"Частный",
+        "pt":"Privado",
+        "it":"Privato"
     },
     "waiting":{
         "en":"Waiting For Players",
-        "ko":"플레이어 대기중"
+        "ko":"플레이어 대기중",
+        "jp":"プレイヤー待ち",
+        "cn":"等待玩家",
+        "es":"Esperando jugadores",
+        "fr":"En attente de joueurs",
+        "de":"Warten auf Spieler",
+        "ru":"Ожидание игроков",
+        "pt":"Esperando jogadores",
+        "it":"In attesa di giocatori"
     },
     "playing":{
         "en":"Playing",
-        "ko":"진행중"
+        "ko":"진행중",
+        "jp":"プレイ中",
+        "cn":"玩",
+        "es":"Jugando",
+        "fr":"Jouer",
+        "de":"Spielen",
+        "ru":"игра",
+        "pt":"Jogando",
+        "it":"Giocando"
     },
     "owner":{
         "en":"Owner",
-        "ko":"방장"
+        "ko":"방장",
+        "jp":"オーナー",
+        "cn":"所有者",
+        "es":"Dueño",
+        "fr":"Propriétaire",
+        "de":"Besitzer",
+        "ru":"владелец",
+        "pt":"Proprietário",
+        "it":"Proprietario"
     },
     "status":{
         "en":"Status",
-        "ko":"상태"
+        "ko":"상태",
+        "jp":"状態",
+        "cn":"状态",
+        "es":"Estado",
+        "fr":"Statut",
+        "de":"Status",
+        "ru":"статус",
+        "pt":"Status",
+        "it":"Stato"
     },
     "join":{
         "en":"Join",
-        "ko":"참가"
+        "ko":"참가",
+        "jp":"参加する",
+        "cn":"加入",
+        "es":"Unirse",
+        "fr":"Joindre",
+        "de":"Beitreten",
+        "ru":"присоединиться",
+        "pt":"Junte-se",
+        "it":"Unisciti"
     },
     "leave":{
         "en":"Leave",
-        "ko":"나가기"
+        "ko":"나가기",
+        "jp":"去る",
+        "cn":"离开",
+        "es":"Dejar",
+        "fr":"Quitter",
+        "de":"Verlassen",
+        "ru":"покинуть",
+        "pt":"Sair",
+        "it":"Partire"
     },
     "start":{
         "en":"Start",
-        "ko":"시작"
+        "ko":"시작",
+        "jp":"開始",
+        "cn":"开始",
+        "es":"Comienzo",
+        "fr":"Début",
+        "de":"Anfang",
+        "ru":"начинать",
+        "pt":"Começar",
+        "it":"Inizio"
     },
     "ready":{
         "en":"Ready",
-        "ko":"준비"
+        "ko":"준비",
+        "jp":"準備完了",
+        "cn":"准备好",
+        "es":"Listo",
+        "fr":"Prêt",
+        "de":"Bereit",
+        "ru":"готов",
+        "pt":"Pronto",
+        "it":"Pronto"
     },
     "waiting timer":{
         "en":"Waiting Timer",
-        "ko":"대기 시간"
+        "ko":"대기 시간",
+        "jp":"待機タイマー",
+        "cn":"等待计时器",
+        "es":"Temporizador de espera",
+        "fr":"Minuteur d'attente",
+        "de":"Wartezeit",
+        "ru":"Таймер ожидания",
+        "pt":"Temporizador de espera",
+        "it":"Timer di attesa"
     },
     "health":{
         "en":"Health",
-        "ko":"체력"
+        "ko":"체력",
+        "jp":"健康",
+        "cn":"健康",
+        "es":"Salud",
+        "fr":"Santé",
+        "de":"Gesundheit",
+        "ru":"здоровье",
+        "pt":"Saúde",
+        "it":"Salute"
     },
     "wave":{
         "en":"Wave",
-        "ko":"웨이브"
+        "ko":"웨이브",
+        "jp":"波",
+        "cn":"波",
+        "es":"Ola",
+        "fr":"Vague",
+        "de":"Welle",
+        "ru":"волна",
+        "pt":"Onda",
+        "it":"Onda"
     },
     "coin":{
         "en":"Coin",
-        "ko":"코인"
+        "ko":"코인",
+        "jp":"コイン",
+        "cn":"硬币",
+        "es":"Moneda",
+        "fr":"Pièce",
+        "de":"Münze",
+        "ru":"монета",
+        "pt":"Moeda",
+        "it":"Moneta"
     },
     "waitingfornextwave":{
         "en":"Waiting for next wave",
-        "ko":"다음 웨이브 대기중"
+        "ko":"다음 웨이브 대기중",
+        "jp":"次の波を待っています",
+        "cn":"等待下一个波",
+        "es":"Esperando la próxima ola",
+        "fr":"En attente de la prochaine vague",
+        "de":"Warten auf die nächste Welle",
+        "ru":"Ожидание следующей волны",
+        "pt":"Esperando a próxima onda",
+        "it":"In attesa della prossima onda"
     },
     "gameover":{
         "en":"Game Over",
-        "ko":"게임 오버"
+        "ko":"게임 오버",
+        "jp":"ゲームオーバー",
+        "cn":"游戏结束",
+        "es":"Juego terminado",
+        "fr":"Jeu terminé",
+        "de":"Spiel vorbei",
+        "ru":"игра окончена",
+        "pt":"Jogo acabou",
+        "it":"Gioco finito"
     },
     "wavecomplete":{
         "en":"Wave Complete",
-        "ko":"웨이브 클리어"
+        "ko":"웨이브 클리어",
+        "jp":"波完了",
+        "cn":"波完",
+        "es":"Ola completa",
+        "fr":"Vague complète",
+        "de":"Welle abgeschlossen",
+        "ru":"волна завершена",
+        "pt":"Onda completa",
+        "it":"Onda completa"
     },
     "wavestarted":{
         "en":"Wave Started",
-        "ko":"웨이브 시작"
+        "ko":"웨이브 시작",
+        "jp":"波が始まった",
+        "cn":"波开始了",
+        "es":"Ola comenzada",
+        "fr":"Vague commencée",
+        "de":"Welle gestartet",
+        "ru":"Волна началась",
+        "pt":"Onda começou",
+        "it":"Onda iniziata"
     },
     "gamecomplete":{
         "en":"Game Complete",
-        "ko":"게임 클리어"
+        "ko":"게임 클리어",
+        "jp":"ゲーム完了",
+        "cn":"游戏完成",
+        "es":"Juego completo",
+        "fr":"Jeu complet",
+        "de":"Spiel komplett",
+        "ru":"игра завершена",
+        "pt":"Jogo completo",
+        "it":"Gioco completo"
     },
     "skipwave":{
         "en":"Skip Wave",
-        "ko":"웨이브 스킵"
+        "ko":"웨이브 스킵",
+        "jp":"波をスキップ",
+        "cn":"跳过波",
+        "es":"Saltar ola",
+        "fr":"Passer la vague",
+        "de":"Welle überspringen",
+        "ru":"Пропустить волну",
+        "pt":"Pular onda",
+        "it":"Salta onda"
     },
     "nextwave":{
         "en":"Next Wave",
-        "ko":"다음 웨이브"
+        "ko":"다음 웨이브",
+        "jp":"次の波",
+        "cn":"下一波",
+        "es":"Siguiente ola",
+        "fr":"Prochaine vague",
+        "de":"Nächste Welle",
+        "ru":"Следующая волна",
+        "pt":"Próxima onda",
+        "it":"Prossima onda"
     },
     "place":{
         "en":"Place",
-        "ko":"배치"
+        "ko":"배치",
+        "jp":"場所",
+        "cn":"地点",
+        "es":"Lugar",
+        "fr":"Endroit",
+        "de":"Platz",
+        "ru":"место",
+        "pt":"Lugar",
+        "it":"Posto"
     },
     "winrate":{
         "en":"Win Rate",
-        "ko":"승률"
+        "ko":"승률",
+        "jp":"勝率",
+        "cn":"胜率",
+        "es":"Tasa de victorias",
+        "fr":"Taux de victoire",
+        "de":"Gewinnrate",
+        "ru":"Процент побед",
+        "pt":"Taxa de vitória",
+        "it":"Tasso di vincita"
     },
     "edit":{
         "en":"Edit",
-        "ko":"수정"
+        "ko":"수정",
+        "jp":"編集する",
+        "cn":"编辑",
+        "es":"Editar",
+        "fr":"Modifier",
+        "de":"Bearbeiten",
+        "ru":"редактировать",
+        "pt":"Editar",
+        "it":"Modificare"
     },
     "bulletSpeed":{
         "en":"Bullet Speed",
-        "ko":"총알 속도"
+        "ko":"총알 속도",
+        "jp":"弾速",
+        "cn":"子弹速度",
+        "es":"Velocidad de bala",
+        "fr":"Vitesse de la balle",
+        "de":"Geschwindigkeit der Kugel",
+        "ru":"Скорость пули",
+        "pt":"Velocidade da bala",
+        "it":"Velocità del proiettile"
     },
     "room list":{
         "en":"Room List",
-        "ko":"방 리스트"
+        "ko":"방 리스트",
+        "jp":"部屋リスト",
+        "cn":"房间列表",
+        "es":"Lista de habitaciones",
+        "fr":"Liste des pièces",
+        "de":"Raumliste",
+        "ru":"Список комнат",
+        "pt":"Lista de quartos",
+        "it":"Elenco delle stanze"
     },
     "waiting for players":{
         "en":"Waiting For Players",
-        "ko":"플레이어 기다리는 중"
+        "ko":"플레이어 기다리는 중",
+        "jp":"プレイヤー待ち",
+        "cn":"等待玩家",
+        "es":"Esperando jugadores",
+        "fr":"En attente de joueurs",
+        "de":"Warten auf Spieler",
+        "ru":"Ожидание игроков",
+        "pt":"Esperando jogadores",
+        "it":"In attesa di giocatori"
     },
     "sell":{
         "en":"Sell",
-        "ko":"판매"
+        "ko":"판매",
+        "jp":"売る",
+        "cn":"卖",
+        "es":"Vender",
+        "fr":"Vendre",
+        "de":"Verkaufen",
+        "ru":"продавать",
+        "pt":"Vender",
+        "it":"Vendere"
     },
     "upgrade":{
         "en":"Upgrade",
-        "ko":"업그레이드"
+        "ko":"업그레이드",
+        "jp":"アップグレード",
+        "cn":"升级",
+        "es":"Mejorar",
+        "fr":"Améliorer",
+        "de":"Aktualisieren",
+        "ru":"обновлять",
+        "pt":"Melhorar",
+        "it":"Aggiornare"
     },
     "upgradeCost":{
         "en":"Upgrade Cost",
-        "ko":"업그레이드 가격"
+        "ko":"업그레이드 가격",
+        "jp":"アップグレードコスト",
+        "cn":"升级成本",
+        "es":"Costo de actualización",
+        "fr":"Coût de mise à niveau",
+        "de":"Upgrade-Kosten",
+        "ru":"Стоимость обновления",
+        "pt":"Custo de atualização",
+        "it":"Costo di aggiornamento"
     },
     "waveStarted":{
         "en":"Wave Started",
-        "ko":"웨이브 시작"
+        "ko":"웨이브 시작",
+        "jp":"波が始まった",
+        "cn":"波开始了",
+        "es":"Ola comenzada",
+        "fr":"Vague commencée",
+        "de":"Welle gestartet",
+        "ru":"Волна началась",
+        "pt":"Onda começou",
+        "it":"Onda iniziata"
     },
     "waveComplete":{
         "en":"Wave Complete",
-        "ko":"웨이브 클리어"
+        "ko":"웨이브 클리어",
+        "jp":"波完了",
+        "cn":"波完",
+        "es":"Ola completa",
+        "fr":"Vague complète",
+        "de":"Welle abgeschlossen",
+        "ru":"волна завершена",
+        "pt":"Onda completa",
+        "it":"Onda completa"
     },
     "gameComplete":{
         "en":"Victory",
-        "ko":"클리어"
+        "ko":"클리어",
+        "jp":"クリア",
+        "cn":"胜利",
+        "es":"Victoria",
+        "fr":"Victoire",
+        "de":"Sieg",
+        "ru":"Победа",
+        "pt":"Vitória",
+        "it":"Vittoria"
     },
     "gameOver":{
         "en":"Game Over",
-        "ko":"게임 오버"
+        "ko":"게임 오버",
+        "jp":"ゲームオーバー",
+        "cn":"游戏结束",
+        "es":"Juego terminado",
+        "fr":"Jeu terminé",
+        "de":"Spiel vorbei",
+        "ru":"игра окончена",
+        "pt":"Jogo acabou",
+        "it":"Gioco finito"
     },
     "banned user":{
         "en":"Banned User",
-        "ko":"차단된 사용자"
+        "ko":"차단된 사용자",
+        "jp":"禁止されたユーザー",
+        "cn":"被禁止的用户",
+        "es":"Usuario prohibido",
+        "fr":"Utilisateur banni",
+        "de":"Gesperrter Benutzer",
+        "ru":"Заблокированный пользователь",
+        "pt":"Usuário banido",
+        "it":"Utente bannato"
     },
     "new password":{
         "en":"New Password",
-        "ko":"새 비밀번호"
+        "ko":"새 비밀번호",
+        "jp":"新しいパスワード",
+        "cn":"新密码",
+        "es":"Nueva contraseña",
+        "fr":"Nouveau mot de passe",
+        "de":"Neues Passwort",
+        "ru":"новый пароль",
+        "pt":"Nova senha",
+        "it":"Nuova password"
     },
     "level":{
         "en":"Level",
-        "ko":"레벨"
+        "ko":"레벨",
+        "jp":"レベル",
+        "cn":"水平",
+        "es":"Nivel",
+        "fr":"Niveau",
+        "de":"Niveau",
+        "ru":"уровень",
+        "pt":"Nível",
+        "it":"Livello"
     },
     "exp":{
         "en":"Exp",
-        "ko":"경험치"
+        "ko":"경험치",
+        "jp":"経験",
+        "cn":"经验",
+        "es":"Exp",
+        "fr":"Exp",
+        "de":"Exp",
+        "ru":"опыт",
+        "pt":"Exp",
+        "it":"Exp"
     },
     "maxExp":{
         "en":"Max Exp",
-        "ko":"최대 경험치"
+        "ko":"최대 경험치",
+        "jp":"最大経験",
+        "cn":"最大经验",
+        "es":"Exp máximo",
+        "fr":"Exp max",
+        "de":"Max Exp",
+        "ru":"Максимальный опыт",
+        "pt":"Exp máximo",
+        "it":"Exp massima"
     },
     "reward":{
         "en":"Reward",
-        "ko":"보상"
+        "ko":"보상",
+        "jp":"報酬",
+        "cn":"奖励",
+        "es":"Recompensa",
+        "fr":"Récompense",
+        "de":"Belohnung",
+        "ru":"награда",
+        "pt":"Recompensa",
+        "it":"Ricompensa"
     },
     "close":{
         "en":"Close",
-        "ko":"닫기"
+        "ko":"닫기",
+        "jp":"閉じる",
+        "cn":"关闭",
+        "es":"Cerrar",
+        "fr":"Fermer",
+        "de":"Schließen",
+        "ru":"закрывать",
+        "pt":"Fechar",
+        "it":"Chiudere"
     },
     "rating":{
         "en":"Rating",
-        "ko":"레이팅"
+        "ko":"레이팅",
+        "jp":"評価",
+        "cn":"评级",
+        "es":"Clasificación",
+        "fr":"Évaluation",
+        "de":"Bewertung",
+        "ru":"рейтинг",
+        "pt":"Classificação",
+        "it":"Valutazione"
     },
     "stone-catapult":{
         "en":"Stone Catapult",
-        "ko":"돌 투석기"
+        "ko":"돌 투석기",
+        "jp":"ストーンカタパルト",
+        "cn":"石弹弓",
+        "es":"Catapulta de piedra",
+        "fr":"Catapulte en pierre",
+        "de":"Steinkatapult",
+        "ru":"Каменная катапульта",
+        "pt":"Catapulta de pedra",
+        "it":"Catapulta di pietra"
     },
     "ice-catapult":{
         "en":"Ice Catapult",
-        "ko":"아이스 투석기"
+        "ko":"아이스 투석기",
+        "jp":"氷のカタパルト",
+        "cn":"冰弹弓",
+        "es":"Catapulta de hielo",
+        "fr":"Catapulte de glace",
+        "de":"Eiskatapult",
+        "ru":"Ледяная катапульта",
+        "pt":"Catapulta de gelo",
+        "it":"Catapulta di ghiaccio"
     },
     "mini-cannon":{
         "en":"Mini Cannon",
-        "ko":"미니 캐논"
+        "ko":"미니 캐논",
+        "jp":"ミニキャノン",
+        "cn":"迷你大炮",
+        "es":"Mini cañón",
+        "fr":"Mini canon",
+        "de":"Mini-Kanone",
+        "ru":"Мини-пушка",
+        "pt":"Mini canhão",
+        "it":"Mini cannone"
     },
     "heavy-cannon":{
         "en":"Heavy Cannon",
-        "ko":"헤비 캐논"
+        "ko":"헤비 캐논",
+        "jp":"ヘビーキャノン",
+        "cn":"重型大炮",
+        "es":"Cañón pesado",
+        "fr":"Canon lourd",
+        "de":"Schwerer Kanone",
+        "ru":"Тяжелая пушка",
+        "pt":"Canhão pesado",
+        "it":"Cannone pesante"
     },
     "bomb-cannon":{
         "en":"Bomb Cannon",
-        "ko":"붐 캐논"
+        "ko":"붐 캐논",
+        "jp":"爆弾キャノン",
+        "cn":"炸弹大炮",
+        "es":"Cañón de bombas",
+        "fr":"Canon à bombes",
+        "de":"Bombenkanone",
+        "ru":"Бомбовая пушка",
+        "pt":"Canhão de bombas",
+        "it":"Cannone bomba"
     },
     "charge-cannon":{
         "en":"Charge Cannon",
-        "ko":"차지 캐논"
+        "ko":"차지 캐논",
+        "jp":"チャージキャノン",
+        "cn":"充电炮",
+        "es":"Cañón de carga",
+        "fr":"Canon de charge",
+        "de":"Ladungskanone",
+        "ru":"Зарядное орудие",
+        "pt":"Canhão de carga",
+        "it":"Cannone di carica"
     },
     "auto-turret":{
         "en":"Auto Turret",
-        "ko":"오토 터렛"
+        "ko":"오토 터렛",
+        "jp":"オートタレット",
+        "cn":"自动炮塔",
+        "es":"Torreta automática",
+        "fr":"Tourelle automatique",
+        "de":"Automatischer Turm",
+        "ru":"Автоматическая башня",
+        "pt":"Torre automática",
+        "it":"Torretta automatica"
     },
     "machinegun-turret":{
         "en":"Machinegun Turret",
-        "ko":"머신건 터렛"
+        "ko":"머신건 터렛",
+        "jp":"マシンガンタレット",
+        "cn":"机枪炮塔",
+        "es":"Torreta ametralladora",
+        "fr":"Tourelle mitrailleuse",
+        "de":"Maschinengewehrturm",
+        "ru":"Пулеметная башня",
+        "pt":"Torre de metralhadora",
+        "it":"Torretta mitragliatrice"
     },
     "rocket-turret":{
         "en":"Rocket Turret",
-        "ko":"로켓 터렛"
+        "ko":"로켓 터렛",
+        "jp":"ロケットタレット",
+        "cn":"火箭炮塔",
+        "es":"Torreta de cohetes",
+        "fr":"Tourelle de roquettes",
+        "de":"Raketenturm",
+        "ru":"Ракетная башня",
+        "pt":"Torre de foguetes",
+        "it":"Torretta a razzo"
     },
     "laser-turret":{
         "en":"Laser Turret",
-        "ko":"레이저 터렛"
+        "ko":"레이저 터렛",
+        "jp":"レーザータレット",
+        "cn":"激光炮塔",
+        "es":"Torreta láser",
+        "fr":"Tourelle laser",
+        "de":"Laser-Turm",
+        "ru":"Лазерная башня",
+        "pt":"Torre laser",
+        "it":"Torretta laser"
     },
     "ballista":{
         "en":"Ballista",
-        "ko":"발리스타"
+        "ko":"발리스타",
+        "jp":"バリスタ",
+        "cn":"弩",
+        "es":"Ballesta",
+        "fr":"Baliste",
+        "de":"Balliste",
+        "ru":"Баллиста",
+        "pt":"Balista",
+        "it":"Balista"
     },
     "fire-ballista":{
         "en":"Fire Ballista",
-        "ko":"파이어 발리스타"
+        "ko":"파이어 발리스타",
+        "jp":"ファイアバリスタ",
+        "cn":"火球",
+        "es":"Ballesta de fuego",
+        "fr":"Baliste de feu",
+        "de":"Feuerballiste",
+        "ru":"Огненная баллиста",
+        "pt":"Balista de fogo",
+        "it":"Balista di fuoco"
     },
     "poison-ballista":{
         "en":"Poison Ballista",
-        "ko":"포이즌 발리스타"
+        "ko":"포이즌 발리스타",
+        "jp":"ポイズンバリスタ",
+        "cn":"毒箭",
+        "es":"Ballesta de veneno",
+        "fr":"Baliste empoisonnée",
+        "de":"Giftballiste",
+        "ru":"Ядовитая баллиста",
+        "pt":"Balista de veneno",
+        "it":"Balista velenosa"
     },
     "royal-cannon":{
         "en":"Royal Cannon",
-        "ko":"로얄 캐논"
+        "ko":"로얄 캐논",
+        "jp":"ロイヤルキャノン",
+        "cn":"皇家大炮",
+        "es":"Cañón real",
+        "fr":"Canon royal",
+        "de":"Königliche Kanone",
+        "ru":"Королевская пушка",
+        "pt":"Canhão real",
+        "it":"Cannone reale"
     },
     "pulse-turret":{
         "en":"Pulse Turret",
-        "ko":"펄스 터렛"
+        "ko":"펄스 터렛",
+        "jp":"パルスタレット",
+        "cn":"脉冲炮塔",
+        "es":"Torreta de pulso",
+        "fr":"Tourelle d'impulsion",
+        "de":"Impulsturm",
+        "ru":"Импульсная башня",
+        "pt":"Torre de pulso",
+        "it":"Torretta a impulsi"
     },
     "drrs":{
         "en":"Deal Rating",
-        "ko":"딜 레이팅"
+        "ko":"딜 레이팅",
+        "jp":"取引評価",
+        "cn":"交易评级",
+        "es":"Clasificación de trato",
+        "fr":"Évaluation de l'accord",
+        "de":"Deal-Bewertung",
+        "ru":"Рейтинг сделки",
+        "pt":"Classificação do negócio",
+        "it":"Valutazione dell'accordo"
     },
     "room name required":{
         "en":"Room name required",
-        "ko":"방 이름을 입력하세요"
+        "ko":"방 이름을 입력하세요",
+        "jp":"部屋名が必要です",
+        "cn":"需要房间名称",
+        "es":"Nombre de la sala requerido",
+        "fr":"Nom de la salle requis",
+        "de":"Raumname erforderlich",
+        "ru":"название комнаты обязательно",
+        "pt":"Nome da sala necessário",
+        "it":"Nome della stanza richiesto"
     },
     "password required":{
         "en":"Password required",
-        "ko":"비밀번호를 입력하세요"
+        "ko":"비밀번호를 입력하세요",
+        "jp":"パスワードが必要です",
+        "cn":"需要密码",
+        "es":"Contraseña requerida",
+        "fr":"Mot de passe requis",
+        "de":"Passwort erforderlich",
+        "ru":"требуется пароль",
+        "pt":"Senha necessária",
+        "it":"Password richiesta"
     },
     "maxHealth":{
         "en":"Max Health",
-        "ko":"최대 체력"
+        "ko":"최대 체력",
+        "jp":"最大HP",
+        "cn":"最大生命值",
+        "es":"Salud máxima",
+        "fr":"Santé maximale",
+        "de":"Maximale Gesundheit",
+        "ru":"Максимальное здоровье",
+        "pt":"Saúde máxima",
+        "it":"Salute massima"
     },
     "maxHealthLvl":{
         "en":"Max Health Level",
-        "ko":"최대 체력 레벨"
+        "ko":"최대 체력 레벨",
+        "jp":"最大HPレベル",
+        "cn":"最大生命值级别",
+        "es":"Nivel de salud máxima",
+        "fr":"Niveau de santé maximale",
+        "de":"Maximale Gesundheitsstufe",
+        "ru":"Уровень максимального здоровья",
+        "pt":"Nível de saúde máxima",
+        "it":"Livello di salute massima"
     },
     "healthRegen":{
         "en":"Health Regen",
-        "ko":"체력 회복"
+        "ko":"체력 회복",
+        "jp":"HP回復",
+        "cn":"生命恢复",
+        "es":"Regeneración de salud",
+        "fr":"Régénération de santé",
+        "de":"Gesundheitsregeneration",
+        "ru":"Восстановление здоровья",
+        "pt":"Regeneração de saúde",
+        "it":"Rigenerazione della salute"
     },
     "healthRegenLvl":{
         "en":"Health Regen Level",
-        "ko":"체력 회복 레벨"
+        "ko":"체력 회복 레벨",
+        "jp":"HP回復レベル",
+        "cn":"生命恢复级别",
+        "es":"Nivel de regeneración de salud",
+        "fr":"Niveau de régénération de santé",
+        "de":"Gesundheitsregenerationsstufe",
+        "ru":"Уровень восстановления здоровья",
+        "pt":"Nível de regeneração de saúde",
+        "it":"Livello di rigenerazione della salute"
     },
     "shop":{
         "en":"Shop",
-        "ko":"상점"
+        "ko":"상점",
+        "jp":"ショップ",
+        "cn":"商店",
+        "es":"Tienda",
+        "fr":"Magasin",
+        "de":"Geschäft",
+        "ru":"магазин",
+        "pt":"Loja",
+        "it":"Negozio"
     },
     "modules":{
         "en":"Modules",
-        "ko":"모듈"
+        "ko":"모듈",
+        "jp":"モジュール",
+        "cn":"模块",
+        "es":"Módulos",
+        "fr":"Modules",
+        "de":"Module",
+        "ru":"модули",
+        "pt":"Módulos",
+        "it":"Moduli"
     },
     "skins":{
         "en":"Skins",
-        "ko":"스킨"
+        "ko":"스킨",
+        "jp":"スキン",
+        "cn":"皮肤",
+        "es":"Pieles",
+        "fr":"Peaux",
+        "de":"Skins",
+        "ru":"скины",
+        "pt":"Skins",
+        "it":"Pelli"
     },
     "module":{
         "en":"Module",
-        "ko":"모듈"
+        "ko":"모듈",
+        "jp":"モジュール",
+        "cn":"模块",
+        "es":"Módulo",
+        "fr":"Module",
+        "de":"Modul",
+        "ru":"модуль",
+        "pt":"Módulo",
+        "it":"Modulo"
     },
     "skin":{
         "en":"Skin",
-        "ko":"스킨"
+        "ko":"스킨",
+        "jp":"スキン",
+        "cn":"皮肤",
+        "es":"Piel",
+        "fr":"Peau",
+        "de":"Haut",
+        "ru":"кожа",
+        "pt":"Pele",
+        "it":"Pelle"
     },
     "purchase":{
         "en":"Purchase",
-        "ko":"구매"
+        "ko":"구매",
+        "jp":"購入",
+        "cn":"购买",
+        "es":"Compra",
+        "fr":"Achat",
+        "de":"Kauf",
+        "ru":"покупка",
+        "pt":"Compra",
+        "it":"Acquista"
+    },
+    "send":{
+        "en":"Send",
+        "ko":"보내기",
+        "jp":"送信",
+        "cn":"发送",
+        "es":"Enviar",
+        "fr":"Envoyer",
+        "de":"Senden",
+        "ru":"послать",
+        "pt":"Enviar",
+        "it":"Inviare"
+    },
+    "fire-d":{
+        "en":"Fire D",
+        "ko":"화염 D",
+        "jp":"火 D",
+        "cn":"火 D",
+        "es":"Fuego D",
+        "fr":"Feu D",
+        "de":"Feuer D",
+        "ru":"Огонь D",
+        "pt":"Fogo D",
+        "it":"Fuoco D"
+    },
+    "fire-c":{
+        "en":"Fire C",
+        "ko":"화염 C",
+        "jp":"火 C",
+        "cn":"火 C",
+        "es":"Fuego C",
+        "fr":"Feu C",
+        "de":"Feuer C",
+        "ru":"Огонь C",
+        "pt":"Fogo C",
+        "it":"Fuoco C"
+    },
+    "fire-b":{
+        "en":"Fire B",
+        "ko":"화염 B",
+        "jp":"火 B",
+        "cn":"火 B",
+        "es":"Fuego B",
+        "fr":"Feu B",
+        "de":"Feuer B",
+        "ru":"Огонь B",
+        "pt":"Fogo B",
+        "it":"Fuoco B"
+    },
+    "fire-a":{
+        "en":"Fire A",
+        "ko":"화염 A",
+        "jp":"火 A",
+        "cn":"火 A",
+        "es":"Fuego A",
+        "fr":"Feu A",
+        "de":"Feuer A",
+        "ru":"Огонь A",
+        "pt":"Fogo A",
+        "it":"Fuoco A"
+    },
+    "fire-s":{
+        "en":"Fire S",
+        "ko":"화염 S",
+        "jp":"火 S",
+        "cn":"火 S",
+        "es":"Fuego S",
+        "fr":"Feu S",
+        "de":"Feuer S",
+        "ru":"Огонь S",
+        "pt":"Fogo S",
+        "it":"Fuoco S"
+    },
+    "poison-d":{
+        "en":"Poison D",
+        "ko":"독 D",
+        "jp":"毒 D",
+        "cn":"毒 D",
+        "es":"Veneno D",
+        "fr":"Poison D",
+        "de":"Gift D",
+        "ru":"Яд D",
+        "pt":"Veneno D",
+        "it":"Veleno D"
+    },
+    "poison-c":{
+        "en":"Poison C",
+        "ko":"독 C",
+        "jp":"毒 C",
+        "cn":"毒 C",
+        "es":"Veneno C",
+        "fr":"Poison C",
+        "de":"Gift C",
+        "ru":"Яд C",
+        "pt":"Veneno C",
+        "it":"Veleno C"
+    },
+    "poison-b":{
+        "en":"Poison B",
+        "ko":"독 B",
+        "jp":"毒 B",
+        "cn":"毒 B",
+        "es":"Veneno B",
+        "fr":"Poison B",
+        "de":"Gift B",
+        "ru":"Яд B",
+        "pt":"Veneno B",
+        "it":"Veleno B"
+    },
+    "poison-a":{
+        "en":"Poison A",
+        "ko":"독 A",
+        "jp":"毒 A",
+        "cn":"毒 A",
+        "es":"Veneno A",
+        "fr":"Poison A",
+        "de":"Gift A",
+        "ru":"Яд A",
+        "pt":"Veneno A",
+        "it":"Veleno A"
+    },
+    "poison-s":{
+        "en":"Poison S",
+        "ko":"독 S",
+        "jp":"毒 S",
+        "cn":"毒 S",
+        "es":"Veneno S",
+        "fr":"Poison S",
+        "de":"Gift S",
+        "ru":"Яд S",
+        "pt":"Veneno S",
+        "it":"Veleno S"
+    },
+    "slow-d":{
+        "en":"Slow D",
+        "ko":"슬로우 D",
+        "jp":"スロー D",
+        "cn":"慢 D",
+        "es":"Lento D",
+        "fr":"Lent D",
+        "de":"Langsam D",
+        "ru":"Медленно D",
+        "pt":"Lento D",
+        "it":"Lento D"
+    },
+    "slow-c":{
+        "en":"Slow C",
+        "ko":"슬로우 C",
+        "jp":"スロー C",
+        "cn":"慢 C",
+        "es":"Lento C",
+        "fr":"Lent C",
+        "de":"Langsam C",
+        "ru":"Медленно C",
+        "pt":"Lento C",
+        "it":"Lento C"
+    },
+    "slow-b":{
+        "en":"Slow B",
+        "ko":"슬로우 B",
+        "jp":"スロー B",
+        "cn":"慢 B",
+        "es":"Lento B",
+        "fr":"Lent B",
+        "de":"Langsam B",
+        "ru":"Медленно B",
+        "pt":"Lento B",
+        "it":"Lento B"
+    },
+    "slow-a":{
+        "en":"Slow A",
+        "ko":"슬로우 A",
+        "jp":"スロー A",
+        "cn":"慢 A",
+        "es":"Lento A",
+        "fr":"Lent A",
+        "de":"Langsam A",
+        "ru":"Медленно A",
+        "pt":"Lento A",
+        "it":"Lento A"
+    },
+    "slow-s":{
+        "en":"Slow S",
+        "ko":"슬로우 S",
+        "jp":"スロー S",
+        "cn":"慢 S",
+        "es":"Lento S",
+        "fr":"Lent S",
+        "de":"Langsam S",
+        "ru":"Медленно S",
+        "pt":"Lento S",
+        "it":"Lento S"
+    },
+    "stun-d":{
+        "en":"Stun D",
+        "ko":"스턴 D",
+        "jp":"スタン D",
+        "cn":"晕 D",
+        "es":"Aturdir D",
+        "fr":"Étourdir D",
+        "de":"Stun D",
+        "ru":"Оглушить D",
+        "pt":"Atordoar D",
+        "it":"Stordire D"
+    },
+    "stun-c":{
+        "en":"Stun C",
+        "ko":"스턴 C",
+        "jp":"スタン C",
+        "cn":"晕 C",
+        "es":"Aturdir C",
+        "fr":"Étourdir C",
+        "de":"Stun C",
+        "ru":"Оглушить C",
+        "pt":"Atordoar C",
+        "it":"Stordire C"
+    },
+    "stun-b":{
+        "en":"Stun B",
+        "ko":"스턴 B",
+        "jp":"スタン B",
+        "cn":"晕 B",
+        "es":"Aturdir B",
+        "fr":"Étourdir B",
+        "de":"Stun B",
+        "ru":"Оглушить B",
+        "pt":"Atordoar B",
+        "it":"Stordire B"
+    },
+    "stun-a":{
+        "en":"Stun A",
+        "ko":"스턴 A",
+        "jp":"スタン A",
+        "cn":"晕 A",
+        "es":"Aturdir A",
+        "fr":"Étourdir A",
+        "de":"Stun A",
+        "ru":"Оглушить A",
+        "pt":"Atordoar A",
+        "it":"Stordire A"
+    },
+    "stun-s":{
+        "en":"Stun S",
+        "ko":"스턴 S",
+        "jp":"スタン S",
+        "cn":"晕 S",
+        "es":"Aturdir S",
+        "fr":"Étourdir S",
+        "de":"Stun S",
+        "ru":"Оглушить S",
+        "pt":"Atordoar S",
+        "it":"Stordire S"
+    },
+    "illusion-d":{
+        "en":"Illusion D",
+        "ko":"환영 D",
+        "jp":"幻影 D",
+        "cn":"幻影 D",
+        "es":"Ilusión D",
+        "fr":"Illusion D",
+        "de":"Illusion D",
+        "ru":"Иллюзия D",
+        "pt":"Ilusão D",
+        "it":"Illusione D"
+    },
+    "illusion-c":{
+        "en":"Illusion C",
+        "ko":"환영 C",
+        "jp":"幻影 C",
+        "cn":"幻影 C",
+        "es":"Ilusión C",
+        "fr":"Illusion C",
+        "de":"Illusion C",
+        "ru":"Иллюзия C",
+        "pt":"Ilusão C",
+        "it":"Illusione C"
+    },
+    "illusion-b":{
+        "en":"Illusion B",
+        "ko":"환영 B",
+        "jp":"幻影 B",
+        "cn":"幻影 B",
+        "es":"Ilusión B",
+        "fr":"Illusion B",
+        "de":"Illusion B",
+        "ru":"Иллюзия B",
+        "pt":"Ilusão B",
+        "it":"Illusione B"
+    },
+    "illusion-a":{
+        "en":"Illusion A",
+        "ko":"환영 A",
+        "jp":"幻影 A",
+        "cn":"幻影 A",
+        "es":"Ilusión A",
+        "fr":"Illusion A",
+        "de":"Illusion A",
+        "ru":"Иллюзия A",
+        "pt":"Ilusão A",
+        "it":"Illusione A"
+    },
+    "illusion-s":{
+        "en":"Illusion S",
+        "ko":"환영 S",
+        "jp":"幻影 S",
+        "cn":"幻影 S",
+        "es":"Ilusión S",
+        "fr":"Illusion S",
+        "de":"Illusion S",
+        "ru":"Иллюзия S",
+        "pt":"Ilusão S",
+        "it":"Illusione S"
+    },
+    "bleed-d":{
+        "en":"Bleed D",
+        "ko":"출혈 D",
+        "jp":"出血 D",
+        "cn":"出血 D",
+        "es":"Sangrar D",
+        "fr":"Saigner D",
+        "de":"Bluten D",
+        "ru":"Кровотечение D",
+        "pt":"Sangrar D",
+        "it":"Sanguinare D"
+    },
+    "bleed-c":{
+        "en":"Bleed C",
+        "ko":"출혈 C",
+        "jp":"出血 C",
+        "cn":"出血 C",
+        "es":"Sangrar C",
+        "fr":"Saigner C",
+        "de":"Bluten C",
+        "ru":"Кровотечение C",
+        "pt":"Sangrar C",
+        "it":"Sanguinare C"
+    },
+    "bleed-b":{
+        "en":"Bleed B",
+        "ko":"출혈 B",
+        "jp":"出血 B",
+        "cn":"出血 B",
+        "es":"Sangrar B",
+        "fr":"Saigner B",
+        "de":"Bluten B",
+        "ru":"Кровотечение B",
+        "pt":"Sangrar B",
+        "it":"Sanguinare B"
+    },
+    "bleed-a":{
+        "en":"Bleed A",
+        "ko":"출혈 A",
+        "jp":"出血 A",
+        "cn":"出血 A",
+        "es":"Sangrar A",
+        "fr":"Saigner A",
+        "de":"Bluten A",
+        "ru":"Кровотечение A",
+        "pt":"Sangrar A",
+        "it":"Sanguinare A"
+    },
+    "bleed-s":{
+        "en":"Bleed S",
+        "ko":"출혈 S",
+        "jp":"出血 S",
+        "cn":"出血 S",
+        "es":"Sangrar S",
+        "fr":"Saigner S",
+        "de":"Bluten S",
+        "ru":"Кровотечение S",
+        "pt":"Sangrar S",
+        "it":"Sanguinare S"
+    },
+    "weak-d":{
+        "en":"Weak D",
+        "ko":"약화 D",
+        "jp":"弱 D",
+        "cn":"弱 D",
+        "es":"Débil D",
+        "fr":"Faible D",
+        "de":"Schwach D",
+        "ru":"Слабый D",
+        "pt":"Fraco D",
+        "it":"Debole D"
+    },
+    "weak-c":{
+        "en":"Weak C",
+        "ko":"약화 C",
+        "jp":"弱 C",
+        "cn":"弱 C",
+        "es":"Débil C",
+        "fr":"Faible C",
+        "de":"Schwach C",
+        "ru":"Слабый C",
+        "pt":"Fraco C",
+        "it":"Debole C"
+    },
+    "weak-b":{
+        "en":"Weak B",
+        "ko":"약화 B",
+        "jp":"弱 B",
+        "cn":"弱 B",
+        "es":"Débil B",
+        "fr":"Faible B",
+        "de":"Schwach B",
+        "ru":"Слабый B",
+        "pt":"Fraco B",
+        "it":"Debole B"
+    },
+    "weak-a":{
+        "en":"Weak A",
+        "ko":"약화 A",
+        "jp":"弱 A",
+        "cn":"弱 A",
+        "es":"Débil A",
+        "fr":"Faible A",
+        "de":"Schwach A",
+        "ru":"Слабый A",
+        "pt":"Fraco A",
+        "it":"Debole A"
+    },
+    "weak-s":{
+        "en":"Weak S",
+        "ko":"약화 S",
+        "jp":"弱 S",
+        "cn":"弱 S",
+        "es":"Débil S",
+        "fr":"Faible S",
+        "de":"Schwach S",
+        "ru":"Слабый S",
+        "pt":"Fraco S",
+        "it":"Debole S"
+    },
+    "fire-desc":{
+        "en":"Inflicts additional damage proportionate to the attack power per second",
+        "ko":"초당 공격력에 비례하여 추가 데미지를 입힙니다",
+        "jp":"秒あたりの攻撃力に比例して追加ダメージを与えます",
+        "cn":"每秒造成的攻击力比例额外伤害",
+        "es":"Inflige daño adicional proporcional al poder de ataque por segundo",
+        "fr":"Inflige des dégâts supplémentaires proportionnels à la puissance d'attaque par seconde",
+        "de":"Fügt zusätzlichen Schaden pro Sekunde im Verhältnis zur Angriffskraft zu",
+        "ru":"Наносит дополнительный урон, пропорциональный силе атаки в секунду",
+        "pt":"Inflige dano adicional proporcional ao poder de ataque por segundo",
+        "it":"Infligge danni aggiuntivi proporzionali alla potenza di attacco al secondo"
+    },
+    "poison-desc":{
+        "en":"Inflicts additional impact damage proportionate to the attack power per second",
+        "ko":"초당 공격력에 비례하여 충접이 되는 추가 데미지를 입힙니다",
+        "jp":"秒あたりの攻撃力に比例して追加の衝撃ダメージを与えます",
+        "cn":"每秒造成的攻击力比例额外冲击伤害",
+        "es":"Inflige daño de impacto adicional proporcional al poder de ataque por segundo",
+        "fr":"Inflige des dégâts d'impact supplémentaires proportionnels à la puissance d'attaque par seconde",
+        "de":"Fügt zusätzlichen Aufprallschaden pro Sekunde im Verhältnis zur Angriffskraft zu",
+        "ru":"Наносит дополнительный урон от удара, пропорциональный силе атаки в секунду",
+        "pt":"Inflige dano de impacto adicional proporcional ao poder de ataque por segundo",
+        "it":"Infligge danni da impatto aggiuntivi proporzionali alla potenza di attacco al secondo"
+    },
+    "slow-desc":{
+        "en":"Slows down the enemy by a certain percentage",
+        "ko":"적을 일정 비율로 둔화시킵니다",
+        "jp":"敵を一定の割合で遅くします",
+        "cn":"将敌人减速一定百分比",
+        "es":"Ralentiza al enemigo en un cierto porcentaje",
+        "fr":"Ralentit l'ennemi d'un certain pourcentage",
+        "de":"Verlangsamt den Feind um einen bestimmten Prozentsatz",
+        "ru":"Замедляет врага на определенный процент",
+        "pt":"Desacelera o inimigo em uma certa porcentagem",
+        "it":"Rallenta il nemico di una certa percentuale"
+    },
+    "stun-desc":{
+        "en":"Stuns the enemy for a certain period of time",
+        "ko":"적을 일정 시간동안 기절시킵니다",
+        "jp":"一定時間敵をスタンさせます",
+        "cn":"使敌人晕眩一段时间",
+        "es":"Aturde al enemigo por un cierto período de tiempo",
+        "fr":"Étourdit l'ennemi pendant un certain temps",
+        "de":"Betäubt den Feind für eine bestimmte Zeit",
+        "ru":"Оглушает врага на определенное время",
+        "pt":"Atordoa o inimigo por um certo período de tempo",
+        "it":"Stordisce il nemico per un certo periodo di tempo"
+    },
+    "illusion-desc":{
+        "en":"Reverses the enemy's movement for a certain period of time",
+        "ko":"일정 시간동안 적의 이동을 반대로 합니다",
+        "jp":"一定時間敵の動きを逆にします",
+        "cn":"使敌人的移动反向一段时间",
+        "es":"Invierte el movimiento del enemigo por un cierto período de tiempo",
+        "fr":"Inverse le mouvement de l'ennemi pendant un certain temps",
+        "de":"Kehrt die Bewegung des Feindes für eine bestimmte Zeit um",
+        "ru":"Разворачивает движение врага на определенное время",
+        "pt":"Inverte o movimento do inimigo por um certo período de tempo",
+        "it":"Inverte il movimento del nemico per un certo periodo di tempo"
+    },
+    "bleed-desc":{
+        "en":"Inflicts additional damage proportionate to the maximum health per second",
+        "ko":"초당 최대 체력에 비례하여 추가 데미지를 입힙니다",
+        "jp":"秒あたりの最大HPに比例して追加ダメージを与えます",
+        "cn":"每秒造成的最大生命值比例额外伤害",
+        "es":"Inflige daño adicional proporcional a la salud máxima por segundo",
+        "fr":"Inflige des dégâts supplémentaires proportionnels à la santé maximale par seconde",
+        "de":"Fügt zusätzlichen Schaden pro Sekunde im Verhältnis zur maximalen Gesundheit zu",
+        "ru":"Наносит дополнительный урон, пропорциональный максимальному здоровью в секунду",
+        "pt":"Inflige dano adicional proporcional à saúde máxima por segundo",
+        "it":"Infligge danni aggiuntivi proporzionali alla salute massima al secondo"
+    },
+    "weak-desc":{
+        "en":"Reduces the enemy's defense by a certain percentage",
+        "ko":"적의 방어력을 일정 비율로 감소시킵니다",
+        "jp":"敵の防御力を一定の割合で減少させます",
+        "cn":"将敌人的防御减少一定百分比",
+        "es":"Reduce la defensa del enemigo en un cierto porcentaje",
+        "fr":"Réduit la défense de l'ennemi d'un certain pourcentage",
+        "de":"Verringert die Verteidigung des Feindes um einen bestimmten Prozentsatz",
+        "ru":"Уменьшает защиту врага на определенный процент",
+        "pt":"Reduz a defesa do inimigo em uma certa porcentagem",
+        "it":"Riduce la difesa del nemico di una certa percentuale"
+    },
+    "fire":{
+        "en":"Fire",
+        "ko":"화염",
+        "jp":"火",
+        "cn":"火",
+        "es":"Fuego",
+        "fr":"Feu",
+        "de":"Feuer",
+        "ru":"Огонь",
+        "pt":"Fogo",
+        "it":"Fuoco"
+    },
+    "poison":{
+        "en":"Poison",
+        "ko":"독",
+        "jp":"毒",
+        "cn":"毒",
+        "es":"Veneno",
+        "fr":"Poison",
+        "de":"Gift",
+        "ru":"Яд",
+        "pt":"Veneno",
+        "it":"Veleno"
+    },
+    "slow":{
+        "en":"Slow",
+        "ko":"슬로우",
+        "jp":"スロー",
+        "cn":"慢",
+        "es":"Lento",
+        "fr":"Lent",
+        "de":"Langsam",
+        "ru":"Медленно",
+        "pt":"Lento",
+        "it":"Lento"
+    },
+    "stun":{
+        "en":"Stun",
+        "ko":"스턴",
+        "jp":"スタン",
+        "cn":"晕",
+        "es":"Aturdir",
+        "fr":"Étourdir",
+        "de":"Stun",
+        "ru":"Оглушить",
+        "pt":"Atordoar",
+        "it":"Stordire"
+    },
+    "illusion":{
+        "en":"Illusion",
+        "ko":"환영",
+        "jp":"幻影",
+        "cn":"幻影",
+        "es":"Ilusión",
+        "fr":"Illusion",
+        "de":"Illusion",
+        "ru":"Иллюзия",
+        "pt":"Ilusão",
+        "it":"Illusione"
+    },
+    "bleed":{
+        "en":"Bleed",
+        "ko":"출혈",
+        "jp":"出血",
+        "cn":"出血",
+        "es":"Sangrar",
+        "fr":"Saigner",
+        "de":"Bluten",
+        "ru":"Кровотечение",
+        "pt":"Sangrar",
+        "it":"Sanguinare"
+    },
+    "weak":{
+        "en":"Weak",
+        "ko":"약화",
+        "jp":"弱",
+        "cn":"弱",
+        "es":"Débil",
+        "fr":"Faible",
+        "de":"Schwach",
+        "ru":"Слабый",
+        "pt":"Fraco",
+        "it":"Debole"
+    },
+    "duration":{
+        "en":"Duration",
+        "ko":"지속시간",
+        "jp":"期間",
+        "cn":"持续时间",
+        "es":"Duración",
+        "fr":"Durée",
+        "de":"Dauer",
+        "ru":"Продолжительность",
+        "pt":"Duração",
+        "it":"Durata"
+    },
+    "value":{
+        "en":"Value",
+        "ko":"값",
+        "jp":"値",
+        "cn":"值",
+        "es":"Valor",
+        "fr":"Valeur",
+        "de":"Wert",
+        "ru":"Значение",
+        "pt":"Valor",
+        "it":"Valore"
+    },
+    "strength":{
+        "en":"Strength",
+        "ko":"강도",
+        "jp":"強度",
+        "cn":"强度",
+        "es":"Fuerza",
+        "fr":"Force",
+        "de":"Stärke",
+        "ru":"Сила",
+        "pt":"Força",
+        "it":"Forza"
+    },
+    "unequip all units":{
+        "en":"Unequip All Units",
+        "ko":"모든 유닛 장착 해제",
+        "jp":"すべてのユニットを装備解除",
+        "cn":"取消所有单位",
+        "es":"Desequipar todas las unidades",
+        "fr":"Déséquiper toutes les unités",
+        "de":"Alle Einheiten ausrüsten",
+        "ru":"Снять все юниты",
+        "pt":"Desequipar todas as unidades",
+        "it":"Desequipaggia tutte le unità"
+    },
+    "unequip all modules":{
+        "en":"Unequip All Modules",
+        "ko":"모든 모듈 장착 해제",
+        "jp":"すべてのモジュールを装備解除",
+        "cn":"取消所有模块",
+        "es":"Desequipar todos los módulos",
+        "fr":"Déséquiper tous les modules",
+        "de":"Alle Module ausrüsten",
+        "ru":"Снять все модули",
+        "pt":"Desequipar todos os módulos",
+        "it":"Desequipaggia tutti i moduli"
+    },
+    "general":{
+        "en":"General",
+        "ko":"일반",
+        "jp":"一般",
+        "cn":"一般",
+        "es":"General",
+        "fr":"Général",
+        "de":"Allgemein",
+        "ru":"Общий",
+        "pt":"Geral",
+        "it":"Generale"
+    },
+    "audio":{
+        "en":"Audio",
+        "ko":"오디오",
+        "jp":"オーディオ",
+        "cn":"音频",
+        "es":"Audio",
+        "fr":"Audio",
+        "de":"Audio",
+        "ru":"Аудио",
+        "pt":"Áudio",
+        "it":"Audio"
+    },
+    "graphic":{
+        "en":"Graphic",
+        "ko":"그래픽",
+        "jp":"グラフィック",
+        "cn":"图形",
+        "es":"Gráfico",
+        "fr":"Graphique",
+        "de":"Grafik",
+        "ru":"Графика",
+        "pt":"Gráfico",
+        "it":"Grafico"
+    },
+    "damage text":{
+        "en":"Damage Text",
+        "ko":"데미지 텍스트"
+    },
+    "graphic filter":{
+        "en":"Graphic Filter",
+        "ko":"그래픽 필터"
+    },
+    "hit effect":{
+        "en":"Hit Effect",
+        "ko":"타격 이펙트"
     },
 }
 

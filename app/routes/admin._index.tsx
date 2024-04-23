@@ -41,16 +41,16 @@ export default function Index(){
 
     return <main className="bg-black w-full h-full">
         {
-            user?.admin ? <Table /> : <div className="flex flex-col w-full h-full justify-center items-center gap-3">
-                <input disabled={isFetching} type="text" name="" id="" value={username} onChange={e => {setUsername(e.target.value);setError('')}} />
-                <input disabled={isFetching} type="password" name="" id="" value={password} onChange={e => {setPassword(e.target.value);setError('')}} />
+            user?.admin ? <Table /> : <div className="fccc w-full h-full items-center gap-3">
+                <div className="f-out f-mc s-0-8"><input className="f-inp f-mc s-0-7" disabled={isFetching} type="text" name="" id="" value={username} onChange={e => {setUsername(e.target.value);setError('')}} /></div>
+                <div className="f-out f-mc s-0-8"><input className="f-inp f-mc s-0-7" disabled={isFetching} type="password" name="" id="" value={password} onChange={e => {setPassword(e.target.value);setError('')}} /></div>
                 <p className="text-red-700">{error}</p>
-                <button disabled={isFetching} onClick={() => {login();setError('')}}>Login</button>
+                <button className="f-btn f-out f-mc s-0-7" disabled={isFetching} onClick={() => {login();setError('')}}>Login</button>
             </div>
         }
-        <div className="box absolute left-0 top-0 p-2 flex flex-col items-center justify-center gap-2">
-            <div className="text-white font-semibold">Login as : {user?.username || "guest"}</div>
-            {user && <button disabled={isFetching} className="p-1" onClick={e => setUser(undefined)}>Logout</button>}
+        <div className="f-backl s-0-8 absolute left-1 top-1 p-2 fccc gap-2 w-36">
+            <div className="text-white font-semibold text-center">Login as : {user?.username || "guest"}</div>
+            {user && <button disabled={isFetching} className="f-btn f-out f-mc s-0-7" onClick={e => setUser(undefined)}>Logout</button>}
         </div>
     </main>
 }
@@ -84,35 +84,35 @@ const Table:FC = () => {
     }, [once])
 
     return global && <><main className="flex flex-row w-full h-full justify-center items-center gap-3 text-white">
-        <div className="w-24 h-full flex flex-col gap-2 justify-center items-center">
+        <div className="w-36 h-full flex flex-col gap-2 justify-center items-center">
             {Object.keys(global).map((v, i) => {
-                return <button key={i} disabled={isFetching} className={`w-full p-1 noshadow ${page == v ? "bg-[#ffffff44]" : ""}`} onClick={e => setPage(v)}>{v.toUpperCase()}</button>
+                return <button key={i} disabled={isFetching} className={`w-full f-btn f-out f-mc s-0-7 noshadow text-center`} onClick={e => setPage(v)}>{v.toUpperCase()}</button>
             })}
-            <button className="w-full p-1 noshadow" disabled={isFetching} onClick={e => setRefresh(true)}>Refresh</button>
+            <button className={`w-full f-backl f-out f-mc s-0-7 noshadow text-center font-bold ${isFetching ? "text-gray-500 cursor-not-allowed" : "text-white"}`} disabled={isFetching} onClick={e => setRefresh(true)}>Refresh</button>
         </div>
-        <div className="flex-1 h-full flex flex-col justify-start items-center overflow-y-auto overflow-x-hidden p-2 gap-2" style={{opacity: isFetching ? "0.5" : "1"}}>
-            <button disabled={isFetching} className="p-1 noshadow w-full" onClick={e => {
+        <div className="flex-1 h-full fcsc overflow-y-auto overflow-x-hidden p-2 gap-2" style={{opacity: isFetching ? "0.5" : "1"}}>
+            <button disabled={isFetching} className="f-btn f-out f-mc s-0-7 noshadow w-full" onClick={e => {
                 setEditKey('modify')
                 setTa(JSON.stringify({}))
             }}
             >Modify</button>
             {(global as any)[page].map((v:any, i:number) => {
-                const title = page === 'users' ? `[${v.lvl}] ${v.username}`:
+                const title = page === 'users' ? `[${v.lvl}] ${v.admin ? "(Admin)" : ""} ${v.username}`:
                 page === 'units' ? `${v.type}`:
                 page === 'enemies' ? `${v.type}`:
                 page === 'levels' ? `Lv.${v.level}`:
                 page === 'modules' ? `${v.type}` : ``
-                return <details key={i} className="w-full flex flex-col justify-start items-center p-1 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-md">
+                return <details key={i} className="w-full fcsc p-1 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-md">
                     <summary className="flex flex-row justify-between items-center">
                         <div className="text-xl text-white font-bold">{title}</div>
                         <div className="flex flex-row justify-center items-center gap-2">
-                            <button disabled={isFetching} className="noshadow p-1" onClick={e => {
+                            <button disabled={isFetching} className="noshadow f-btn f-out f-mc s-0-7" onClick={e => {
                                 setEditKey((v as any)._id)
                                 let newone = {...v}
                                 delete newone._id
                                 setTa(JSON.stringify(newone, null, 2))
                             }}>Edit</button>
-                            <button disabled={isFetching} className="noshadow p-1" onClick={e => {
+                            <button disabled={isFetching} className="noshadow f-btn f-out f-mc s-0-7" onClick={e => {
                                 setIsFetching(true)
                                 fetch(`/deleteOne/col/${page}/id/${(v as any)._id}`).then(res => res.json()).then(res => {
                                     setRefresh(true)
@@ -128,7 +128,7 @@ const Table:FC = () => {
                     })}
                 </details>
             })}
-            <button disabled={isFetching} className="p-1 noshadow w-full" onClick={e => {
+            <button disabled={isFetching} className="f-btn f-out f-mc s-0-7 noshadow w-full" onClick={e => {
                 setEditKey('create')
                 setTa(JSON.stringify({}))
             }}>Create</button>
@@ -136,9 +136,14 @@ const Table:FC = () => {
     </main>
     {editKey && <div className="w-full h-full absolute top-0 left-0 bg-[#00000066] flex flex-col justify-center items-center"
     onClick={e => {if(e.target === e.currentTarget) {setEditKey('');setTa('')}}}>
-        <div className="box w-[80%] h-[80%] p-2 flex flex-col gap-2">
-            <textarea className="w-full h-full" name="" id="" value={ta} onChange={e => setTa(e.target.value)}></textarea>
-            <button className="p-1" onClick={e => {
+        <div className="f-backwl s-0-7 w-[80%] h-[80%] p-2 flex flex-col gap-2">
+            <textarea disabled={isFetching} className="f-inp w-full h-full f-backbl s-0-7" name="" id="" value={ta} onChange={e => setTa(e.target.value)}></textarea>
+            <button disabled={isFetching} className="f-btn f-out f-mc s-0-7" onClick={async e => {
+                try{
+                    JSON.parse(ta);
+                } catch {
+                    return;
+                }
                 setIsFetching(true)
                 if(editKey == 'create'){
                     fetch(`/createOne/col/${page}`, {

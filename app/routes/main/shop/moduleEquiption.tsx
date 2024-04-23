@@ -8,20 +8,22 @@ const ModuleEquiption:FC<{
     selectedModule:string;
     setIsFetching:Dispatch<SetStateAction<boolean>>;
     setOnEquip:Dispatch<SetStateAction<boolean>>;
+    isFetching:boolean;
 }> = ({
     user,
     setUser,
     lang,
     selectedModule,
     setIsFetching,
-    setOnEquip
+    setOnEquip,
+    isFetching
 }) => {
     return <div className="fixed w-full h-full bg-[#00000099] fccc"
     onClick={e => {
         if(e.target != e.currentTarget) return
         setOnEquip(false)
     }}>
-        <div className="f-back2l s-0-9 frcc gap-2 lg:gap-3 w-[90%] h-[40%] min-h-24 lg:min-h-48">
+        <div className="f-back2l s-0-9 frcc gap-2 lg:gap-3 w-[90%] h-[40%] min-h-24 lg:min-h-48 flex-wrap overflow-auto">
             {user.equippedModules.map((slot, i) => {
                 const isLocked = user.equipped.map((v, i) => [v, i]).filter(v => v[0] == 'l').find(v => v[1] == i) ? true : false
                 return <div key={i} className='fccc gap-1 lg:gap-1.5'>
@@ -33,7 +35,7 @@ const ModuleEquiption:FC<{
                             }}>{classer ? classer.toUpperCase() : ""}</div>
                         })}
                     </div>
-                    <button disabled={isLocked} className={`f-btn f-out f-mc s-0-7 w-full p-1 lg:p-2 text-sm lg:text-md ${isLocked ? "text-red-500" : ""}`} onClick={e => {
+                    <button disabled={isLocked || isFetching} className={`f-btn f-out f-mc s-0-7 w-full p-1 lg:p-2 text-sm lg:text-md ${isLocked ? "text-red-500" : ""}`} onClick={e => {
                         setIsFetching(true)
                         fetch(`/updateUser/id/${user.id}/md/${selectedModule}/i/${i}`).then(res => res.json()).then((res:{res:IUser}) => {
                             setIsFetching(false)

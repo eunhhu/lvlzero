@@ -27,13 +27,20 @@ export default function Index() {
   useEffect(() => {
     setHydration(true)
 
-    let lang = localStorage.getItem('lang')
+    const lang = localStorage.getItem('lang')
     if(lang){
       setLang(lang)
     } else {
       localStorage.setItem('lang', navigator.language.split('-')[0])
       setLang(navigator.language.split('-')[0])
     }
+    
+    const damageText = localStorage.getItem('damageText')
+    if(!damageText) localStorage.setItem('damageText', '1')
+    const graphicFilter = localStorage.getItem('graphicFilter')
+    if(!graphicFilter) localStorage.setItem('graphicFilter', '1')
+    const hitEffect = localStorage.getItem('hitEffect')
+    if(!hitEffect) localStorage.setItem('hitEffect', '1')
   }, [])
 
   useEffect(() => {

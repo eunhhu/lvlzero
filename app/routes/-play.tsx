@@ -774,7 +774,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                                 }
                             }} />
                         </div>
-                        <button className='f-btn f-out f-mc s-0-6 text-md lg:text-xl p-1' onClick={e => {
+                        <button className='f-btn f-out f-mc s-0-6 text-md lg:text-xl w-24 lg:w-48' onClick={e => {
                             if(input.trim() == '') return
                             socket.emit('chat', {name:user.username, message:input})
                             setInput('')

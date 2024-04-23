@@ -39,8 +39,8 @@ const RankState:FC<{stateHeight:string;lang:string}> = ({stateHeight,lang}) => {
                     let bwr = b.win / (b.win + b.lose == 0 ? 1 : b.win + b.lose)
                     return bwr - awr
                 }) :
-                state == 'rating' ? users.sort((a, b) => (b.win - b.lose) - (a.win - a.lose)) :
-                users
+                state == 'rating' ? users.sort((a, b) => b.rate - a.rate) :
+                users.sort((a, b) => +a.id - +b.id)
             ).map((v, i) => {
                 return <div key={i} className='w-full flex flex-row justify-between items-center p-2 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-md text-white'
                 onClick={e => setProfile(v)}>
@@ -56,7 +56,7 @@ const RankState:FC<{stateHeight:string;lang:string}> = ({stateHeight,lang}) => {
                         <div className='text-sm lg:text-md'>{lng(lang, 'win')} {v.win}</div>
                         <div className='text-sm lg:text-md'>{lng(lang, 'lose')} {v.lose}</div>
                         <div className='text-sm lg:text-md'>{lng(lang, 'winrate')} {v.lose == 0 ? 0 : (v.win / (v.win + v.lose) * 100).toFixed(2)}%</div>
-                        <div className='text-sm lg:text-md'>{lng(lang, 'rating')} {v.win - v.lose}</div>
+                        <div className='text-sm lg:text-md'>{lng(lang, 'rating')} {v.rate}</div>
                     </div>
                 </div>
             })}
@@ -80,7 +80,7 @@ const RankState:FC<{stateHeight:string;lang:string}> = ({stateHeight,lang}) => {
                 <div className='text-sm lg:text-md'>{lng(lang, 'win')} {profile.win}</div>
                 <div className='text-sm lg:text-md'>{lng(lang, 'lose')} {profile.lose}</div>
                 <div className='text-sm lg:text-md'>{lng(lang, 'winrate')} {profile.lose == 0 ? 0 : (profile.win / (profile.win + profile.lose) * 100).toFixed(2)}%</div>
-                <div className='text-sm lg:text-md'>{lng(lang, 'rating')} {profile.win - profile.lose}</div>
+                <div className='text-sm lg:text-md'>{lng(lang, 'rating')} {profile.rate}</div>
             </div>
         </div>
     </div>}

@@ -40,7 +40,7 @@ const ProfileState:FC<{stateHeight:string;lang:string; user:IUser; setUser:Dispa
                 <div className='text-sm lg:text-lg'>{lng(lang, 'win')} {user.win}</div>
                 <div className='text-sm lg:text-lg'>{lng(lang, 'lose')} {user.lose}</div>
                 <div className='text-sm lg:text-lg'>{lng(lang, 'winrate')} {user.lose == 0 ? 0 : (user.win / (user.win + user.lose) * 100).toFixed(2)}%</div>
-                <div className='text-sm lg:text-lg'>{lng(lang, 'rating')} {user.win - user.lose}</div>
+                <div className='text-sm lg:text-lg'>{lng(lang, 'rating')} {user.rate}</div>
             </div>
         </div>
         {edit && <div className="fixed w-full h-full bg-[#00000099] flex flex-col justify-center items-center"

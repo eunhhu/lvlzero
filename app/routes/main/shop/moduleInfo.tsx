@@ -1,24 +1,32 @@
 import {FC, Dispatch, SetStateAction, useState} from 'react'
 import { lng } from '~/data/lang'
 
+const noneValues = ['stun']
+
 const ModuleInfo:FC<{
     lang:string;
     selectedModule:string;
     setSelectedModule:Dispatch<SetStateAction<string>>;
     user:IUser;
     setUser:Dispatch<SetStateAction<IUser>>;
+    isFetching:boolean;
     setIsFetching:Dispatch<SetStateAction<boolean>>;
     setOnEquip:Dispatch<SetStateAction<boolean>>;
+    global:IDB;
 }> = ({
     lang,
     selectedModule,
     setSelectedModule,
     user,
     setUser,
+    isFetching,
     setIsFetching,
-    setOnEquip
+    setOnEquip,
+    global
 }) => {
     const [error, setError] = useState<string>('')
+
+    const mod = global.modules.find(v => v.type == selectedModule)
 
     return <div className="fixed w-full h-full bg-[#00000099] fccc"
     onClick={e => {
@@ -30,10 +38,12 @@ const ModuleInfo:FC<{
             <div className='flex-1 fccc gap-2 lg:gap-5'>
                 <div className='w-full text-lg lg:text-4xl font-bold text-white text-center'>{lng(lang, selectedModule)}</div>
                 <div className='bg-cover bg-center w-24 h-24 lg:w-48 lg:h-48' style={{backgroundImage:`url(assets/modules/${selectedModule.split('-')[0]}.png)`}}></div>
-                <div className='text-md lg:text-xl text-center text-white font-semibold'>{lng(lang, `${selectedModule}-desc`)}</div>
+                <div className='text-md lg:text-xl text-center text-white font-semibold'>{lng(lang, `${selectedModule.split('-')[0]}-desc`)}</div>
+                {!noneValues.includes(selectedModule.split('-')[0]) && <div className='text-md lg:text-xl text-center text-white font-semibold'>{lng(lang, "value")} - {(mod?.effect.value as number)*100}%</div>}
+                <div className='text-md lg:text-xl text-center text-white font-semibold'>{lng(lang, "duration")} - {(mod?.effect.duration as number)/1000}s</div>
                 <p className='text-sm lg:text-md text-red-500 font-semibold'>{lng(lang, error)}</p>
             </div>
-            {user.unlockedModules.includes(selectedModule) && <button className='f-btn f-out f-mc s-0-6 w-full p-1 lg:p-2 text-md lg:text-xl'
+            {user.unlockedModules.includes(selectedModule) && <button disabled={isFetching} className='f-btn f-out f-mc s-0-6 w-full p-1 lg:p-2 text-md lg:text-xl'
             onClick={e => {
                 if(user.equippedModules.flat().includes(selectedModule)){
                     const idx = user.equippedModules.findIndex(v => v.includes(selectedModule))

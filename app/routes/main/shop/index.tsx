@@ -31,11 +31,11 @@ const ShopState:FC<{stateHeight:string;lang:string;user:IUser;setUser:Dispatch<S
             <StateSelectionBar state={state} setState={setState} lang={lang}setSelected={setSelected} />
             <MainShopMenu lang={lang} state={state} setSelected={setSelected} setSelectedModule={setSelectedModule} user={user} global={global} setOnBox={setOnBox} />
         </div>
-        <EquiptionBar user={user} setSelected={setSelected} setSelectedModule={setSelectedModule} />
+        <EquiptionBar lang={lang} user={user} setUser={setUser} setSelected={setSelected} setSelectedModule={setSelectedModule} isFetching={isFetching} setIsFetching={setIsFetching} />
         <GoldUi gold={user.gold} />
         {selected && <UnitInfo user={user} setUser={setUser} lang={lang} selected={selected} setSelected={setSelected} isFetching={isFetching} setIsFetching={setIsFetching} global={global} />}
-        {selectedModule && <ModuleInfo user={user} setUser={setUser} lang={lang} selectedModule={selectedModule} setSelectedModule={setSelectedModule} setIsFetching={setIsFetching} setOnEquip={setOnEquip}/>}
-        {onEquip && <ModuleEquiption user={user} setUser={setUser} lang={lang} selectedModule={selectedModule} setIsFetching={setIsFetching} setOnEquip={setOnEquip} />}
+        {selectedModule && <ModuleInfo user={user} setUser={setUser} lang={lang} selectedModule={selectedModule} setSelectedModule={setSelectedModule} isFetching={isFetching} setIsFetching={setIsFetching} setOnEquip={setOnEquip} global={global}/>}
+        {onEquip && <ModuleEquiption user={user} setUser={setUser} lang={lang} selectedModule={selectedModule} setIsFetching={setIsFetching} setOnEquip={setOnEquip} isFetching={isFetching} />}
         {onBox && <BoxSelection lang={lang} user={user} setUser={setUser} setOnBox={setOnBox} />}
     </div>
 }

@@ -61,6 +61,15 @@ export function getTotalExp(lvl:number):number{
   return 100 + lvl ** 2 * 10 + getTotalExp(lvl-1);
 }
 
+export function getLvl(exp:number):number{
+  let lvl = 0;
+  while(exp >= getTotalExp(lvl)){
+    exp -= getTotalExp(lvl);
+    lvl++;
+  }
+  return lvl;
+}
+
 export const gradient = (min:number, max:number, value:number, targetMin:number, targetMax:number):number => {
   return (value - min) / (max - min) * (targetMax - targetMin) + targetMin;
 }

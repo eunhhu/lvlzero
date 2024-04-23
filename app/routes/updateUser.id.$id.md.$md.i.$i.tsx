@@ -5,6 +5,8 @@ export const loader:LoaderFunction = async ({params}) => {
   const {id, md, i} = params;
   let res = null;
   const user = await getUser('id', id as string);
+  if(!user) return json({res: null});
+  if(!user.unlockedModules.includes(md as string)) return json({res: null});
   if(!i || !md) return json({res: null}); // i: equip slot index, md: module id
   let eqd = JSON.parse(JSON.stringify(user.equippedModules)) as string[][]; // deep copy
   if(eqd[+i].includes(md as string)){ // if module is already equipped, unequip it

@@ -1,13 +1,22 @@
 import {FC, Dispatch, SetStateAction} from 'react'
+import { lng } from '~/data/lang';
 
 const EquiptionBar:FC<{
+    lang:string;
     user:IUser;
+    setUser:Dispatch<SetStateAction<IUser>>;
     setSelected:Dispatch<SetStateAction<string>>;
     setSelectedModule:Dispatch<SetStateAction<string>>;
+    isFetching:boolean;
+    setIsFetching:Dispatch<SetStateAction<boolean>>;
 }> = ({
+    lang,
     user,
+    setUser,
     setSelected,
-    setSelectedModule
+    setSelectedModule,
+    isFetching,
+    setIsFetching
 }) => {
     return <div className="f-backl s-0-9 frcc gap-2 w-full p-1 lg:p-2">
         {
@@ -31,6 +40,30 @@ const EquiptionBar:FC<{
                 </div>
             })
         }
+        <div className='fcac h-full'>
+            <button disabled={isFetching} onClick={e => {
+                setIsFetching(true)
+                fetch(`/updateUser/id/${user.id}/unequip/unit`).then(res => res.json()).then((res:{res:IUser}) => {
+                    setIsFetching(false)
+                    if(res.res){
+                        setSelected('')
+                        setSelectedModule('')
+                        setUser(res.res)
+                    }
+                })
+            }} className='f-btn f-out f-mc s-0-7 text-md lg:text-lg'>{lng(lang, 'unequip all units')}</button>
+            <button disabled={isFetching} onClick={e => {    
+                setIsFetching(true)
+                fetch(`/updateUser/id/${user.id}/unequip/module`).then(res => res.json()).then((res:{res:IUser}) => {
+                    setIsFetching(false)
+                    if(res.res){
+                        setSelected('')
+                        setSelectedModule('')
+                        setUser(res.res)
+                    }
+                })
+            }} className='f-btn f-out f-mc s-0-7 text-md lg:text-lg'>{lng(lang, 'unequip all modules')}</button>
+        </div>
     </div>
 }
 

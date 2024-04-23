@@ -33,22 +33,22 @@ const UnitInfo:FC<{
         setUser(res)
     }
 
-    return <div className="fixed w-full h-full bg-[#00000099] flex flex-col justify-center items-center"
+    return <div className="fixed w-full h-full bg-[#00000099] fccc"
     onClick={e => {
         if(e.target != e.currentTarget) return
         setError('')
         setSelected('')
     }}>
-        <div className="box bg-[#000000aa] flex flex-col" style={{width:'80%', height:'80%'}}>
-            <div className="w-full h-full flex flex-col justify-center items-center">
+        <div className="f-back2l s-0-9 fccc" style={{width:'80%', height:'80%'}}>
+            <div className="w-full h-full fccc">
                 <Title lang={lang} selected={selected} lvl={lvl} setLvl={setLvl} global={global} />
-                <div className='flex-1 flex flex-row justify-around items-center w-full'>
+                <div className='flex-1 frac w-full'>
                     <UnitProfile lang={lang} selected={selected} />
                     <UnitContents lang={lang} selected={selected} lvl={lvl} global={global} />
                 </div>
                 {error && <div className="text-red-500 font-bold text-sm lg:text-lg noshadow">{lng(lang, error)}</div>}
             </div>
-            <button className="p-1 lg:p-2 text-md lg:text-xl"
+            <button className="f-btn f-out f-mc s-0-6 w-full p-1 lg:p-2 text-md lg:text-xl"
             onClick={e => {
                 setError('')
                 if(selected == 'l'){

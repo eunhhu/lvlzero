@@ -23,10 +23,10 @@ const Title:FC<{
         setLvl(lvl + n)
     }
 
-    return <div className="text-lg lg:text-4xl text-white font-bold w-full text-center p-2 lg:p-5 flex flex-row items-center justify-around">
-        {selected != 'l' && <button className='pt-0 pb-0 pr-3 pl-3 text-sm lg:text-lg' onClick={e => changeLvl(-1)}>&lt;</button>}
+    return <div className="text-lg lg:text-4xl text-white font-bold w-full text-center p-2 lg:p-5 frac">
+        {selected != 'l' && <div className='f-out f-mc s-0-5'><div className='cursor-pointer f-back s-0-7 pr-3 pl-3 text-sm lg:text-lg' onClick={e => changeLvl(-1)}>&nbsp;&nbsp;&nbsp;&lt;&nbsp;&nbsp;&nbsp;</div></div>}
         <div>{selected != 'l' && `Lv.${lvl+1}`} {lng(lang, selected)}</div>
-        {selected != 'l' && <button className='pt-0 pb-0 pr-3 pl-3 text-sm lg:text-lg' onClick={e => changeLvl(1)}>&gt;</button>}
+        {selected != 'l' && <div className='f-out f-mc s-0-5'><div className='cursor-pointer f-back s-0-7 pr-3 pl-3 text-sm lg:text-lg' onClick={e => changeLvl(1)}>&nbsp;&nbsp;&nbsp;&gt;&nbsp;&nbsp;&nbsp;</div></div>}
     </div>
 }
 

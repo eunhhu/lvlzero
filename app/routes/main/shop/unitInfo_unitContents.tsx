@@ -30,7 +30,7 @@ const UnitContents:FC<{
         return `${result}`;
     }
 
-    return selected !== 'l' && <div className='flex-1 flex flex-col justify-center items-center mr-4'>
+    return selected !== 'l' && <div className='flex-1 fccc mr-4'>
         {Object.keys(global.units.find(v => v.type == selected) as {[key:string]:any}).map((v, i) => {
             if(outAttrs.includes(v)) return null;
             if(global.units.find(v => v.type == selected)?.upgradeCost.length as number <= lvl && v == 'upgradeCost') return null;
@@ -65,11 +65,11 @@ const Displayer:FC<{
     result,
     max
 }) => {
-    return <div className="flex flex-row justify-around items-center w-full p-1 lg:p-1.5 text-center">
+    return <div className="frac w-full p-0.5 lg:p-1.5 text-center">
         <div className="flex-1 text-sm lg:text-lg text-white font-bold">{title}</div>
         <div className="flex-1 text-sm lg:text-lg text-white font-bold">{display}</div>
         <div className='flex-1'>
-            <div className='border-2 border-white w-full h-3 lg:h-4 rounded-full'>
+            <div className='border lg:border-2 border-white w-full h-2 lg:h-4 rounded-full'>
                 <div className={`h-full bg-blue-300 rounded-full text-black`} style={{width: `${result / max * 100}%`}}></div>
             </div>
         </div>

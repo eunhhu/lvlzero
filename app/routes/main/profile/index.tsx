@@ -2,7 +2,7 @@ import {Dispatch, FC, SetStateAction, useEffect, useState} from 'react'
 import { lng } from '~/data/lang';
 import { checkNick, checkPass, sha256 } from '~/data/utils';
 
-const ProfileState:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<IUser|null>>; set:Dispatch<SetStateAction<string>>; isMobile:boolean}> = ({lang, user, setUser, set, isMobile}) => {
+const ProfileState:FC<{stateHeight:string;lang:string; user:IUser; setUser:Dispatch<SetStateAction<IUser|null>>; set:Dispatch<SetStateAction<string>>; isMobile:boolean}> = ({stateHeight,lang, user, setUser, set, isMobile}) => {
     const [edit, setEdit] = useState<boolean>(false)
     const [avatar, setAvatar] = useState<string>(user.avatar)
     const [username, setUsername] = useState<string>(user.username)
@@ -16,7 +16,7 @@ const ProfileState:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<
         setError('');
     }, [edit]);
 
-    return <div className="fixed top-0 flex flex-col justify-center items-center w-full" style={{height: `calc(100% - 76px)`}}>
+    return <div className="fixed top-0 flex flex-col justify-center items-center w-full" style={{height: stateHeight}}>
         <div style={{width:'80%'}} className='h-full flex flex-col justify-around items-start p-3 gap-3'>
             <div className='f-backl s-0-9 w-full p-2 flex flex-row items-center justify-start gap-3'>
                 <img src={user.avatar == "default" ? "assets/icons/profile.svg" : user.avatar} alt="" width={100} className='f-backl s-0-9' />

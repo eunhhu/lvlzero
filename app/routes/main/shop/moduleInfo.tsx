@@ -20,20 +20,20 @@ const ModuleInfo:FC<{
 }) => {
     const [error, setError] = useState<string>('')
 
-    return <div className="fixed w-full h-full bg-[#00000099] flex flex-col justify-center items-center"
+    return <div className="fixed w-full h-full bg-[#00000099] fccc"
     onClick={e => {
         if(e.target != e.currentTarget) return
         setError('')
         setSelectedModule('')
     }}>
-        <div className="box bg-[#000000aa] flex flex-col" style={{width:'80%', height:'80%'}}>
-            <div className='flex-1 flex flex-col justify-center items-center gap-2 lg:gap-5'>
+        <div className="f-back2l s-0-9 bg-[#000000aa] fccc" style={{width:'80%', height:'80%'}}>
+            <div className='flex-1 fccc gap-2 lg:gap-5'>
                 <div className='w-full text-lg lg:text-4xl font-bold text-white text-center'>{lng(lang, selectedModule)}</div>
                 <div className='bg-cover bg-center w-24 h-24 lg:w-48 lg:h-48' style={{backgroundImage:`url(assets/modules/${selectedModule.split('-')[0]}.png)`}}></div>
                 <div className='text-md lg:text-xl text-center text-white font-semibold'>{lng(lang, `${selectedModule}-desc`)}</div>
                 <p className='text-sm lg:text-md text-red-500 font-semibold'>{lng(lang, error)}</p>
             </div>
-            {user.unlockedModules.includes(selectedModule) && <button className='w-full p-1 lg:p-2 text-md lg:text-xl'
+            {user.unlockedModules.includes(selectedModule) && <button className='f-btn f-out f-mc s-0-6 w-full p-1 lg:p-2 text-md lg:text-xl'
             onClick={e => {
                 if(user.equippedModules.flat().includes(selectedModule)){
                     const idx = user.equippedModules.findIndex(v => v.includes(selectedModule))

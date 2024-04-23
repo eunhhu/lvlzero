@@ -85,6 +85,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
     const [onChat, setOnChat] = useState<boolean>(false)
     const [input, setInput] = useState<string>('')
     const [filters, setFilters] = useState<PIXI.Filter[]>([])
+    const chatRef = useRef<HTMLDivElement>(null)
     
     useEffect(() => {
         setOnce(true)
@@ -301,13 +302,14 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
 
     useEffect(() => {
         const wheel = (e:WheelEvent) => {
+            if(onChat) return
             setZoom(Math.min(2.5, Math.max(0.5, zoom - e.deltaY / 1000)))
         }
         document.addEventListener('wheel', wheel)
         return () => {
             document.removeEventListener('wheel', wheel)
         }
-    }, [zoom])
+    }, [zoom, onChat])
 
     useEffect(() => {
         if(!dragging) return
@@ -381,6 +383,11 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             setHealthAniTimeEnd(Date.now() + 500)
         }
     }, [health, lastHealth, filters])
+
+    useEffect(() => {
+        // auto scroll
+        chatRef.current?.scrollTo(0, chatRef.current.scrollHeight)
+    }, [chats, onChat])
 
     return (<>
         {/* Stage */}
@@ -580,17 +587,17 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             ></div>
         })}
         {/* Wave Statement && Coin */}
-        <div className="absolute text-white right-0 top-0 flex flex-col font-semibold p-1 lg:p-2 gap-1 lg:gap-2 box text-right">
-            <div className="text-sm lg:text-md">{lng(lang, 'wave')} : {wave} / {game.maxWave}</div>
-            <div className="text-sm lg:text-md">{lng(lang, 'waitingfornextwave')} : {Math.floor(waiting/1000)}s <button className="noshadow p-1"
+        <div className="absolute text-white right-1 top-1 fccc font-semibold p-1 lg:p-2 gap-1 lg:gap-2 text-right f-backl s-0-7">
+            <div className="text-sm lg:text-md w-full">{lng(lang, 'wave')} : {wave} / {game.maxWave}</div>
+            <div className="text-sm lg:text-md w-full">{lng(lang, 'waitingfornextwave')} : {Math.floor(waiting/1000)}s <button className="noshadow p-1 f-btn f-out f-mc s-0-7"
             onClick={e => {socket.emit('skipWave')}}>{lng(lang, 'skipwave')}</button></div>
-            <div className="text-sm lg:text-md">{lng(lang, 'coin')} : <span className="text-yellow-400">{coin}</span>c</div>
-            <button className="text-sm lg:text-md" onClick={e => {
+            <div className="text-sm lg:text-md w-full">{lng(lang, 'coin')} : <span className="text-yellow-400">{coin}</span>c</div>
+            <button className="text-sm lg:text-md w-full f-btn f-out f-mc s-0-7" onClick={e => {
                 setOnShop(true)
             }}>{lng(lang, 'shop')}</button>
         </div>
         {/* Health Bar */}
-        <div className="absolute bottom-2 flex flex-col p-1 box noshadow w-[40%] lg:w-[60%]" style={{left:`50%`, transform:`translate(-50%, -50%)`}}>
+        <div className="absolute bottom-2 fccc p-1 box noshadow w-[40%] lg:w-[60%]" style={{left:`50%`, transform:`translate(-50%, -50%)`}}>
             <div className="w-full h-5 bg-[#ffffff22] rounded-md">
                 {[''].map((v) => {
                     const isAnimating = healthAniTimeEnd > timeline;
@@ -609,14 +616,14 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
         </div>
         {/* Unit Selection */}
         {selectedPos[0] != -1 && !selectedUnit && !unitDatas.find(v => v.x == selectedPos[0] && v.y == selectedPos[1]) &&
-        <div className="absolute left-0 top-0 w-38 flex flex-col justify-start items-center overflow-hidden h-full">
-            <div className="box p-1 lg:p-2 text-white flex flex-col font-semibold gap-1 lg:gap-2 overflow-auto w-full h-min">
+        <div className="absolute left-1 top-1 w-38 fcsc overflow-hidden h-full">
+            <div className="f-backl s-0-7 p-1 lg:p-2 text-white flex flex-col font-semibold gap-1 lg:gap-2 overflow-auto w-full h-min">
                 {user.equipped.map((unit:string, index:number) => {
                     if(unit == 'l') return null;
                     let myUnit = global.units.find(v => v.type == unit) || {cost:0}
                     const canBuy = coin - myUnit.cost >= 0;
                     const md = user.equippedModules[index];
-                    return <button key={index} className={`noshadow p-1 flex flex-col items-center justify-between ${!canBuy ? "text-red-700" : "text-white"}`}
+                    return <div key={index} className={`noshadow p-1 fcbc f-out f-mc s-0-7 cursor-pointer f-back2l ${!canBuy ? "text-red-700" : "text-white"}`}
                     onClick={e => {
                         setSelectedUnit(unit)
                     }}>
@@ -626,16 +633,16 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                         </div>
                         <div className="text-sm lg:text-md">{myUnit.cost}c</div>
                         <div className="flex flex-row items-center justify-center gap-1 lg:gap-1.5">
-                            <div className="box noshadow bg-cover bg-center w-6 h-6 lg:w-8 lg:h-8 flex flex-row justify-center items-center font-bold text-sm lg:text-md" style={{
+                            {md[0] && <div className="bg-cover bg-center w-6 h-6 lg:w-8 lg:h-8 flex flex-row justify-center items-center font-bold text-sm lg:text-md" style={{
                                 backgroundImage:md[0] ? `url("assets/modules/${md[0].split("-")[0]}.png")` : "none"
-                            }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>
-                            <div className="box noshadow bg-cover bg-center w-6 h-6 lg:w-8 lg:h-8 flex flex-row justify-center items-center font-bold text-sm lg:text-md" style={{
+                            }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>}
+                            {md[1] && <div className="bg-cover bg-center w-6 h-6 lg:w-8 lg:h-8 flex flex-row justify-center items-center font-bold text-sm lg:text-md" style={{
                                 backgroundImage:md[1] ? `url("assets/modules/${md[1].split("-")[0]}.png")` : "none"
-                            }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>
+                            }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>}
                         </div>
-                    </button>
+                    </div>
                 })}
-                <button className="noshadow p-1 text-sm lg:text-md" onClick={e=> setSelectedPos([-1, -1])}>{lng(lang, 'cancel')}</button>
+                <button className="f-btn f-out f-mc s-0-7 noshadow p-1 text-sm lg:text-md" onClick={e=> setSelectedPos([-1, -1])}>{lng(lang, 'cancel')}</button>
             </div>
         </div>}
         {/* Unit Placement */}
@@ -645,29 +652,29 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             const cost = un.cost as number;
             const canPlace = coin >= cost;
             const md = user.equippedModules[user.equipped.findIndex(v => v == selectedUnit)]
-            return <div className="absolute left-0 top-0 flex flex-col w-38 justify-start items-center h-full overflow-hidden">
-                <div className="text-white flex flex-col font-semibold p-1 lg:p-2 gap-1 lg:gap-2 box w-full h-min overflow-auto">
-                    <div className="flex flex-row items-center justify-between gap-2 lg:gap-3">
+            return <div className="absolute left-1 top-1 flex flex-col w-38 justify-start items-center h-full overflow-hidden">
+                <div className="text-white flex flex-col font-semibold p-1 lg:p-2 gap-1 lg:gap-2 w-full h-min overflow-auto f-backl s-0-7">
+                    <div className="frcc gap-2 lg:gap-3">
                         <img src={`assets/units/${selectedUnit}.png`} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
-                        <div className="text-sm lg:text-md">{lng(lang, selectedUnit)}</div>
+                        <div className="text-sm lg:text-md font-bold">{lng(lang, selectedUnit)}</div>
                     </div>
                     <div className="w-full flex flex-row items-center justify-center gap-1 lg:gap-1.5">
-                        <div className="box noshadow bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                        {md[0] && <div className="bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
                             backgroundImage:md[0] ? `url("assets/modules/${md[0].split("-")[0]}.png")` : "none"
-                        }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>
-                        <div className="box noshadow bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                        }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>}
+                        {md[1] && <div className="bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
                             backgroundImage:md[1] ? `url("assets/modules/${md[1].split("-")[0]}.png")` : "none"
-                        }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>
+                        }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>}
                     </div>
-                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'damage')} {un.damage[0]}</div>
-                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'rate')} {(un.rate as number[])[0]/1000}s</div>
-                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'range')} {un.range[0]}m</div>
-                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'bulletSpeed')} {un.bulletSpeed[0]}</div>
-                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'cost')} {un.cost}c</div>
-                    <button className="noshadow p-1 text-sm lg:text-md text-white" onClick={e => {
+                    <div className="text-sm lg:text-md p-1 lg:p-2 font-semibold">{lng(lang, 'damage')} - {un.damage[0]}</div>
+                    <div className="text-sm lg:text-md p-1 lg:p-2 font-semibold">{lng(lang, 'rate')} - {(un.rate as number[])[0]/1000}s</div>
+                    <div className="text-sm lg:text-md p-1 lg:p-2 font-semibold">{lng(lang, 'range')} - {un.range[0]}m</div>
+                    <div className="text-sm lg:text-md p-1 lg:p-2 font-semibold">{lng(lang, 'bulletSpeed')} - {un.bulletSpeed[0]}</div>
+                    <div className="text-sm lg:text-md p-1 lg:p-2 font-semibold">{lng(lang, 'cost')} - {un.cost}c</div>
+                    <button className="f-btn f-out f-mc s-0-7 noshadow p-1 text-sm lg:text-md text-white" onClick={e => {
                         setSelectedUnit('')
                     }}>{lng(lang, 'cancel')}</button>
-                    <button disabled={!canPlace} className={`noshadow p-1 text-sm lg:text-md ${canPlace ? 'text-white' : 'text-red-700'}`}
+                    <button disabled={!canPlace} className={`f-btn f-out f-mc s-0-7 noshadow p-1 text-sm lg:text-md ${canPlace ? 'text-white' : 'text-red-700'}`}
                     onClick={e => {
                         const idx = user.equipped.findIndex(v => v == selectedUnit)
                         const modules = user.equippedModules[idx].map(v => global.modules.find(m => m.type == v) || {type:""})
@@ -690,32 +697,32 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             const sellCost = Math.round((thisUnit.cost + allUpgCosts)/2);
             const md = user.equippedModules[user.equipped.findIndex(v => v == selected.type)]
             return <>
-                <div className="absolute text-white left-0 top-0 flex flex-col font-semibold p-1 gap-1 lg:p-2 lg:gap-2 box w-38">
-                    <div className="flex flex-row items-center justify-between gap-2 lg:gap-3">
-                        <img src={`assets/units/${selected.type}.png`} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md" />
+                <div className="absolute text-white left-1 top-1 flex flex-col font-semibold p-1 gap-1 lg:p-2 lg:gap-2 w-38 f-backl s-0-7">
+                    <div className="frcc gap-2 lg:gap-3">
+                        <img src={`assets/units/${selected.type}.png`} className="w-6 h-6 lg:w-8 lg:h-8 rounded-md font-bold" />
                         <div className="text-sm lg:text-md">Lv.{selected.lvl}</div>
                         <div className="text-sm lg:text-md">{lng(lang, selected.type)}</div>
                     </div>
                     <div className="w-full flex flex-row items-center justify-center gap-1 lg:gap-1.5">
-                        <div className="box noshadow bg-cover bg-center w-10 h-10 lg:w-12 lg:h-12 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                        {md[0] && <div className="noshadow bg-cover bg-center w-10 h-10 lg:w-12 lg:h-12 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
                             backgroundImage:md[0] ? `url("assets/modules/${md[0].split("-")[0]}.png")` : "none"
-                        }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>
-                        <div className="box noshadow bg-cover bg-center w-10 h-10 lg:w-12 lg:h-12 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                        }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>}
+                        {md[1] && <div className="noshadow bg-cover bg-center w-10 h-10 lg:w-12 lg:h-12 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
                             backgroundImage:md[1] ? `url("assets/modules/${md[1].split("-")[0]}.png")` : "none"
-                        }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>
+                        }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>}
                     </div>
-                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'damage')} {thisUnit.damage[selected.lvl-1]}
+                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'damage')} - {thisUnit.damage[selected.lvl-1]}
                     {!isMaxLvl && ` -> ${thisUnit.damage[selected.lvl]}`}</div>
-                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'rate')} {(thisUnit.rate as number[])[selected.lvl-1]/1000}s
+                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'rate')} - {(thisUnit.rate as number[])[selected.lvl-1]/1000}s
                     {!isMaxLvl && ` -> ${(thisUnit.rate as number[])[selected.lvl]/1000}s`}</div>
-                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'range')} {thisUnit.range[selected.lvl-1]}m
+                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'range')} - {thisUnit.range[selected.lvl-1]}m
                     {!isMaxLvl && ` -> ${thisUnit.range[selected.lvl]}m`}</div>
-                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'bulletSpeed')} {thisUnit.bulletSpeed[selected.lvl-1]}
+                    <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'bulletSpeed')} - {thisUnit.bulletSpeed[selected.lvl-1]}
                     {!isMaxLvl && ` -> ${thisUnit.bulletSpeed[selected.lvl]}`}</div>
-                    <button className="noshadow p-1 text-sm lg:text-md" onClick={e => {
+                    <button className="f-btn f-out f-mc s-0-7 noshadow p-1 text-sm lg:text-md" onClick={e => {
                         socket.emit('sellUnit', {x:selected.x, y:selected.y})
                     }}>{lng(lang, "sell")} - {sellCost}c</button>
-                    {!isMaxLvl && <button disabled={!canUpgrade} className={`noshadow p-1 text-sm lg:text-md ${!canUpgrade && "text-red-700"}`}
+                    {!isMaxLvl && <button disabled={!canUpgrade} className={`f-btn f-out f-mc s-0-7 noshadow p-1 text-sm lg:text-md ${!canUpgrade && "text-red-700"}`}
                     onClick={e => {
                         socket.emit('upgradeUnit', {x:selected.x, y:selected.y})
                     }}>{lng(lang, "upgrade")} - {upgCost}c</button>}
@@ -741,55 +748,57 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                 setText('')
             }}>Submit</button>
         </div>}
-        {!onChat && <button className="absolute top-1/2 right-0 p-2 text-lg lg:text-xl font-semibold"
-        onClick={e => setOnChat(true)}>&lt;</button>}
-        {onChat && <div className="absolute top-0 left-0 w-full h-full bg-[#00000099] flex flex-col justify-center items-center"
-        onClick={e => {
-            if(e.target != e.currentTarget) return
-            setOnChat(false)
-        } }>
-            <div className="box bg-[#000000aa] flex flex-col justify-center items-center text-center" style={{width:'80%', height:'70%'}}>
-                <div className='flex flex-col justify-start items-center flex-1 overflow-y-auto overflow-x-hidden gap-1 w-full p-1'>
-                    {chats.map((v, i) => {
-                        return <div key={i} className='flex flex-row gap-1 w-full'>
-                            <div className='text-white text-lg lg:text-2xl'>[{v.username}]</div>
-                            <div className='text-white text-lg lg:text-2xl'>{v.message}</div>
+        {!onChat && <div className="absolute top-1/2 right-0"><button className="f-btn f-out f-mc s-0-6 text-lg lg:text-xl font-semibold"
+        onClick={e => setOnChat(true)}>&lt;</button></div>}
+        {onChat && <div className="fixed top-0 left-0 w-full h-full bg-[#00000099] fccc"
+            onClick={e => {
+                if(e.target != e.currentTarget) return
+                setOnChat(false)
+            } }>
+                <div className="f-backl s-0-9 fccc text-center gap-2" style={{width:'80%', height:'70%'}}>
+                    <div className='fcsc flex-1 overflow-y-auto overflow-x-hidden gap-1 w-full p-1' ref={chatRef}>
+                        {chats.map((v, i) => {
+                            return <div key={i} className='frs gap-1 w-full font-bold'>
+                                <div className='text-white text-lg lg:text-2xl'>[{v.username}]</div>
+                                <div className='text-white text-lg lg:text-2xl'>{v.message}</div>
+                            </div>
+                        })}
+                    </div>
+                    <div className='frs w-full gap-4'>
+                        <div className='f-out f-mc s-0-6 w-full'>
+                            <input className='f-inp f-mc s-0-6 text-md lg:text-xl p-1 flex-1 w-full' type="text" name="" id="" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
+                                if(e.key == 'Enter'){
+                                    if(input.trim() == '') return
+                                    socket.emit('chat', {name:user.username, message:input})
+                                    setInput('')
+                                }
+                            }} />
                         </div>
-                    })}
-                </div>
-                <div className='flex flex-row w-full'>
-                    <input className='text-md lg:text-xl p-1 flex-1' type="text" name="" id="" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {
-                        if(e.key == 'Enter'){
+                        <button className='f-btn f-out f-mc s-0-6 text-md lg:text-xl p-1' onClick={e => {
                             if(input.trim() == '') return
                             socket.emit('chat', {name:user.username, message:input})
                             setInput('')
-                        }
-                    }} />
-                    <button className='text-md lg:text-xl p-1' onClick={e => {
-                        if(input.trim() == '') return
-                        socket.emit('chat', {name:user.username, message:input})
-                        setInput('')
-                    }}>{lng(lang, 'send')}</button>
+                        }}>{lng(lang, 'send')}</button>
+                    </div>
                 </div>
-            </div>
-        </div>}
+            </div>}
         {/* Shop */}
-        {onShop && <div className="absolute top-0 left-0 w-full h-full bg-[#000000aa] flex flex-col items-center justify-center"
+        {onShop && <div className="absolute top-0 left-0 w-full h-full bg-[#000000aa] fccc"
         onMouseDown={e => {
             if(e.target == e.currentTarget) setOnShop(false)
         }}>
-            <div className="box w-[80%] h-[80%] flex flex-col items-center justify-center gap-2 lg:gap-3">
+            <div className="f-backl s-0-9 w-[80%] h-[80%] fccc gap-2 lg:gap-3">
                 <div className="text-white text-2xl lg:text-4xl font-bold w-full text-center">{lng(lang, 'shop')}</div>
                 <div className="text-white text-xl lg:text-2xl font-bold w-full text-center">{lng(lang, 'coin')} : {coin}c</div>
                 <div className="w-full flex flex-row justify-between items-center gap-2 lg:gap-3 p-2 lg:p-3">
                     {[''].map((_v) => {
                         const upgradeCost = (game.maxHealthLvl+1) * 500;
                         const canUpgrade = coin >= upgradeCost;
-                        return <div key={_v} className="box flex-1 h-full flex flex-col justify-center items-center text-center gap-1.5 lg:gap-3 p-2 lg:p-3">
+                        return <div key={_v} className="f-backl s-0-8 flex-1 h-full flex flex-col justify-center items-center text-center gap-1.5 lg:gap-3 p-2 lg:p-3">
                             <div className="text-xl lg:text-3xl">Lv.{game.maxHealthLvl} {lng(lang, 'maxHealthLvl')}</div>
                             <div className="text-lg lg:text-xl">{lng(lang, 'maxHealth')} : {game.maxHealth}</div>
                             {game.maxHealthLvl < 3 && <div className="text-lg lg:text-xl">{lng(lang, 'upgradeCost')} : {upgradeCost}c</div>}
-                            {game.maxHealthLvl < 3 && <button disabled={!canUpgrade} className={`noshadow p-1 ${canUpgrade ? "text-white" : "text-red-400"}`} onClick={e => {
+                            {game.maxHealthLvl < 3 && <button disabled={!canUpgrade} className={`f-btn f-out f-mc s-0-7 noshadow p-1 ${canUpgrade ? "text-white" : "text-red-400"}`} onClick={e => {
                                 socket.emit('upgradeHealth')
                             }}>{lng(lang, 'upgrade')} - {upgradeCost}c</button>}
                         </div>
@@ -797,29 +806,29 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                     {[''].map((_v) => {
                         const upgradeCost = (game.healthRegenLvl+1) * 800;
                         const canUpgrade = coin >= upgradeCost;
-                        return <div key={_v} className="box flex-1 h-full flex flex-col justify-center items-center text-center gap-1.5 lg:gap-3 p-2 lg:p-3">
+                        return <div key={_v} className="f-backl s-0-8 flex-1 h-full flex flex-col justify-center items-center text-center gap-1.5 lg:gap-3 p-2 lg:p-3">
                             <div className="text-xl lg:text-3xl">Lv.{game.healthRegenLvl} {lng(lang, 'healthRegenLvl')}</div>
                             <div className="text-lg lg:text-xl">{lng(lang, 'healthRegen')} : {game.healthRegenLvl * 5} / 1s</div>
                             {game.healthRegenLvl < 3 && <div className="text-lg lg:text-xl">{lng(lang, 'upgradeCost')} : {upgradeCost}c</div>}
-                            {game.healthRegenLvl < 3 && <button disabled={!canUpgrade} className={`noshadow p-1 ${canUpgrade ? "text-white" : "text-red-400"}`} onClick={e => {
+                            {game.healthRegenLvl < 3 && <button disabled={!canUpgrade} className={`f-btn f-out f-mc s-0-7 noshadow p-1 ${canUpgrade ? "text-white" : "text-red-400"}`} onClick={e => {
                                 socket.emit('upgradeHealthRegen')
                             }}>{lng(lang, 'upgrade')} - {upgradeCost}c</button>}
                         </div>
                     })}
                 </div>
-                <button className="noshadow p-2 pl-12 pr-12 text-white" onClick={e => {
+                <button className="f-btn f-out f-mc s-0-7 noshadow p-2 pl-12 pr-12 text-white" onClick={e => {
                     setOnShop(false)
                 }}>{lng(lang, 'close')}</button>
             </div>
         </div>}
         {/* Finished */}
-        {finished && <div className="absolute top-0 left-0 w-full h-full bg-[#000000aa] flex flex-col items-center justify-center" style={{opacity: finOpacity}}>
-            {showResult ? <div className="box w-[60%] h-[60%] flex flex-col items-center justify-center gap-2 lg:gap-3"
+        {finished && <div className="absolute top-0 left-0 w-full h-full bg-[#000000aa] fccc" style={{opacity: finOpacity}}>
+            {showResult ? <div className="f-backl s-0-8 w-[60%] h-[60%] fccc gap-2 lg:gap-3"
             style={{transform: `translate(${resultPos[0]}px, ${resultPos[1]}px) rotate(${resultRotation}deg) scale(${resultScale})`}}>
                 <div className="text-white text-2xl lg:text-4xl font-bold w-full text-center mb-5">{lng(lang, resultText)}</div>
                 <div className="text-white text-xl lg:text-2xl font-bold w-full text-center">{lng(lang, 'coin')} : {resultGold}c</div>
                 <div className="text-white text-xl lg:text-2xl font-bold w-full text-center">{lng(lang, 'exp')} : {resultExp}xp</div>
-                <button className="noshadow p-1.5 pr-3 pl-3 lg:p-3 lg:pr-6 lg:pl-6 text-white text-md lg:text-lg" onClick={e => {
+                <button className="f-btn f-out f-mc s-0-7 noshadow p-1.5 pr-3 pl-3 lg:p-3 lg:pr-6 lg:pl-6 text-white text-md lg:text-lg" onClick={e => {
                     set('main')
                 }}>{lng(lang, 'close')}</button>
             </div> : <></>}

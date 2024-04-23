@@ -46,7 +46,7 @@ export default function Index() {
     if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
       setIsMobile(true)
     }
-    
+
     // resize event listener
     const resize = () => {
       setWidth(window.innerWidth)

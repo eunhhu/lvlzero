@@ -8,7 +8,7 @@ import ModuleInfo from './moduleInfo'
 import ModuleEquiption from './moduleEquiption'
 import BoxSelection from './boxSelection'
 
-const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser>>;global:IDB}> = ({lang, user, setUser, global}) => {
+const ShopState:FC<{stateHeight:string;lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser>>;global:IDB}> = ({stateHeight, lang, user, setUser, global}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [selected, setSelected] = useState<string>('') // unit type
     const [selectedModule, setSelectedModule] = useState<string>('') // module type
@@ -26,8 +26,8 @@ const ShopState:FC<{lang:string;user:IUser;setUser:Dispatch<SetStateAction<IUser
         // here
     }, [once])
 
-    return <div className="flex flex-col justify-center items-center w-full fixed top-0" style={{height: `calc(100% - 76px)`}}>
-        <div className='flex flex-row flex-1 w-full h-full overflow-hidden'>
+    return <div className="fccc w-full fixed top-0" style={{height: stateHeight}}>
+        <div className='frs flex-1 w-full h-full overflow-hidden'>
             <StateSelectionBar state={state} setState={setState} lang={lang}setSelected={setSelected} />
             <MainShopMenu lang={lang} state={state} setSelected={setSelected} setSelectedModule={setSelectedModule} user={user} global={global} setOnBox={setOnBox} />
         </div>

@@ -4,7 +4,7 @@ import { getTotalExp } from '~/data/utils'
 
 const rankStates = ['level', 'winrate', 'rating']
 
-const RankState:FC<{lang:string}> = ({lang}) => {
+const RankState:FC<{stateHeight:string;lang:string}> = ({stateHeight,lang}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [state, setState] = useState<string>(rankStates[0])
     const [users, setUsers] = useState<IUser[]>([])
@@ -21,7 +21,7 @@ const RankState:FC<{lang:string}> = ({lang}) => {
         })
     }, [once])
 
-    return <><div className="fixed top-0 flex flex-col justify-center items-center w-full" style={{height: `calc(100% - 76px)`}}>
+    return <><div className="fixed top-0 flex flex-col justify-center items-center w-full" style={{height: stateHeight}}>
         <div className='frac w-full gap-3 p-2'>
             {rankStates.map((sta, i) => {
                 return <div key={i} className={`text-white text-center font-semibold cursor-pointer f-back f-out f-mc s-0-8 text-sm lg:text-lg flex-1 ${sta == state ? "f-back2" : ""}`} onClick={e => setState(sta)}>{lng(lang, sta)}</div>

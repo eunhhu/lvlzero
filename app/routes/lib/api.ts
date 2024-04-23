@@ -56,7 +56,9 @@ export async function getAllDB(): Promise<IDB> {
     const levels = (await levelCol.find({}).toArray()) as unknown as ILevel[];
     const moduleCol = db.collection("modules");
     const modules = (await moduleCol.find({}).toArray()) as unknown as IModule[];
-    return {users, units, enemies, levels, modules};
+    const clanCol = db.collection("clans");
+    const clans = (await clanCol.find({}).toArray()) as unknown as IClan[];
+    return {users, units, enemies, levels, modules, clans};
 }
 
 export async function deleteOne(col: string, id: string): Promise<any> {

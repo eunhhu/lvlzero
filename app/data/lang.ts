@@ -2258,15 +2258,39 @@ const keys:{[key:string]:{[key:string]:string}} = {
     },
     "damage text":{
         "en":"Damage Text",
-        "ko":"데미지 텍스트"
+        "ko":"데미지 텍스트",
+        "jp":"ダメージテキスト",
+        "cn":"伤害文本",
+        "es":"Texto de daño",
+        "fr":"Texte de dommages",
+        "de":"Schadens Text",
+        "ru":"Текст урона",
+        "pt":"Texto de dano",
+        "it":"Testo del danno"
     },
     "graphic filter":{
         "en":"Graphic Filter",
-        "ko":"그래픽 필터"
+        "ko":"그래픽 필터",
+        "jp":"グラフィックフィルタ",
+        "cn":"图形过滤器",
+        "es":"Filtro gráfico",
+        "fr":"Filtre graphique",
+        "de":"Grafikfilter",
+        "ru":"Графический фильтр",
+        "pt":"Filtro gráfico",
+        "it":"Filtro grafico"
     },
     "hit effect":{
         "en":"Hit Effect",
-        "ko":"타격 이펙트"
+        "ko":"타격 이펙트",
+        "jp":"ヒットエフェクト",
+        "cn":"打击效果",
+        "es":"Efecto de golpe",
+        "fr":"Effet de coup",
+        "de":"Treffer Effekt",
+        "ru":"Эффект удара",
+        "pt":"Efeito de acerto",
+        "it":"Effetto colpo"
     },
 }
 

@@ -106,12 +106,11 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
                                         className="w-full h-full fccc rounded-md bg-[#00000077] text-white text-md lg:text-xl font-bold">900</div>}
                                     </div>
                                     <div className='frcc gap-1 lg:gap-1.5'>
-                                        <div className='flex-1 f-out f-mc f-backwl s-0-5 text-white bg-cover bg-center w-8 lg:w-12 h-8 lg:h-12 cursor-pointer fccc font-bold text-lg lg:text-2xl' style={{
-                                            backgroundImage: mod[0] ? `url(assets/modules/${mod[0].split('-')[0]}.png)` : "none"
-                                        }}>{mod[0] ? mod[0].split("-")[1].toUpperCase() : ""}</div>
-                                        <div className='flex-1 f-out f-mc f-backwl s-0-5 text-white bg-cover bg-center w-8 lg:w-12 h-8 lg:h-12 cursor-pointer fccc font-bold text-lg lg:text-2xl' style={{
-                                            backgroundImage: mod[1] ? `url(assets/modules/${mod[1].split('-')[0]}.png)` : "none"
-                                        }}>{mod[1] ? mod[1].split("-")[1].toUpperCase() : ""}</div>
+                                        {mod.map((mod, i) => {
+                                            return <div className='flex-1 f-out f-mc f-backwl s-0-5 text-white bg-cover bg-center w-8 lg:w-12 h-8 lg:h-12 cursor-pointer fccc font-bold text-lg lg:text-2xl' style={{
+                                                backgroundImage: mod ? `url(assets/modules/${mod.split('-')[0]}.png)` : "none"
+                                            }}>{mod && mod.split("-")[1].toUpperCase()}</div>
+                                        })}
                                     </div>
                                 </div>
                             })

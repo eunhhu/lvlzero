@@ -38,6 +38,9 @@ const Tilemap: FC<{
 };
 
 const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global, isMobile}) => {
+    const [damageText, setDamageText] = useState<boolean>(localStorage.getItem('damageText') == '1' ? true : false)
+    const [graphicFilter, setGraphicFilter] = useState<boolean>(localStorage.getItem('graphicFilter') == '1' ? true : false)
+    const [hitEffect, setHitEffect] = useState<boolean>(localStorage.getItem('hitEffect') == '1' ? true : false)
     const {width, height} = usehooks.useWindowSize()
     const [once, setOnce] = useState<boolean>(false)
     const [game, setGame] = useState<IGameInitData>()
@@ -163,6 +166,7 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
             const target = type.split('-')[1]
             switch(motion){
                 case 'enemyDamaged':
+                    if(!damageText) return;
                     const damage = +(value || 0);
                     if(damage < 3) return;
                     const color = gradient(0, 1200, damage, 0xFFFF00, 0xFF0000);
@@ -393,10 +397,10 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
         {/* Stage */}
         {game ? <>
         <Stage width={width} height={height}>
-            <Container pivot={[-width/2 + viewport[0], -height/2 + viewport[1]]} filters={[...filters,
+            <Container pivot={[-width/2 + viewport[0], -height/2 + viewport[1]]} filters={graphicFilter ? [...filters,
                 new AdvancedBloomFilter({threshold:0.1, bloomScale:0.5, brightness:0.7, blur:4, quality:6}) as any,
                 new GodrayFilter({gain:0.4, lacunarity:3, alpha:0.5, parallel:true, angle:30, time:timeline}) as any
-            ]}>
+            ] : []}>
                 <Tilemap
                     tileset="assets/tiles/grass.png"
                     notileset="assets/tiles/dirt.png"
@@ -633,12 +637,11 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                         </div>
                         <div className="text-sm lg:text-md">{myUnit.cost}c</div>
                         <div className="flex flex-row items-center justify-center gap-1 lg:gap-1.5">
-                            {md[0] && <div className="bg-cover bg-center w-6 h-6 lg:w-8 lg:h-8 flex flex-row justify-center items-center font-bold text-sm lg:text-md" style={{
-                                backgroundImage:md[0] ? `url("assets/modules/${md[0].split("-")[0]}.png")` : "none"
-                            }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>}
-                            {md[1] && <div className="bg-cover bg-center w-6 h-6 lg:w-8 lg:h-8 flex flex-row justify-center items-center font-bold text-sm lg:text-md" style={{
-                                backgroundImage:md[1] ? `url("assets/modules/${md[1].split("-")[0]}.png")` : "none"
-                            }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>}
+                            {md.map((m, i) => {
+                                return <div className="bg-cover bg-center w-6 h-6 lg:w-8 lg:h-8 flex flex-row justify-center items-center font-bold text-sm lg:text-md" style={{
+                                    backgroundImage: m ? `url("assets/modules/${m.split("-")[0]}.png")` : "none"
+                                }}>{m && m.split("-")[1].toUpperCase()}</div>
+                            })}
                         </div>
                     </div>
                 })}
@@ -659,12 +662,11 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                         <div className="text-sm lg:text-md font-bold">{lng(lang, selectedUnit)}</div>
                     </div>
                     <div className="w-full flex flex-row items-center justify-center gap-1 lg:gap-1.5">
-                        {md[0] && <div className="bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
-                            backgroundImage:md[0] ? `url("assets/modules/${md[0].split("-")[0]}.png")` : "none"
-                        }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>}
-                        {md[1] && <div className="bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
-                            backgroundImage:md[1] ? `url("assets/modules/${md[1].split("-")[0]}.png")` : "none"
-                        }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>}
+                        {md.map((m, i) => {
+                            return <div className="bg-cover bg-center w-8 h-8 lg:w-10 lg:h-10 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                                backgroundImage: m ? `url("assets/modules/${m.split("-")[0]}.png")` : "none"
+                            }}>{m && m.split("-")[1].toUpperCase()}</div>
+                        })}
                     </div>
                     <div className="text-sm lg:text-md p-1 lg:p-2 font-semibold">{lng(lang, 'damage')} - {un.damage[0]}</div>
                     <div className="text-sm lg:text-md p-1 lg:p-2 font-semibold">{lng(lang, 'rate')} - {(un.rate as number[])[0]/1000}s</div>
@@ -704,12 +706,11 @@ const Play:FC<glFCProps> = ({lang, set, user, setUser, socket, setSocket, global
                         <div className="text-sm lg:text-md">{lng(lang, selected.type)}</div>
                     </div>
                     <div className="w-full flex flex-row items-center justify-center gap-1 lg:gap-1.5">
-                        {md[0] && <div className="noshadow bg-cover bg-center w-10 h-10 lg:w-12 lg:h-12 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
-                            backgroundImage:md[0] ? `url("assets/modules/${md[0].split("-")[0]}.png")` : "none"
-                        }}>{md[0] && md[0].split("-")[1].toUpperCase()}</div>}
-                        {md[1] && <div className="noshadow bg-cover bg-center w-10 h-10 lg:w-12 lg:h-12 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
-                            backgroundImage:md[1] ? `url("assets/modules/${md[1].split("-")[0]}.png")` : "none"
-                        }}>{md[1] && md[1].split("-")[1].toUpperCase()}</div>}
+                        {md.map((m, i) => {
+                            return <div className="noshadow bg-cover bg-center w-10 h-10 lg:w-12 lg:h-12 flex flex-row justify-center items-center font-bold text-md lg:text-lg" style={{
+                                backgroundImage: m ? `url("assets/modules/${m.split("-")[0]}.png")` : "none"
+                            }}>{m && m.split("-")[1].toUpperCase()}</div>
+                        })}
                     </div>
                     <div className="text-sm lg:text-md p-1 lg:p-2">{lng(lang, 'damage')} - {thisUnit.damage[selected.lvl-1]}
                     {!isMaxLvl && ` -> ${thisUnit.damage[selected.lvl]}`}</div>

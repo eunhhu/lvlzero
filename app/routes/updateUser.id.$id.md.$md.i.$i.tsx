@@ -12,7 +12,7 @@ export const loader:LoaderFunction = async ({params}) => {
   if(eqd[+i].includes(md as string)){ // if module is already equipped, unequip it
     eqd[+i][eqd[+i].indexOf(md as string)] = "" // remove module from equipped modules
   } else if(eqd[+i].filter(v => v == "").length == 0) { // if more than 3 modules are equipped, return error
-    return json({message: 'Cannot equip more than 3 modules'}); // return error
+    return json({message: 'Slots are full'}); // return error
   }else { // equip module
     eqd[+i][eqd[+i].indexOf("")] = md as string; // add module to equipped modules
   }

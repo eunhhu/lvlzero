@@ -27,6 +27,8 @@ const commandList = {
     "list-units": "List all units",
     "list-enemies": "List all enemies",
     "list-levels": "List all levels",
+    "list-modules": "List all modules",
+    "list-clans": "List all clans",
     "disconnect (socketID)": "Disconnect a user by socket ID"
 };
 const client = new mongodb_1.MongoClient(uri);
@@ -38,6 +40,7 @@ client.connect().then(async () => {
     let enemies = await db.collection('enemies').find({}).toArray();
     let levels = await db.collection('levels').find({}).toArray();
     let modules = await db.collection('modules').find({}).toArray();
+    let clans = await db.collection('clans').find({}).toArray();
     console.log('DB data loaded');
     const app = (0, express_1.default)();
     const httpServer = (0, http_1.createServer)(app); // Note: Non-null assertion (!) is used here for simplicity.
@@ -342,6 +345,8 @@ client.connect().then(async () => {
                     units = await db.collection('units').find({}).toArray();
                     enemies = await db.collection('enemies').find({}).toArray();
                     levels = await db.collection('levels').find({}).toArray();
+                    modules = await db.collection('modules').find({}).toArray();
+                    clans = await db.collection('clans').find({}).toArray();
                     socket.emit('command', 'DB data refreshed');
                     break;
                 }
@@ -363,6 +368,16 @@ client.connect().then(async () => {
                 case 'll':
                 case 'list-levels': {
                     socket.emit('command', levels.map(level => `[Lv.${level.level}] ${level.enemyRegexes.length} Waves`).join('/n;'));
+                    break;
+                }
+                case 'lm':
+                case 'list-modules': {
+                    socket.emit('command', modules.map(mod => `[${mod.quality}] ${mod.type}`).join('/n;'));
+                    break;
+                }
+                case 'lc':
+                case 'list-clans': {
+                    socket.emit('command', clans.map(clan => `[Lv.${clan.level}] ${clan.name}`).join('/n;'));
                     break;
                 }
                 case 'dsc':

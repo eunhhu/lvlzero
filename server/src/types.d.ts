@@ -16,6 +16,7 @@ interface IUser{
     lose: number;
     lastPvp: number;
     rate: number;
+    clan: string;
     private: boolean;
 }
 
@@ -232,12 +233,19 @@ interface IDB{
 }
 
 interface IClan{
+    id:string; // clan id
     name:string; // clan name
-    members:string[]; // userId
-    owner:string; // userId
+    master:string; // userId
+    submasters:string[] // userId
+    members:string[]; // userIds
     description:string; // clan description
     icon:string; // 64x64 sized uri string
     level:number; // clan level
     exp:number; // clan exp
     gold:number; // clan gold
+    unlocked:string[]; // unlocked clan unit
+    win:number; // clan war win
+    lose:number; // clan war lose
+    rate:number; // clan war rating
+    private: boolean;
 }

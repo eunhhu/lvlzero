@@ -77,6 +77,14 @@ export async function getOne(col: string, id: string): Promise<any> {
     return result;
 }
 
+export async function getBy(col: string, obj: any): Promise<any> {
+    await connectToMongoDB();
+    const db = getMongoDB();
+    const collection = db.collection(col)
+    const result = (await collection.findOne(obj)) as unknown as any;
+    return result;
+}
+
 export async function updateOne(col: string, id: string, obj:any): Promise<any> {
     await connectToMongoDB();
     const db = getMongoDB();

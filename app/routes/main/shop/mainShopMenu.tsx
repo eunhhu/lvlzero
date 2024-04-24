@@ -30,7 +30,7 @@ const MainShopMenu:FC<{
                     className="w-full h-full flex flex-col justify-center items-center rounded-md text-white text-sm lg:text-xl font-bold">{v.buy}</div>}
                 </div>
             }): state == "modules" ?
-            global.modules.sort((a, b) => {
+            global.modules.filter(v => !v.private).sort((a, b) => {
                 const aName = a.type.split('-')[0]
                 const bName = b.type.split('-')[0]
                 if(aName < bName) return -1

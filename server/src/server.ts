@@ -24,6 +24,8 @@ const commandList:{[key:string]:string} = {
     "list-units": "List all units",
     "list-enemies": "List all enemies",
     "list-levels": "List all levels",
+    "list-modules": "List all modules",
+    "list-clans": "List all clans",
     "disconnect (socketID)": "Disconnect a user by socket ID"
 }
 
@@ -37,6 +39,7 @@ client.connect().then(async () => {
     let enemies:IEnemy[] = await db.collection('enemies').find({}).toArray() as any;
     let levels:ILevel[] = await db.collection('levels').find({}).toArray() as any;
     let modules:IModule[] = await db.collection('modules').find({}).toArray() as any;
+    let clans:IClan[] = await db.collection('clans').find({}).toArray() as any;
 
     console.log('DB data loaded');
     const app = express();
@@ -352,6 +355,8 @@ client.connect().then(async () => {
                     units = await db.collection('units').find({}).toArray() as any;
                     enemies = await db.collection('enemies').find({}).toArray() as any;
                     levels = await db.collection('levels').find({}).toArray() as any;
+                    modules = await db.collection('modules').find({}).toArray() as any;
+                    clans = await db.collection('clans').find({}).toArray() as any;
                     socket.emit('command', 'DB data refreshed');
                     break;
                 }
@@ -375,6 +380,16 @@ client.connect().then(async () => {
                     socket.emit('command', levels.map(level => `[Lv.${level.level}] ${level.enemyRegexes.length} Waves`).join('/n;'));
                     break;
                 }
+                case 'lm':
+                case 'list-modules':{
+                    socket.emit('command', modules.map(mod => `[${mod.quality}] ${mod.type}`).join('/n;'));
+                    break;
+                }
+                case 'lc':
+                case 'list-clans':{
+                    socket.emit('command', clans.map(clan => `[Lv.${clan.level}] ${clan.name}`).join('/n;'));
+                    break;
+                }
                 case 'dsc':
                 case 'disconnect':{
                     let socketId = Object.keys(onlines).find(key => key === params[1]);
@@ -393,7 +408,7 @@ client.connect().then(async () => {
             }
         })
     });
-    
+
     httpServer.listen(PORT, () => {
         console.log(`Server listening on *:${PORT}`);
     });

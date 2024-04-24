@@ -17,11 +17,11 @@ const RankState:FC<{stateHeight:string;lang:string}> = ({stateHeight,lang}) => {
     useEffect(() => {
         if(!once) return
         fetch('/getAllUsers').then(res => res.json()).then((res:{res:IUser[]}) => {
-            setUsers(res.res)
+            setUsers(res.res.filter(v => !v.private))
         })
     }, [once])
 
-    return <><div className="fixed top-0 flex flex-col justify-center items-center w-full" style={{height: stateHeight}}>
+    return <><div className="fixed top-0 fccc w-full" style={{height: stateHeight}}>
         <div className='frac w-full gap-3 p-2'>
             {rankStates.map((sta, i) => {
                 return <div key={i} className={`text-white text-center font-semibold cursor-pointer f-back f-out f-mc s-0-8 text-sm lg:text-lg flex-1 ${sta == state ? "f-back2" : ""}`} onClick={e => setState(sta)}>{lng(lang, sta)}</div>

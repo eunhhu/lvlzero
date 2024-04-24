@@ -104,7 +104,7 @@ const Login:FC<glFCProps> = ({lang, set, setUser, setSocket, global, isMobile}) 
         {
             <div className="cover flex-col space-y-5" style={{backgroundImage:'url(assets/loginbg.png)', filter:`blur(0px))`}}>
                 <div className="f-out f-mc s-0-9 w-48">
-                  <input className="f-inp f-mc s-0-9 text-sm lg:text-md w-full" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} type="text" name="" id="" placeholder={lng(lang, 'username')} value={username} onChange={e => {setError('');setUsername(e.target.value)}}/>
+                  <input className="f-inp f-mc s-0-9 text-sm lg:text-md w-full" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} type="text" name="" id="" placeholder={lng(lang, 'username')} value={username} onChange={e => {setError('');setUsername(e.target.value.length >= 12 ? e.target.value.slice(0, 12) : e.target.value)}}/>
                 </div>
                 <div className="f-out f-mc s-0-9 w-48">
                   <input className="f-inp f-mc s-0-9 text-sm lg:text-md w-full" disabled={isFetching} style={{opacity:isFetching ? 0.5 : 1}} type="password" name="" id="" placeholder={lng(lang, 'password')} value={password} onChange={e => {setError('');setPassword(e.target.value)}}/>

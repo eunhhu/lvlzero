@@ -39,6 +39,10 @@ export function checkNick(str:string):boolean{
   return (str.match(/^[A-Za-z0-9_\s가-힣]+$/) && str != '' && str.length > 2 && str.length < 13) as boolean
 }
 
+export function checkClan(str:string):boolean{
+  return (str.match(/^[A-Za-z0-9_\s가-힣]+$/) && str != '' && str.length > 1 && str.length < 13) as boolean
+}
+
 export function checkPass(str:string):boolean{
   return (str.match(/^[A-Za-z0-9!@#$%^&*()_\-+=~]+$/) && str != '' && str.length > 7) as boolean
 }

@@ -23,7 +23,7 @@ export async function updateUser(id: string, user:any): Promise<IUser> {
     const db = getMongoDB();
     const collection = db.collection("users");
     await collection.updateOne({ id }, { $set: user });
-    const result = collection.findOne({ id }) as unknown as IUser;
+    const result = await collection.findOne({ id }) as unknown as IUser;
     return result;
 }
 
@@ -90,7 +90,16 @@ export async function updateOne(col: string, id: string, obj:any): Promise<any> 
     const db = getMongoDB();
     const collection = db.collection(col);
     await collection.updateOne({ _id:new ObjectId(id) }, {$set: obj});
-    const result = collection.findOne({ _id:new ObjectId(id) }) as unknown as any;
+    const result = await collection.findOne({ _id:new ObjectId(id) }) as unknown as any;
+    return result;
+}
+
+export async function updateBy(col: string, obj: any, newObj:any): Promise<any> {
+    await connectToMongoDB();
+    const db = getMongoDB();
+    const collection = db.collection(col);
+    await collection.updateOne(obj, {$set: newObj});
+    const result = await collection.findOne(obj) as unknown as any;
     return result;
 }
 
@@ -107,7 +116,7 @@ export async function modifyAll(col: string, obj: any): Promise<any> {
     const db = getMongoDB();
     const collection = db.collection(col);
     await collection.updateMany({}, {$set: obj});
-    const result = collection.find({}).toArray() as unknown as any;
+    const result = await collection.find({}).toArray() as unknown as any;
     return result;
 }
 
@@ -115,6 +124,23 @@ export async function getAll(col: string): Promise<any> {
     await connectToMongoDB();
     const db = getMongoDB();
     const collection = db.collection(col);
-    const result = collection.find({}).toArray() as unknown as any;
+    const result = await collection.find({}).toArray() as unknown as any;
     return result;
+}
+
+export async function getMembers(clanId: string): Promise<any> {
+    await connectToMongoDB();
+    const db = getMongoDB();
+    const collection = db.collection("users");
+    const result = await collection.find({clan: clanId}).toArray() as unknown as any;
+    return result;
+}
+
+export async function getPendings(clanId: string): Promise<any> {
+    await connectToMongoDB();
+    const db = getMongoDB();
+    const collection = db.collection("users");
+    const clan:IClan = await db.collection("clans").findOne({id: clanId}, {projection: {icon:0}}) as unknown as IClan;
+    const result:IUser[] = await collection.find({}).toArray() as unknown as IUser[];
+    return result.filter(v => clan.pending.includes(v.id));
 }

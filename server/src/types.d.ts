@@ -238,6 +238,7 @@ interface IClan{
     master:string; // userId
     submasters:string[] // userId
     members:string[]; // userIds
+    pending:string[]; // userIds
     description:string; // clan description
     icon:string; // 64x64 sized uri string
     level:number; // clan level

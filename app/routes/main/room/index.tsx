@@ -82,7 +82,7 @@ const InRoom:FC<{lang:string; room:IRoom; setRoom:Dispatch<SetStateAction<IRoom|
                 <div className="f-backl s-0-5 h-full flex flex-col p-1 gap-1">
                     {
                         room.users.map((v, i) => {
-                            return <div key={i} className="w-40 frbc p-2 f-backl f-out f-mc s-0-8 hover:bg-[#ffffff33] cursor-pointer rounded-md">
+                            return <div key={i} className="w-40 lg:w-60 frbc p-2 f-backl f-out f-mc s-0-8 hover:bg-[#ffffff33] cursor-pointer rounded-md">
                                 <div className="text-lg lg:text-xl text-white font-bold">{v.username}</div>
                                 <div className="text-md lg:text-lg text-white">Lv.{v.lvl}</div>
                             </div>

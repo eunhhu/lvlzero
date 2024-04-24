@@ -108,12 +108,14 @@ const Table:FC = () => {
                     if(aName > bName) return 1
                     return a.quality - b.quality
                 }
+                if(page === 'clans') return b.level - a.level
             }).map((v:any, i:number) => {
                 const title = page === 'users' ? `[${v.lvl}] ${v.admin ? "(Admin)" : ""} ${v.username}`:
                 page === 'units' ? `${v.type}`:
                 page === 'enemies' ? `${v.type}`:
                 page === 'levels' ? `Lv.${v.level}`:
-                page === 'modules' ? `${v.type}` : ``
+                page === 'modules' ? `${v.type}` :
+                page === 'clans' ? `[${v.level}] ${v.name}` : ``
                 return <details key={i} className="w-full fcsc p-1 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-md">
                     <summary className="flex flex-row justify-between items-center">
                         <div className="text-xl text-white font-bold">{title}</div>

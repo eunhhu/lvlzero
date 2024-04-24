@@ -5,7 +5,7 @@ const clanPrice = 5000;
 
 export const action:LoaderFunction = async ({params, request}) => {
     const {id} = params
-    const obj = request.json() as any
+    const obj = await request.json() as any
     const name:string = obj.name
     const icon:string = obj.icon
     const master:string = id as string
@@ -15,7 +15,7 @@ export const action:LoaderFunction = async ({params, request}) => {
     const user = await getUser('id', master)
     if(!user) return json({res: null})
     if(user.gold < clanPrice) return json({res: null})
-    console.log(search, user)
+    console.log(obj)
     const cid = `${Date.now()}`
     const newClan:IClan = {
         id:cid,
@@ -25,6 +25,7 @@ export const action:LoaderFunction = async ({params, request}) => {
         exp: 0,
         gold: 0,
         master, submasters:[], members:[master],
+        pending: [],
         unlocked: [],
         win: 0,
         lose: 0,

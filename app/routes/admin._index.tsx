@@ -96,7 +96,19 @@ const Table:FC = () => {
                 setTa(JSON.stringify({}))
             }}
             >Modify</button>
-            {(global as any)[page].map((v:any, i:number) => {
+            {(global as any)[page].sort((a:any, b:any) => {
+                if(page === 'users') return +a.id - +b.id
+                if(page === 'units') return a.type < b.type ? -1 : 1
+                if(page === 'enemies') return a.type < b.type ? -1 : 1
+                if(page === 'levels') return a.level - b.level
+                if(page === 'modules') {
+                    const aName = a.type.split('-')[0]
+                    const bName = b.type.split('-')[0]
+                    if(aName < bName) return -1
+                    if(aName > bName) return 1
+                    return a.quality - b.quality
+                }
+            }).map((v:any, i:number) => {
                 const title = page === 'users' ? `[${v.lvl}] ${v.admin ? "(Admin)" : ""} ${v.username}`:
                 page === 'units' ? `${v.type}`:
                 page === 'enemies' ? `${v.type}`:

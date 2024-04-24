@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 
-const ClanState:FC<{stateHeight:string}> = ({stateHeight}) => {
+const ClanState:FC<{stateHeight:string;lang:string}> = ({stateHeight, lang}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [isFetching, setIsFetching] = useState<boolean>(false)
 

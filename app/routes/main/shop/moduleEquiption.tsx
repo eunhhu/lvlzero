@@ -30,7 +30,7 @@ const ModuleEquiption:FC<{
                     <div className='frcc gap-1 lg:gap-1.5'>
                         {slot.map((md, j) => {
                             const classer = md.split('-')[1];
-                            return <div key={j} className='f-backl s-0-9 w-12 h-12 lg:w-16 lg:h-16 bg-cover bg-center text-lg lg:text-xl fccc font-bold' style={{
+                            return <div key={j} className='f-backl s-0-9 w-12 h-12 lg:w-16 lg:h-16 bg-cover bg-center text-lg lg:text-xl fccc font-bold text-white' style={{
                                 backgroundImage: md ? `url(assets/modules/${md.split('-')[0]}.png)` : 'none',
                             }}>{classer ? classer.toUpperCase() : ""}</div>
                         })}

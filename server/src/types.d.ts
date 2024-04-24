@@ -16,6 +16,7 @@ interface IUser{
     lose: number;
     lastPvp: number;
     rate: number;
+    private: boolean;
 }
 
 interface glFCProps{
@@ -134,6 +135,7 @@ interface IUnit{
     upgradeCost: number[];
     buy: number;
     tags: string[];
+    private: boolean;
 }
 
 interface IEnemy{
@@ -148,12 +150,14 @@ interface ILevel{
     level:number;
     enemyRegexes:string[];
     title:string;
+    private: boolean;
 }
 
 interface IModule{
     type:string; // module name
     quality:number; // 0-4 "D", "C", "B", "A", "S"
     effect:IDebuff;
+    private: boolean;
 }
 
 interface IMotion{

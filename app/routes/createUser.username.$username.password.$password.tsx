@@ -24,7 +24,8 @@ export const loader:LoaderFunction = async ({params}) => {
         win: 0,
         lose: 0,
         lastPvp: -1,
-        rate: 0
+        rate: 0,
+        private: false
     }
     res = await createUser(newUser);
     return json({res:newUser});

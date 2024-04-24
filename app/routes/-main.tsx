@@ -6,8 +6,9 @@ import ShopState from "./main/shop/index";
 import SettingsState from "./main/settings/index";
 import ProfileState from "./main/profile/index";
 import RankState from "./main/rank/index";
+import ClanState from "./main/clan";
 
-const states = ['rank', 'shop', 'play', 'profile', 'settings']
+const states = ['rank', 'shop', 'play', 'clan', 'profile', 'settings']
 
 const Main:FC<glFCProps> = ({lang, setLang, set, user, setUser, socket, setSocket, global, isMobile}) => {
     const [state, setState] = useState<string>('play')
@@ -26,6 +27,7 @@ const Main:FC<glFCProps> = ({lang, setLang, set, user, setUser, socket, setSocke
             state == 'settings' ? <SettingsState stateHeight={stateHeight} lang={lang} setLang={setLang} /> :
             state == 'profile' ? <ProfileState stateHeight={stateHeight} lang={lang} user={user} setUser={setUser as Dispatch<SetStateAction<IUser|null>>} set={set} isMobile={isMobile} /> :
             state == 'rank' ? <RankState stateHeight={stateHeight} lang={lang} /> :
+            state == 'clan' ? <ClanState stateHeight={stateHeight} lang={lang} /> :
             <></>
         }
         {!room && <StateOptions state={state} setState={setState} lang={lang} />}

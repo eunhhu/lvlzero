@@ -1872,6 +1872,42 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "pt":"Efeito de acerto",
         "it":"Effetto colpo"
     },
+    "clan":{
+        "en":"Clan",
+        "ko":"클랜",
+        "jp":"クラン",
+        "cn":"氏族",
+        "es":"Clan",
+        "fr":"Clan",
+        "de":"Clan",
+        "ru":"Клан",
+        "pt":"Clã",
+        "it":"Clan"
+    },
+    "clan name":{
+        "en":"Clan Name",
+        "ko":"클랜 이름",
+        "jp":"クラン名",
+        "cn":"氏族名称",
+        "es":"Nombre del clan",
+        "fr":"Nom du clan",
+        "de":"Clan Name",
+        "ru":"Название клана",
+        "pt":"Nome do clã",
+        "it":"Nome del clan"
+    },
+    "clans":{
+        "en":"Clans",
+        "ko":"클랜",
+        "jp":"クラン",
+        "cn":"氏族",
+        "es":"Clanes",
+        "fr":"Clans",
+        "de":"Clans",
+        "ru":"Кланы",
+        "pt":"Clãs",
+        "it":"Clan"
+    },
 }
 
 export function lng(lang:string, key:string){

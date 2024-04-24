@@ -31,7 +31,7 @@ const EquiptionBar:FC<{
                     </div>
                     <div className='frcc gap-1 lg:gap-1.5'>
                         {mod.map((mod, i) => {
-                            return <div key={i} className='flex-1 f-backwl s-0-7 bg-cover bg-center w-8 lg:w-12 h-8 lg:h-12 cursor-pointer fccc font-bold text-lg lg:text-2xl' style={{
+                            return <div key={i} className='flex-1 f-backwl s-0-7 bg-cover bg-center w-8 lg:w-12 h-8 lg:h-12 cursor-pointer fccc font-bold text-lg lg:text-2xl text-white' style={{
                                 backgroundImage: mod ? `url(assets/modules/${mod.split('-')[0]}.png)` : "none"
                             }} onClick={e => setSelectedModule(mod)}>{mod ? mod.split("-")[1].toUpperCase() : ""}</div>
                         })}

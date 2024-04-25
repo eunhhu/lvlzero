@@ -57,10 +57,38 @@ const MyClanMembers:FC<{lang:string; clan:IClan; setClan:Dispatch<SetStateAction
         })
     }
 
+    const kick = (id:string) => {
+        setIsFetching(true)
+        fetch(`/kickMember/id/${clan.id}/uid/${id}`).then(res => res.json()).then((res:{res:IClan}) => {
+            setIsFetching(false)
+            setClan(res.res)
+            refresh()
+        })
+    }
+
+    const promote = (id:string) => {
+        setIsFetching(true)
+        fetch(`/promoteMember/id/${clan.id}/uid/${id}`).then(res => res.json()).then((res:{res:IClan}) => {
+            setIsFetching(false)
+            setClan(res.res)
+            refresh()
+        })
+    }
+
+    const demote = (id:string) => {
+        setIsFetching(true)
+        fetch(`/demoteMember/id/${clan.id}/uid/${id}`).then(res => res.json()).then((res:{res:IClan}) => {
+            setIsFetching(false)
+            setClan(res.res)
+            refresh()
+        })
+    }
+
     return <div className="fccc flex-1 h-full f-backl s-0-7 text-white gap-1 lg:gap-2 overflow-hidden">
         <div className="frcc w-full gap-1 lg:gap-2">
             {states.map((sta, i) => {
                 const count = sta == "all members" ? members?.length : pendings?.length
+                if((clan.master == user.id || clan.submasters.includes(user.id)) && sta == "pending members") return null
                 return <div key={i} className={`text-center text-sm lg:text-lg font-bold cursor-pointer w-full f-out f-mc s-0-8 ${sta == state ? "f-back2l" : "f-backl"}`} onClick={e => setState(sta)}>{lng(lang, sta)} ({count})</div>
             })}
         </div>
@@ -73,12 +101,12 @@ const MyClanMembers:FC<{lang:string; clan:IClan; setClan:Dispatch<SetStateAction
                 return <div key={i} className="w-full frbc p-2 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-lg text-white">
                     <_MProfile lang={lang} user={member} clan={clan} />
                     <div className="frcc gap-2">
-                        {clan.master == user.id && clan.master != member.id && !clan.submasters.includes(member.id) && <button disabled={isFetching} className="f-btn f-out f-mc s-0-6 text-sm lg:text-lg">{lng(lang, "promote")}</button>}
-                        {clan.master == user.id && clan.master != member.id && clan.submasters.includes(member.id) && <button disabled={isFetching} className="f-btn f-out f-mc s-0-6 text-sm lg:text-lg">{lng(lang, "demote")}</button>}
+                        {clan.master == user.id && clan.master != member.id && !clan.submasters.includes(member.id) && <button onClick={e => promote(member.id)} disabled={isFetching} className="f-btn f-out f-mc s-0-6 text-sm lg:text-lg">{lng(lang, "promote")}</button>}
+                        {clan.master == user.id && clan.master != member.id && clan.submasters.includes(member.id) && <button onClick={e => demote(member.id)} disabled={isFetching} className="f-btn f-out f-mc s-0-6 text-sm lg:text-lg">{lng(lang, "demote")}</button>}
                         {clan.master != member.id &&
                         ((clan.master == user.id) ||
                         (clan.submasters.includes(user.id) && !clan.submasters.includes(member.id))) &&
-                        <button disabled={isFetching} className="f-btn f-out f-mc s-0-6 text-sm lg:text-lg">{lng(lang, "kick")}</button>}
+                        <button disabled={isFetching} onClick={e => kick(member.id)} className="f-btn f-out f-mc s-0-6 text-sm lg:text-lg">{lng(lang, "kick")}</button>}
                     </div>
                 </div>
             }) : pendings && state == "pending members" ? pendings.map((pending, i) => {

@@ -2,13 +2,14 @@ import { FC, Dispatch, SetStateAction, useState, useEffect } from "react";
 import { lng } from "~/data/lang";
 import MyClanDashboard from "./myclan_dashboard";
 import MyClanMembres from "./myclan_members";
+import { Socket } from "socket.io-client";
 // import MyClanSettings from "./myclan_settings";
 // import MyClanShop from "./myclan_shop";
 // import MyClanWar from "./myclan_war";
 
 const states = ["dashboard", "members", "clan war", "shop", "settings"]
 
-const MyClan:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<IUser>>; cin:IClan; refresh:() => void; setState:Dispatch<SetStateAction<string>>;}> = ({lang, user, setUser, cin, refresh, setState}) => {
+const MyClan:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<IUser>>; cin:IClan; refresh:() => void; setState:Dispatch<SetStateAction<string>>; socket:Socket;}> = ({lang, user, setUser, cin, refresh, setState, socket}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [state, setStater] = useState<string>("dashboard")
     const [isFetching, setIsFetching] = useState<boolean>(false)
@@ -26,8 +27,8 @@ const MyClan:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<IUser>
             })}
         </div>
         {clan && (
-            state == "dashboard" ? <MyClanDashboard lang={lang} clan={clan} setClan={setClan} user={user} setUser={setUser} setState={setState} refresh={refresh} /> :
-            state == "members" ? <MyClanMembres lang={lang} clan={clan} setClan={setClan} user={user} /> :<></>
+            state == "dashboard" ? <MyClanDashboard lang={lang} clan={clan} setClan={setClan} user={user} setUser={setUser} setState={setState} refresh={refresh} socket={socket} /> :
+            state == "members" ? <MyClanMembres lang={lang} clan={clan} setClan={setClan} user={user} socket={socket} /> :<></>
             // state == "clan war" ? <MyClanWar /> :
             // state == "shop" ? <MyClanShop /> :
             // state == "settings" ? <MyClanSettings /> : <></>

@@ -1,4 +1,5 @@
 import { Dispatch, FC, SetStateAction, useState } from "react";
+import { Socket } from "socket.io-client";
 import { lng } from "~/data/lang";
 
 const _opts:FC<{text:string; value:any}> = ({text, value}) => {
@@ -8,7 +9,7 @@ const _opts:FC<{text:string; value:any}> = ({text, value}) => {
     </div>
 }
 
-const MyClanDashboard:FC<{lang:string; clan:IClan; setClan:Dispatch<SetStateAction<IClan|undefined>>; user:IUser; setUser:Dispatch<SetStateAction<IUser>>; setState:Dispatch<SetStateAction<string>>; refresh:() => void;}> = ({lang, clan, setClan, user, setUser, setState, refresh}) => {
+const MyClanDashboard:FC<{lang:string; clan:IClan; setClan:Dispatch<SetStateAction<IClan|undefined>>; user:IUser; setUser:Dispatch<SetStateAction<IUser>>; setState:Dispatch<SetStateAction<string>>; refresh:() => void;socket:Socket;}> = ({lang, clan, setClan, user, setUser, setState, refresh, socket}) => {
     const [isFetching, setIsFetching] = useState<boolean>(false)
 
     const leaveClan = () => {
@@ -20,6 +21,7 @@ const MyClanDashboard:FC<{lang:string; clan:IClan; setClan:Dispatch<SetStateActi
             setUser(res.res)
             setState("explore")
             refresh()
+            socket.emit('leaveClan', {id:clan.id, uid:user.id})
         })
     }
 

@@ -219,6 +219,27 @@ client.connect().then(async () => {
                     room.game.command(units, levels, command);
                 }
             });
+            socket.on('leaveClan', (data) => {
+                socket.broadcast.emit('leaveClan', data);
+            });
+            socket.on('acceptMember', (data) => {
+                socket.broadcast.emit('acceptMember', data);
+            });
+            socket.on('rejectMember', (data) => {
+                socket.broadcast.emit('rejectMember', data);
+            });
+            socket.on('clanApply', (data) => {
+                socket.broadcast.emit('clanApply', data);
+            });
+            socket.on('kickMember', (data) => {
+                socket.broadcast.emit('kickMember', data);
+            });
+            socket.on('promoteMember', (data) => {
+                socket.broadcast.emit('promoteMember', data);
+            });
+            socket.on('demoteMember', (data) => {
+                socket.broadcast.emit('demoteMember', data);
+            });
         });
         socket.on('disconnect', () => {
             console.log("a user disconnected");

@@ -12,7 +12,8 @@ export const loader:LoaderFunction = async ({params}) => {
   if(!clan) return json({res: null})
   if(!clan.members.includes(uid)) return json({res: null})
   const members = clan.members.filter((m:string) => m !== uid)
-  await updateBy('clans', {id:clan.id}, {members})
+  const submasters = clan.submasters.filter((m:string) => m !== uid)
+  await updateBy('clans', {id:clan.id}, {members, submasters})
   await updateBy('users', {id:uid}, {clan: ""})
   res = await getBy('clans', {id})
   return json({res});

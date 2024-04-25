@@ -2,7 +2,7 @@ import { Dispatch, FC, SetStateAction, useRef, useState } from "react";
 import { lng } from "~/data/lang";
 import { checkClan } from "~/data/utils";
 
-const ClanCreation:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<IUser>>; setState:Dispatch<SetStateAction<string>>; refresh:() => void}> = ({lang, user, setUser, setState, refresh}) => {
+const ClanCreation:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<IUser>>; setState:Dispatch<SetStateAction<string>>; refresh:(goto?:boolean) => void}> = ({lang, user, setUser, setState, refresh}) => {
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [error, setError] = useState<string>("")
     const [input, setInput] = useState<string>("")
@@ -60,8 +60,7 @@ const ClanCreation:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<
                 setIsFetching(false)
                 if(res.res){
                     setUser(res.res)
-                    refresh()
-                    setState('my clan')
+                    refresh(true)
                 } else {
                     setError('something went wrong')
                 }

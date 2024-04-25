@@ -27,7 +27,7 @@ const Main:FC<glFCProps> = ({lang, setLang, set, user, setUser, socket, setSocke
             state == 'settings' ? <SettingsState stateHeight={stateHeight} lang={lang} setLang={setLang} /> :
             state == 'profile' ? <ProfileState stateHeight={stateHeight} lang={lang} user={user} setUser={setUser as Dispatch<SetStateAction<IUser|null>>} set={set} isMobile={isMobile} /> :
             state == 'rank' ? <RankState stateHeight={stateHeight} lang={lang} /> :
-            state == 'clan' ? <ClanState stateHeight={stateHeight} lang={lang} user={user} setUser={setUser}/> :
+            state == 'clan' ? <ClanState stateHeight={stateHeight} lang={lang} user={user} setUser={setUser} socket={socket}/> :
             <></>
         }
         {!room && <StateOptions state={state} setState={setState} lang={lang} />}

@@ -18,6 +18,11 @@ const ClanState:FC<{stateHeight:string;lang:string;user:IUser;setUser:Dispatch<S
     useEffect(() => {
         if(!once) return;
         if(state == "explore") refresh()
+        setIsFetching(true)
+        fetch(`/getUser/type/id/value/${user.id}`).then(res => res.json()).then((res:{res:IUser}) => {
+            setIsFetching(false)
+            setUser(res.res)
+        })
     }, [once])
 
     const refresh = () => {
@@ -27,6 +32,23 @@ const ClanState:FC<{stateHeight:string;lang:string;user:IUser;setUser:Dispatch<S
         }).then((res:IClan[]) => {
             setIsFetching(false)
             setClans(res.filter(v => !v.private))
+        })
+    }
+
+    const apply = () => {
+        if(!clanProf) return
+        setIsFetching(true)
+        fetch(`/clanApply/id/${clanProf.id}/uid/${user.id}`).then(res => res.json()).then((res:{res:boolean}) => {
+            setIsFetching(false)
+            if(res.res) {
+                setClans(clans.map(v => {
+                    if(v.id == clanProf.id) {
+                        v.pending.push(user.id)
+                    }
+                    return v
+                }))
+                setClanProf(undefined)
+            }
         })
     }
 
@@ -49,7 +71,7 @@ const ClanState:FC<{stateHeight:string;lang:string;user:IUser;setUser:Dispatch<S
         </div>
         <div className='flex-1 fcsc w-full overflow-x-hidden overflow-y-auto p-1 gap-1'>
             {state == "explore" ? <ClanExplore lang={lang} clans={clans} setClanProf={setClanProf} />:
-            state == "my clan" && user.clan != "" ? <MyClan lang={lang} user={user} setUser={setUser} cin={clans.find(v => v.id == user.clan) as IClan} />:
+            state == "my clan" && user.clan != "" ? <MyClan lang={lang} user={user} setUser={setUser} cin={clans.find(v => v.id == user.clan) as IClan} refresh={refresh} setState={setState} />:
             state == "creation" && user.clan == "" ? <ClanCreation lang={lang} user={user} setUser={setUser} setState={setState} refresh={refresh} />:<></>
             }
         </div>
@@ -74,6 +96,8 @@ const ClanState:FC<{stateHeight:string;lang:string;user:IUser;setUser:Dispatch<S
                     <div className='text-sm lg:text-md'>{lng(lang, 'winrate')} {clanProf.lose == 0 ? 0 : (clanProf.win / (clanProf.win + clanProf.lose) * 100).toFixed(2)}%</div>
                     <div className='text-sm lg:text-md'>{lng(lang, 'rating')} {clanProf.rate}</div>
                 </div>
+                {user.clan == "" && (!clans.find(v => v.pending.includes(user.id)) || clans.find(v => v.pending.includes(user.id))?.id == clanProf.id) &&
+                <button disabled={isFetching || clanProf.pending.includes(user.id)} onClick={apply} className="w-full f-btn f-out f-mc s-0-7">{lng(lang, clanProf.pending.includes(user.id) ? "pending" : "apply")}</button>}
             </div>}
         </div>}
     </div>

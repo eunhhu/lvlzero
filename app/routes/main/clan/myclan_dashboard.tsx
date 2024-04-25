@@ -8,15 +8,18 @@ const _opts:FC<{text:string; value:any}> = ({text, value}) => {
     </div>
 }
 
-const MyClanDashboard:FC<{lang:string; clan:IClan; user:IUser; setUser:Dispatch<SetStateAction<IUser>>;}> = ({lang, clan, user, setUser}) => {
+const MyClanDashboard:FC<{lang:string; clan:IClan; setClan:Dispatch<SetStateAction<IClan|undefined>>; user:IUser; setUser:Dispatch<SetStateAction<IUser>>; setState:Dispatch<SetStateAction<string>>; refresh:() => void;}> = ({lang, clan, setClan, user, setUser, setState, refresh}) => {
     const [isFetching, setIsFetching] = useState<boolean>(false)
 
     const leaveClan = () => {
         if(user.id == clan.master) return;
         setIsFetching(true)
-        fetch(`/leaveClan/id/${user.id}`).then(res => res.json()).then((res:IUser) => {
+        fetch(`/leaveClan/id/${user.id}`).then(res => res.json()).then((res:{res:IUser}) => {
             setIsFetching(false)
-            setUser(res)
+            setClan(undefined)
+            setUser(res.res)
+            setState("explore")
+            refresh()
         })
     }
 
@@ -38,7 +41,7 @@ const MyClanDashboard:FC<{lang:string; clan:IClan; user:IUser; setUser:Dispatch<
             <_opts text={lng(lang, "winrate")} value={`${clan.lose == 0 ? 0 : (clan.win / (clan.win + clan.lose) * 100).toFixed(2)}%`} />
             <_opts text={lng(lang, "rating")} value={clan.rate} />
             <_opts text={lng(lang, "clan gold")} value={`${clan.gold}G`} />
-            {clan.master == user.id && <button disabled={isFetching} onClick={leaveClan} className="f-btn f-out s-0-7 f-mc w-full text-sm lg:text-lg">{lng(lang, 'leave clan')}</button>}
+            {clan.master != user.id && <button disabled={isFetching} onClick={leaveClan} className="f-btn f-out s-0-7 f-mc w-full text-sm lg:text-lg">{lng(lang, 'leave clan')}</button>}
         </div>
     </div>
 }

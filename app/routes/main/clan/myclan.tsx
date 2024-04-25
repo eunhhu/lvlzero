@@ -8,9 +8,9 @@ import MyClanMembres from "./myclan_members";
 
 const states = ["dashboard", "members", "clan war", "shop", "settings"]
 
-const MyClan:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<IUser>>; cin:IClan}> = ({lang, user, setUser, cin}) => {
+const MyClan:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<IUser>>; cin:IClan; refresh:() => void; setState:Dispatch<SetStateAction<string>>;}> = ({lang, user, setUser, cin, refresh, setState}) => {
     const [once, setOnce] = useState<boolean>(false)
-    const [state, setState] = useState<string>("dashboard")
+    const [state, setStater] = useState<string>("dashboard")
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const [clan, setClan] = useState<IClan>();
 
@@ -22,12 +22,12 @@ const MyClan:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<IUser>
     return <div className="frcc w-full h-full overflow-hidden gap-1 lg:gap-2">
         <div className="fcsc h-full f-back2l s-0-7 w-36 lg:w-48 text-white font-bold text-center text-md lg:text-xl gap-1 lg:gap-2 overflow-x-hidden overflow-y-auto">
             {states.map((sta, i) => {
-                return <div key={i} className={`cursor-pointer w-full f-out f-mc s-0-8 ${sta == state ? "f-back2l" : "f-backl"}`} onClick={e => setState(sta)}>{lng(lang, sta)}</div>
+                return <div key={i} className={`cursor-pointer w-full f-out f-mc s-0-8 ${sta == state ? "f-back2l" : "f-backl"}`} onClick={e => setStater(sta)}>{lng(lang, sta)}</div>
             })}
         </div>
         {clan && (
-            state == "dashboard" ? <MyClanDashboard lang={lang} clan={clan} user={user} setUser={setUser} /> :
-            state == "members" ? <MyClanMembres lang={lang} clan={clan} user={user} /> :<></>
+            state == "dashboard" ? <MyClanDashboard lang={lang} clan={clan} setClan={setClan} user={user} setUser={setUser} setState={setState} refresh={refresh} /> :
+            state == "members" ? <MyClanMembres lang={lang} clan={clan} setClan={setClan} user={user} /> :<></>
             // state == "clan war" ? <MyClanWar /> :
             // state == "shop" ? <MyClanShop /> :
             // state == "settings" ? <MyClanSettings /> : <></>

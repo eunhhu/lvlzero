@@ -2160,6 +2160,54 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "pt": "Membro",
         "it": "Membro"
     },
+    "accept":{
+        "en": "Accept",
+        "ko": "수락",
+        "jp": "受け入れる",
+        "cn": "接受",
+        "es": "Aceptar",
+        "fr": "Accepter",
+        "de": "Akzeptieren",
+        "ru": "Принимать",
+        "pt": "Aceitar",
+        "it": "Accettare"
+    },
+    "reject":{
+        "en": "Reject",
+        "ko": "거부",
+        "jp": "拒否",
+        "cn": "拒绝",
+        "es": "Rechazar",
+        "fr": "Rejeter",
+        "de": "Ablehnen",
+        "ru": "Отклонить",
+        "pt": "Rejeitar",
+        "it": "Rifiutare"
+    },
+    "apply":{
+        "en": "Apply",
+        "ko": "신청",
+        "jp": "適用",
+        "cn": "应用",
+        "es": "Aplicar",
+        "fr": "Appliquer",
+        "de": "Anwenden",
+        "ru": "Применять",
+        "pt": "Aplicar",
+        "it": "Applicare"
+    },
+    "pending":{
+        "en": "Pending",
+        "ko": "대기중",
+        "jp": "保留中",
+        "cn": "待定",
+        "es": "Pendiente",
+        "fr": "En attente",
+        "de": "Ausstehend",
+        "ru": "В ожидании",
+        "pt": "Pendente",
+        "it": "In attesa"
+    },
 }
 
 export function lng(lang:string, key:string){

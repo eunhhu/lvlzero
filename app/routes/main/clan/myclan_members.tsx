@@ -1,9 +1,21 @@
-import { FC, useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { lng } from "~/data/lang";
 
 const states = ["all members", "pending members"]
 
-const MyClanMembers:FC<{lang:string; clan:IClan; user:IUser}> = ({lang, clan, user}) => {
+const _MProfile:FC<{lang:string;user:IUser;clan:IClan}> = ({lang, user, clan}) => {
+    const role = clan.master == user.id ? "master" : clan.submasters.includes(user.id) ? "submaster" : "member"
+    return <div className="frsc gap-3">
+        <img src={user.avatar == "default" ? "assets/icons/profile.svg" : user.avatar} alt="" width={50} className="box" />
+        <div className="fcs">
+            <h1 className="text-lg lg:text-xl font-semibold">({lng(lang, role)}) {user.username}</h1>
+            <h2 className="text-md lg:text-lg font-semibold">Lv.{user.lvl}</h2>
+            <h3 className="text-sm lg:text-md">{user.exp}/{100 + user.lvl**2*10}</h3>
+        </div>
+    </div>
+}
+
+const MyClanMembers:FC<{lang:string; clan:IClan; setClan:Dispatch<SetStateAction<IClan|undefined>>; user:IUser}> = ({lang, clan, setClan, user}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [state, setState] = useState<string>("all members")
     const [members, setMembers] = useState<IUser[]>()
@@ -15,13 +27,35 @@ const MyClanMembers:FC<{lang:string; clan:IClan; user:IUser}> = ({lang, clan, us
     }, [])
     useEffect(() => {
         if(!once) return
+        refresh()
+    }, [once])
+
+    const refresh = () => {
         setIsFetching(true)
         fetch(`/getMembers/id/${clan.id}`).then(res => res.json()).then((res:{res:IUser[], pendings:IUser[]}) => {
             setIsFetching(false)
             setMembers(res.res.filter(v => !v.private))
             setPendings(res.pendings.filter(v => !v.private))
         })
-    }, [once])
+    }
+    
+    const accept = (id:string) => {
+        setIsFetching(true)
+        fetch(`/acceptMember/id/${clan.id}/uid/${id}`).then(res => res.json()).then((res:{res:IClan}) => {
+            setIsFetching(false)
+            setClan(res.res)
+            refresh()
+        })
+    }
+
+    const reject = (id:string) => {
+        setIsFetching(true)
+        fetch(`/rejectMember/id/${clan.id}/uid/${id}`).then(res => res.json()).then((res:{res:IClan}) => {
+            setIsFetching(false)
+            setClan(res.res)
+            refresh()
+        })
+    }
 
     return <div className="fccc flex-1 h-full f-backl s-0-7 text-white gap-1 lg:gap-2 overflow-hidden">
         <div className="frcc w-full gap-1 lg:gap-2">
@@ -31,30 +65,34 @@ const MyClanMembers:FC<{lang:string; clan:IClan; user:IUser}> = ({lang, clan, us
             })}
         </div>
         <div className="fcsc flex-1 w-full gap-1 lg:gap-2 overflow-x-hidden overflow-y-auto">
-            {state == "all members" && members ? members.sort((a, b) => {
+            {members && state == "all members" ? members.sort((a, b) => {
                 const aRole = clan.master == a.id ? 0 : clan.submasters.includes(a.id) ? 1 : 2
                 const bRole = clan.master == b.id ? 0 : clan.submasters.includes(b.id) ? 1 : 2
                 return aRole - bRole
             }).map((member, i) => {
-                const role = clan.master == member.id ? "master" : clan.submasters.includes(member.id) ? "submaster" : "member"
                 return <div key={i} className="w-full frbc p-2 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-lg text-white">
-                    <div className="frsc gap-3">
-                        <img src={member.avatar == "default" ? "assets/icons/profile.svg" : member.avatar} alt="" width={50} className="box" />
-                        <div className="fcs">
-                            <h1 className="text-lg lg:text-xl font-semibold">[{lng(lang, role)}] {member.username}</h1>
-                            <h2 className="text-md lg:text-lg font-semibold">Lv.{member.lvl}</h2>
-                            <h3 className="text-sm lg:text-md">{member.exp}/{100 + member.lvl**2*10}</h3>
-                        </div>
-                    </div>
+                    <_MProfile lang={lang} user={member} clan={clan} />
                     <div className="frcc gap-2">
                         {clan.master == user.id && clan.master != member.id && !clan.submasters.includes(member.id) && <button disabled={isFetching} className="f-btn f-out f-mc s-0-6 text-sm lg:text-lg">{lng(lang, "promote")}</button>}
                         {clan.master == user.id && clan.master != member.id && clan.submasters.includes(member.id) && <button disabled={isFetching} className="f-btn f-out f-mc s-0-6 text-sm lg:text-lg">{lng(lang, "demote")}</button>}
-                        {clan.master == user.id || (clan.submasters.includes(user.id) && clan.master != member.id && !clan.submasters.includes(member.id)) && <button disabled={isFetching} className="f-btn f-out f-mc s-0-6 text-sm lg:text-lg">{lng(lang, "kick")}</button>}
+                        {clan.master != member.id &&
+                        ((clan.master == user.id) ||
+                        (clan.submasters.includes(user.id) && !clan.submasters.includes(member.id))) &&
+                        <button disabled={isFetching} className="f-btn f-out f-mc s-0-6 text-sm lg:text-lg">{lng(lang, "kick")}</button>}
+                    </div>
+                </div>
+            }) : pendings && state == "pending members" ? pendings.map((pending, i) => {
+                return <div key={i} className="w-full frbc p-2 bg-[#ffffff22] hover:bg-[#ffffff33] cursor-pointer rounded-lg text-white">
+                    <_MProfile lang={lang} user={pending} clan={clan} />
+                    <div className="frcc gap-2">
+                        <button disabled={isFetching} onClick={e => accept(pending.id)} className="f-btn f-out f-mc s-0-6 text-sm lg:text-lg">{lng(lang, "accept")}</button>
+                        <button disabled={isFetching} onClick={e => reject(pending.id)} className="f-btn f-out f-mc s-0-6 text-sm lg:text-lg">{lng(lang, "reject")}</button>
                     </div>
                 </div>
             }) : <></>}
         </div>
     </div>
 }
+
 
 export default MyClanMembers;

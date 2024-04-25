@@ -120,6 +120,15 @@ export async function modifyAll(col: string, obj: any): Promise<any> {
     return result;
 }
 
+export async function modifyFilter(col: string, obj:any, obj2: any): Promise<any> {
+    await connectToMongoDB();
+    const db = getMongoDB();
+    const collection = db.collection(col);
+    await collection.updateMany(obj, {$set: obj2});
+    const result = await collection.find({}).toArray() as unknown as any;
+    return result;
+}
+
 export async function getAll(col: string): Promise<any> {
     await connectToMongoDB();
     const db = getMongoDB();

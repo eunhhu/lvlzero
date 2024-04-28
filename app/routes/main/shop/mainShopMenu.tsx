@@ -21,7 +21,7 @@ const MainShopMenu:FC<{
     return <div className='w-full h-full flex flex-row gap-2 flex-wrap items-center justify-center overflow-y-auto p-5'>
         {
             state == "units" ?
-            global.units.filter(v => !v.private).map((v, i) => {
+            global.units.filter(v => !v.private || user.unlocked.includes(v.type)).map((v, i) => {
                 const isUnlocked = user.unlocked.includes(v.type)
                 return <div key={i} className={`${isUnlocked ? "f-backwl" : "f-backbl"} s-0-9 bg-cover bg-center cursor-pointer w-16 h-16 lg:w-24 lg:h-24`}
                 style={{backgroundImage:`url(assets/units/${v.type}.png)`}}
@@ -30,7 +30,7 @@ const MainShopMenu:FC<{
                     className="w-full h-full flex flex-col justify-center items-center rounded-md text-white text-sm lg:text-xl font-bold">{v.buy}</div>}
                 </div>
             }): state == "modules" ?
-            global.modules.filter(v => !v.private).sort((a, b) => {
+            global.modules.filter(v => !v.private || user.unlockedModules.includes(v.type)).sort((a, b) => {
                 const aName = a.type.split('-')[0]
                 const bName = b.type.split('-')[0]
                 if(aName < bName) return -1

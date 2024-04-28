@@ -12,10 +12,13 @@ export const loader:LoaderFunction = async ({params}) => {
     if(isNaN(rewardMount)) return json({res: null});
     let exp = user.exp + rewardMount;
     let lvl = user.lvl;
-    if(getLvl(getTotalExp(lvl) + exp) > lvl){
-        lvl = getLvl(getTotalExp(lvl) + exp);
-        exp = getTotalExp(lvl) + exp - getTotalExp(lvl-1);
-    }
+    const totalExp = getTotalExp(lvl-1) + exp;
+    const pLvl = getLvl(totalExp)
+    console.log(lvl, exp, totalExp, getTotalExp(lvl-1), pLvl);
+    if(pLvl > lvl){
+        lvl = pLvl;
+        exp = totalExp - getTotalExp(pLvl-1);
+    };
     let upd:{} = {gold: user.gold + rewardMount, exp, lvl};
     res = await updateUser(id as string, upd);
     return json({res, reward: rewardMount});

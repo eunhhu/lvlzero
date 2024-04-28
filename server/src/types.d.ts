@@ -53,6 +53,7 @@ interface IChat{
 
 interface IInRoomUser{
     id:string;
+    clan:string; // clan id
     username:string;
     lvl:number;
     socketId:string;
@@ -61,6 +62,7 @@ interface IInRoomUser{
 
 interface InGameUser{
     id:string;
+    clan:string; // clan id
     username:string;
     lvl:number;
     socketId:string;
@@ -249,4 +251,23 @@ interface IClan{
     lose:number; // clan war lose
     rate:number; // clan war rating
     private: boolean;
+}
+
+interface IPvpMatch{
+    id:string; // socket id
+    users:InGameUser[]; // max 2
+    status:string; // waiting, playing
+    rate:number; // rating
+    created:number; // Date.now()
+    game:PVP; // pvp
+}
+
+interface ICwMatch{
+    id:string; // socket id
+    users:InGameUser[]; // max 6 (3v3)
+    clans:string[]; // clan id max 2
+    status:string; // waiting, playing
+    rate:number; // rating
+    created:number; // Date.now()
+    game:CW; // clan war
 }

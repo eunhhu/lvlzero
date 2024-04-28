@@ -2208,6 +2208,42 @@ const keys:{[key:string]:{[key:string]:string}} = {
         "pt": "Pendente",
         "it": "In attesa"
     },
+    "not enough clan gold":{
+        "en": "Not Enough Clan Gold",
+        "ko": "클랜 골드가 부족합니다",
+        "jp": "クランゴールドが足りません",
+        "cn": "氏族金不足",
+        "es": "Oro del clan insuficiente",
+        "fr": "Or du clan insuffisant",
+        "de": "Nicht genug Clan Gold",
+        "ru": "Недостаточно золота клана",
+        "pt": "Ouro do clã insuficiente",
+        "it": "Oro del clan insufficiente"
+    },
+    "player":{
+        "en": "Player",
+        "ko": "플레이어",
+        "jp": "プレイヤー",
+        "cn": "玩家",
+        "es": "Jugador",
+        "fr": "Joueur",
+        "de": "Spieler",
+        "ru": "игрок",
+        "pt": "Jogador",
+        "it": "Giocatore"
+    },
+    "clan required":{
+        "en": "Clan Required",
+        "ko": "클랜이 필요합니다",
+        "jp": "クランが必要です",
+        "cn": "需要氏族",
+        "es": "Clan requerido",
+        "fr": "Clan requis",
+        "de": "Clan erforderlich",
+        "ru": "Клан требуется",
+        "pt": "Clã necessário",
+        "it": "Clan richiesto"
+    },
 }
 
 export function lng(lang:string, key:string){

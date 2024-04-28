@@ -58,8 +58,11 @@ client.connect().then(async () => {
       res.sendFile('index.html', { root: __dirname.replace('dist', 'src') });
     });
 
+    // server logic
     let rooms:IRoom[] = [];
     let onlines:{[key:string]:string} = {};
+    let pvpMatches:IPvpMatch[] = [];
+    let cwMatches:ICwMatch[] = [];
     
     io.on('connection', (socket:Socket) => {
         socket.on('login', (user:IUser) => {
@@ -74,7 +77,7 @@ client.connect().then(async () => {
             socket.on('createRoom', (data:{name:string;maxUsers:number;private:boolean;user:IUser;password:string}) => {
                 let room:IRoom = {
                     name: data.name,
-                    users: [{username: data.user.username, id: data.user.id, socketId:socket.id, lvl: data.user.lvl, ready: false}],
+                    users: [{username: data.user.username, clan:data.user.clan, id: data.user.id, socketId:socket.id, lvl: data.user.lvl, ready: false}],
                     maxUsers: data.maxUsers,
                     private: data.private,
                     password: data.password,
@@ -94,7 +97,7 @@ client.connect().then(async () => {
                 let room = rooms.find(room => room.ownerID === data.ownerId);
                 if(room){
                     if(room.users.length < room.maxUsers){
-                        room.users.push({username: data.user.username, id: data.user.id, socketId:socket.id, lvl: data.user.lvl, ready: false});
+                        room.users.push({username: data.user.username, clan:data.user.clan, id: data.user.id, socketId:socket.id, lvl: data.user.lvl, ready: false});
                         socket.emit('roomJoined', room);
                         io.to(room.ownerID).emit('userJoined', room.users);
                         socket.join(room.ownerID);

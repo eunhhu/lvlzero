@@ -150,6 +150,6 @@ export async function getPendings(clanId: string): Promise<any> {
     const db = getMongoDB();
     const collection = db.collection("users");
     const clan:IClan = await db.collection("clans").findOne({id: clanId}, {projection: {icon:0}}) as unknown as IClan;
-    const result:IUser[] = await collection.find({}).toArray() as unknown as IUser[];
-    return result.filter(v => clan.pending.includes(v.id));
+    const result:IUser[] = await collection.find({id: {$in: clan.pending}}).toArray() as unknown as IUser[];
+    return result;
 }

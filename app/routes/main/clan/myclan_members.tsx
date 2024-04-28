@@ -5,7 +5,7 @@ import { lng } from "~/data/lang";
 const states = ["all members", "pending members"]
 
 const _MProfile:FC<{lang:string;user:IUser;clan:IClan}> = ({lang, user, clan}) => {
-    const role = clan.master == user.id ? "master" : clan.submasters.includes(user.id) ? "submaster" : "member"
+    const role = clan.master == user.id ? "master" : clan.submasters.includes(user.id) ? "submaster" : clan.members.includes(user.id) ? "member" : "pending"
     return <div className="frsc gap-3">
         <img src={user.avatar == "default" ? "assets/icons/profile.svg" : user.avatar} alt="" width={50} className="box" />
         <div className="fcs">

@@ -36,7 +36,7 @@ const MyClan:FC<{
             state == "members" ? <MyClanMembres lang={lang} clan={clan} setClan={setClan} user={user} socket={socket} isFetching={isFetching} setIsFetching={setIsFetching} /> :
             state == "clan war" ? <MyClanWar lang={lang} /> :
             state == "shop" ? <MyClanShop lang={lang} /> :
-            state == "settings" ? <MyClanSettings lang={lang} clan={clan} isFetching={isFetching} setIsFetching={setIsFetching} /> : <></>
+            state == "settings" ? <MyClanSettings lang={lang} clan={clan} setClan={setClan} isFetching={isFetching} setIsFetching={setIsFetching} /> : <></>
         )}
     </div>
 }

@@ -167,6 +167,7 @@ export class Game{
         this.players = users.map(user => {
             return {
                 id: user.id,
+                clan: user.clan,
                 username: user.username,
                 lvl: user.lvl,
                 socketId: user.socketId,

@@ -1,13 +1,29 @@
-import { Dispatch, FC, SetStateAction, useRef, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useRef, useState } from "react";
+import { Socket } from "socket.io-client";
 import { lng } from "~/data/lang";
 import { checkClan } from "~/data/utils";
 
-const ClanCreation:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<IUser>>; setState:Dispatch<SetStateAction<string>>; refresh:(goto?:boolean) => void}> = ({lang, user, setUser, setState, refresh}) => {
-    const [isFetching, setIsFetching] = useState<boolean>(false)
+const ClanCreation:FC<{
+    lang:string;
+    user:IUser;
+    setUser:Dispatch<SetStateAction<IUser>>;
+    refresh:(goto?:boolean) => void;
+    setClan:Dispatch<SetStateAction<IClan|null>>;
+    isFetching:boolean;
+    setIsFetching:Dispatch<SetStateAction<boolean>>;
+}> = ({lang, user, setUser, refresh, setClan, isFetching, setIsFetching}) => {
+    const [once, setOnce] = useState<boolean>(false)
     const [error, setError] = useState<string>("")
     const [input, setInput] = useState<string>("")
     const [icon, setIcon] = useState<string>("")
     const canvasRef = useRef<HTMLCanvasElement>(null)
+
+    useEffect(() => {
+        setOnce(true)
+    }, [])
+    useEffect(() => {
+        if(!once) return;
+    }, [once])
 
     return <div className='flex-1 fcac w-full pl-12 pr-12 lg:pl-24 lg:pr-24 gap-1 lg:gap-3'>
         <div className="w-full frbc">
@@ -56,10 +72,11 @@ const ClanCreation:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<
                     name:input,
                     icon
                 })
-            }).then(res => res.json()).then((res:{res:IUser}) => {
+            }).then(res => res.json()).then((res:{res:IUser, clan:IClan}) => {
                 setIsFetching(false)
                 if(res.res){
                     setUser(res.res)
+                    setClan(res.clan)
                     refresh(true)
                 } else {
                     setError('something went wrong')

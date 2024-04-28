@@ -34,5 +34,5 @@ export const action:LoaderFunction = async ({params, request}) => {
     }
     await createOne("clans", newClan);
     res = await updateUser(user.id, {clan:cid, gold: user.gold - clanPrice})
-    return json({res});
+    return json({res, clan: newClan});
 }

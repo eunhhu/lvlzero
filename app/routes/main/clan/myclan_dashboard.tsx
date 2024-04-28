@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import { lng } from "~/data/lang";
 
@@ -9,20 +9,27 @@ const _opts:FC<{text:string; value:any}> = ({text, value}) => {
     </div>
 }
 
-const MyClanDashboard:FC<{lang:string; clan:IClan; setClan:Dispatch<SetStateAction<IClan|undefined>>; user:IUser; setUser:Dispatch<SetStateAction<IUser>>; setState:Dispatch<SetStateAction<string>>; refresh:() => void;socket:Socket;}> = ({lang, clan, setClan, user, setUser, setState, refresh, socket}) => {
-    const [isFetching, setIsFetching] = useState<boolean>(false)
+const MyClanDashboard:FC<{
+    lang:string;
+    clan:IClan;
+    user:IUser;
+    socket:Socket;
+    isFetching:boolean;
+    setIsFetching:Dispatch<SetStateAction<boolean>>;
+}> = ({lang, clan, user, socket, isFetching, setIsFetching}) => {
+    const [once, setOnce] = useState<boolean>(false)
+
+    useEffect(() => {
+        setOnce(true)
+    }, [])
+    useEffect(() => {
+        if(!once) return;
+    }, [once])
 
     const leaveClan = () => {
         if(user.id == clan.master) return;
         setIsFetching(true)
-        fetch(`/leaveClan/id/${user.id}`).then(res => res.json()).then((res:{res:IUser}) => {
-            setIsFetching(false)
-            setClan(undefined)
-            setUser(res.res)
-            setState("explore")
-            refresh()
-            socket.emit('leaveClan', {id:clan.id, uid:user.id})
-        })
+        socket.emit('leaveClan', {id:clan.id, uid:user.id})
     }
 
     return <div className="fcsc flex-1 h-full f-backl s-0-7 text-white gap-1 lg:gap-2 overflow-x-hidden overflow-y-auto">

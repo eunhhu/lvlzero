@@ -3,7 +3,11 @@ import { lng } from "~/data/lang";
 import { getTotalClanExp } from "~/data/utils";
 
 
-const ClanExplore:FC<{lang:string; clans:IClan[]; setClanProf:Dispatch<SetStateAction<IClan|undefined>>;}> = ({lang, clans, setClanProf}) => {
+const ClanExplore:FC<{
+    lang:string;
+    clans:IClan[];
+    setClanProf:Dispatch<SetStateAction<IClan|null>>;
+}> = ({lang, clans, setClanProf}) => {
     const [search, setSearch] = useState<string>("")
 
     return <>

@@ -3,21 +3,26 @@ import { lng } from "~/data/lang";
 import MyClanDashboard from "./myclan_dashboard";
 import MyClanMembres from "./myclan_members";
 import { Socket } from "socket.io-client";
-// import MyClanSettings from "./myclan_settings";
-// import MyClanShop from "./myclan_shop";
-// import MyClanWar from "./myclan_war";
+import MyClanWar from "./myclan_clanwar";
+import MyClanShop from "./myclan_shop";
+import MyClanSettings from "./myclan_settings";
 
 const states = ["dashboard", "members", "clan war", "shop", "settings"]
 
-const MyClan:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<IUser>>; cin:IClan; refresh:() => void; setState:Dispatch<SetStateAction<string>>; socket:Socket;}> = ({lang, user, setUser, cin, refresh, setState, socket}) => {
+const MyClan:FC<{
+    lang:string;
+    user:IUser;
+    clan:IClan|null;
+    setClan:Dispatch<SetStateAction<IClan|null>>;
+    socket:Socket;
+    isFetching:boolean;
+    setIsFetching:Dispatch<SetStateAction<boolean>>;
+}> = ({lang, user, clan, setClan, socket, isFetching, setIsFetching}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [state, setStater] = useState<string>("dashboard")
-    const [isFetching, setIsFetching] = useState<boolean>(false)
-    const [clan, setClan] = useState<IClan>();
 
     useEffect(() => setOnce(true), [])
     useEffect(() => {
-        setClan(cin)
     }, [once])
 
     return <div className="frcc w-full h-full overflow-hidden gap-1 lg:gap-2">
@@ -27,11 +32,11 @@ const MyClan:FC<{lang:string; user:IUser; setUser:Dispatch<SetStateAction<IUser>
             })}
         </div>
         {clan && (
-            state == "dashboard" ? <MyClanDashboard lang={lang} clan={clan} setClan={setClan} user={user} setUser={setUser} setState={setState} refresh={refresh} socket={socket} /> :
-            state == "members" ? <MyClanMembres lang={lang} clan={clan} setClan={setClan} user={user} socket={socket} /> :<></>
-            // state == "clan war" ? <MyClanWar /> :
-            // state == "shop" ? <MyClanShop /> :
-            // state == "settings" ? <MyClanSettings /> : <></>
+            state == "dashboard" ? <MyClanDashboard lang={lang} clan={clan} user={user} socket={socket} isFetching={isFetching} setIsFetching={setIsFetching} /> :
+            state == "members" ? <MyClanMembres lang={lang} clan={clan} setClan={setClan} user={user} socket={socket} isFetching={isFetching} setIsFetching={setIsFetching} /> :
+            state == "clan war" ? <MyClanWar lang={lang} /> :
+            state == "shop" ? <MyClanShop lang={lang} /> :
+            state == "settings" ? <MyClanSettings lang={lang} clan={clan} isFetching={isFetching} setIsFetching={setIsFetching} /> : <></>
         )}
     </div>
 }

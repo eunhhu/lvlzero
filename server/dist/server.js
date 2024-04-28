@@ -219,26 +219,87 @@ client.connect().then(async () => {
                     room.game.command(units, levels, command);
                 }
             });
-            socket.on('leaveClan', (data) => {
-                socket.broadcast.emit('leaveClan', data);
+            socket.on('leaveClan', async (data) => {
+                const clan = await db.collection('clans').findOne({ id: data.id });
+                if (clan && clan.master != data.uid) {
+                    const userUpdated = await db.collection('users').updateOne({ id: data.uid }, { $set: { clan: '' } });
+                    const clanUpdated = await db.collection('clans').updateOne({ id: data.id }, { $pull: { members: data.uid, submasters: data.uid } });
+                    if ((userUpdated).modifiedCount > 0 && (clanUpdated).modifiedCount > 0) {
+                        socket.emit('leaveClan', data);
+                        socket.broadcast.emit('leaveClan', data);
+                    }
+                }
             });
-            socket.on('acceptMember', (data) => {
-                socket.broadcast.emit('acceptMember', data);
+            socket.on('acceptMember', async (data) => {
+                const clan = await db.collection('clans').findOne({ id: data.id });
+                if (clan && (clan.master == onlines[socket.id] || clan.submasters.includes(onlines[socket.id]))) {
+                    const userUpdated = await db.collection('users').updateOne({ id: data.uid }, { $set: { clan: data.id } });
+                    const clanUpdated = await db.collection('clans').updateOne({ id: data.id }, { $pull: { pending: data.uid }, $push: { members: data.uid } });
+                    if ((userUpdated).modifiedCount > 0 && (clanUpdated).modifiedCount > 0) {
+                        socket.emit('acceptMember', data);
+                        socket.broadcast.emit('acceptMember', data);
+                    }
+                }
             });
-            socket.on('rejectMember', (data) => {
-                socket.broadcast.emit('rejectMember', data);
+            socket.on('rejectMember', async (data) => {
+                const clan = await db.collection('clans').findOne({ id: data.id });
+                if (clan && ((clan.master == onlines[socket.id] || clan.submasters.includes(onlines[socket.id])) || data.uid == onlines[socket.id])) {
+                    const clanUpdated = await db.collection('clans').updateOne({ id: data.id }, { $pull: { pending: data.uid } });
+                    if ((clanUpdated).modifiedCount > 0) {
+                        socket.emit('rejectMember', data);
+                        socket.broadcast.emit('rejectMember', data);
+                    }
+                }
             });
-            socket.on('clanApply', (data) => {
-                socket.broadcast.emit('clanApply', data);
+            socket.on('clanApply', async (data) => {
+                const clan = await db.collection('clans').findOne({ id: data.id });
+                if (clan) {
+                    const clanUpdated = await db.collection('clans').updateOne({ id: data.id }, { $push: { pending: data.uid } });
+                    if ((clanUpdated).modifiedCount > 0) {
+                        socket.emit('clanApply', data);
+                        socket.broadcast.emit('clanApply', data);
+                    }
+                }
             });
-            socket.on('kickMember', (data) => {
-                socket.broadcast.emit('kickMember', data);
+            socket.on('kickMember', async (data) => {
+                const clan = await db.collection('clans').findOne({ id: data.id });
+                if (clan && (clan.master == onlines[socket.id] || clan.submasters.includes(onlines[socket.id]))) {
+                    const userUpdated = await db.collection('users').updateOne({ id: data.uid }, { $set: { clan: '' } });
+                    const clanUpdated = await db.collection('clans').updateOne({ id: data.id }, { $pull: { members: data.uid, submasters: data.uid } });
+                    if ((userUpdated).modifiedCount > 0 && (clanUpdated).modifiedCount > 0) {
+                        socket.emit('kickMember', data);
+                        socket.broadcast.emit('kickMember', data);
+                        console.log(await db.collection('clans').findOne({ id: data.id }));
+                    }
+                }
             });
-            socket.on('promoteMember', (data) => {
-                socket.broadcast.emit('promoteMember', data);
+            socket.on('promoteMember', async (data) => {
+                const clan = await db.collection('clans').findOne({ id: data.id });
+                if (clan && clan.master == onlines[socket.id]) {
+                    const clanUpdated = await db.collection('clans').updateOne({ id: data.id }, { $push: { submasters: data.uid } });
+                    if ((clanUpdated).modifiedCount > 0) {
+                        socket.emit('promoteMember', data);
+                        socket.broadcast.emit('promoteMember', data);
+                    }
+                }
             });
-            socket.on('demoteMember', (data) => {
-                socket.broadcast.emit('demoteMember', data);
+            socket.on('demoteMember', async (data) => {
+                const clan = await db.collection('clans').findOne({ id: data.id });
+                if (clan && clan.master == onlines[socket.id]) {
+                    const clanUpdated = await db.collection('clans').updateOne({ id: data.id }, { $pull: { submasters: data.uid } });
+                    if ((clanUpdated).modifiedCount > 0) {
+                        socket.emit('demoteMember', data);
+                        socket.broadcast.emit('demoteMember', data);
+                    }
+                }
+            });
+            socket.on('getClanMembers', async (data) => {
+                const clan = await db.collection('clans').findOne({ id: data.id });
+                if (clan) {
+                    const members = await db.collection('users').find({ id: { $in: clan.members } }).toArray();
+                    const pendings = await db.collection('users').find({ id: { $in: clan.pending } }).toArray();
+                    socket.emit('getClanMembers', { members, pendings });
+                }
             });
         });
         socket.on('disconnect', () => {
@@ -280,6 +341,8 @@ client.connect().then(async () => {
                 }
                 case 'dr':
                 case 'delete-room': {
+                    if (params.length < 2)
+                        return socket.emit('command', 'Invalid parameters');
                     let room = rooms.find(room => room.ownerID === params[1]);
                     if (room) {
                         rooms = rooms.filter(room => room.ownerID !== params[1]);
@@ -292,6 +355,8 @@ client.connect().then(async () => {
                     break;
                 }
                 case 'ban': {
+                    if (params.length < 2)
+                        return socket.emit('command', 'Invalid parameters');
                     let socketId = Object.keys(onlines).find(key => onlines[key] === params[1]);
                     if (socketId)
                         socket.to(socketId).emit('ban', params[2] || 'You are banned');
@@ -305,6 +370,8 @@ client.connect().then(async () => {
                     break;
                 }
                 case 'unban': {
+                    if (params.length < 2)
+                        return socket.emit('command', 'Invalid parameters');
                     let res = db.collection('users').updateOne({ id: params[1] }, { $set: { banned: false } });
                     if ((await res).modifiedCount > 0) {
                         socket.emit('command', `User unbanned : ${params[1]}`);
@@ -316,6 +383,8 @@ client.connect().then(async () => {
                 }
                 case 'gu':
                 case 'get-user': {
+                    if (params.length < 2)
+                        return socket.emit('command', 'Invalid parameters');
                     let user = users.find(user => user.username === params[1]);
                     if (user) {
                         socket.emit('command', user.id);
@@ -327,6 +396,8 @@ client.connect().then(async () => {
                 }
                 case 'gr':
                 case 'get-room': {
+                    if (params.length < 2)
+                        return socket.emit('command', 'Invalid parameters');
                     let room = rooms.find(room => room.name === params[1]);
                     if (room) {
                         socket.emit('command', room.ownerID);
@@ -338,6 +409,8 @@ client.connect().then(async () => {
                 }
                 case 'ec':
                 case 'emit-command': {
+                    if (params.length < 3)
+                        return socket.emit('command', 'Invalid parameters');
                     let room = rooms.find(room => room.ownerID === params[1]);
                     if (room) {
                         room.game.command(units, levels, params.slice(2).join(' '));
@@ -350,6 +423,8 @@ client.connect().then(async () => {
                 }
                 case 'ku':
                 case 'kick-user': {
+                    if (params.length < 3)
+                        return socket.emit('command', 'Invalid parameters');
                     let room = rooms.find(room => room.ownerID === params[2]);
                     if (room) {
                         room.users = room.users.filter(user => user.id !== params[1]);
@@ -403,6 +478,8 @@ client.connect().then(async () => {
                 }
                 case 'dsc':
                 case 'disconnect': {
+                    if (params.length < 2)
+                        return socket.emit('command', 'Invalid parameters');
                     let socketId = Object.keys(onlines).find(key => key === params[1]);
                     if (socketId) {
                         io.to(socketId).emit('disconnect');

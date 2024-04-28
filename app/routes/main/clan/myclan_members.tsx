@@ -16,138 +16,60 @@ const _MProfile:FC<{lang:string;user:IUser;clan:IClan}> = ({lang, user, clan}) =
     </div>
 }
 
-const MyClanMembers:FC<{lang:string; clan:IClan; setClan:Dispatch<SetStateAction<IClan|undefined>>; user:IUser; socket:Socket;}> = ({lang, clan, setClan, user, socket}) => {
+const MyClanMembers:FC<{lang:string; clan:IClan; setClan:Dispatch<SetStateAction<IClan|null>>; user:IUser; socket:Socket; isFetching:boolean; setIsFetching:Dispatch<SetStateAction<boolean>>;}> = ({lang, clan, setClan, user, socket, isFetching, setIsFetching}) => {
     const [once, setOnce] = useState<boolean>(false)
     const [state, setState] = useState<string>("all members")
     const [members, setMembers] = useState<IUser[]>()
     const [pendings, setPendings] = useState<IUser[]>([])
-    const [isFetching, setIsFetching] = useState<boolean>(false)
 
     useEffect(() => {
         setOnce(true)
     }, [])
     useEffect(() => {
-        if(!once) return
-        refresh()
-
-
-        socket.on('promoteMember', (data:{id:string; uid:string}) => {
-            if(data.id == clan.id) {
-                setClan({...clan, submasters:[...clan.submasters, data.uid]})
-                refresh()
-            }
-        })
-
-        socket.on('demoteMember', (data:{id:string; uid:string}) => {
-            if(data.id == clan.id) {
-                setClan({...clan, submasters:clan.submasters.filter(v => v != data.uid)})
-                refresh()
-            }
-        })
-
-        socket.on('leaveClan', (data:{id:string; uid:string}) => {
-            if(data.id == clan.id) {
-                setClan({...clan, members:clan.members.filter(v => v != data.uid), submasters:clan.submasters.filter(v => v != data.uid)})
-                refresh()
-            }
-        })
-
-        socket.on('acceptMember', (data:{id:string; uid:string}) => {
-            if(data.id == clan.id) {
-                setClan({...clan, members:[...clan.members, data.uid]})
-                refresh()
-            }
-        })
-
-        socket.on('rejectMember', (data:{id:string; uid:string}) => {
-            if(data.id == clan.id) {
-                setClan({...clan, pending:clan.pending.filter(v => v != data.uid)})
-                refresh()
-            }
-        })
-
-        socket.on('kickMember', (data:{id:string; uid:string}) => {
-            if(data.id == clan.id) {
-                setClan({...clan, members:clan.members.filter(v => v != data.uid), submasters:clan.submasters.filter(v => v != data.uid)})
-                refresh()
-            }
-        })
-
-        socket.on('clanApply', (data:{id:string; uid:string}) => {
-            if(data.id == clan.id) {
-                setClan({...clan, pending:[...clan.pending, data.uid]})
-                refresh()
-            }
-        })
-
-        return () => {
-            socket.off('promoteMember')
-            socket.off('demoteMember')
-            socket.off('leaveClan')
-            socket.off('acceptMember')
-            socket.off('rejectMember')
-            socket.off('kickMember')
-            socket.off('clanApply')
-        }
-    }, [once, clan])
-
-    const refresh = () => {
-        setIsFetching(true)
-        fetch(`/getMembers/id/${clan.id}`).then(res => res.json()).then((res:{res:IUser[], pendings:IUser[]}) => {
+        if(!once) return;
+        updateMembers()
+        socket.on('getClanMembers', (data:{members:IUser[]; pendings:IUser[]}) => {
             setIsFetching(false)
-            setMembers(res.res.filter(v => !v.private))
-            setPendings(res.pendings.filter(v => !v.private))
+            setMembers(data.members)
+            setPendings(data.pendings)
         })
+        return () => {
+            socket.off('getClanMembers')
+        }
+    }, [once])
+
+    useEffect(() => {
+        updateMembers()
+    }, [clan])
+
+    const updateMembers = () => {
+        setIsFetching(true)
+        socket.emit('getClanMembers', {id:clan.id})
     }
-    
+
     const accept = (id:string) => {
         setIsFetching(true)
-        fetch(`/acceptMember/id/${clan.id}/uid/${id}`).then(res => res.json()).then((res:{res:IClan}) => {
-            setIsFetching(false)
-            setClan(res.res)
-            refresh()
-            socket.emit('acceptMember', {id:clan.id, uid:id})
-        })
+        socket.emit('acceptMember', {id:clan.id, uid:id})
     }
 
     const reject = (id:string) => {
         setIsFetching(true)
-        fetch(`/rejectMember/id/${clan.id}/uid/${id}`).then(res => res.json()).then((res:{res:IClan}) => {
-            setIsFetching(false)
-            setClan(res.res)
-            refresh()
-            socket.emit('rejectMember', {id:clan.id, uid:id})
-        })
+        socket.emit('rejectMember', {id:clan.id, uid:id})
     }
 
     const kick = (id:string) => {
         setIsFetching(true)
-        fetch(`/kickMember/id/${clan.id}/uid/${id}`).then(res => res.json()).then((res:{res:IClan}) => {
-            setIsFetching(false)
-            socket.emit('kickMember', {id:clan.id, uid:id})
-            setClan(res.res)
-            refresh()
-        })
+        socket.emit('kickMember', {id:clan.id, uid:id})
     }
 
     const promote = (id:string) => {
         setIsFetching(true)
-        fetch(`/promoteMember/id/${clan.id}/uid/${id}`).then(res => res.json()).then((res:{res:IClan}) => {
-            setIsFetching(false)
-            setClan(res.res)
-            refresh()
-            socket.emit('promoteMember', {id:clan.id, uid:id})
-        })
+        socket.emit('promoteMember', {id:clan.id, uid:id})
     }
 
     const demote = (id:string) => {
         setIsFetching(true)
-        fetch(`/demoteMember/id/${clan.id}/uid/${id}`).then(res => res.json()).then((res:{res:IClan}) => {
-            setIsFetching(false)
-            setClan(res.res)
-            refresh()
-            socket.emit('demoteMember', {id:clan.id, uid:id})
-        })
+        socket.emit('demoteMember', {id:clan.id, uid:id})
     }
 
     return <div className="fccc flex-1 h-full f-backl s-0-7 text-white gap-1 lg:gap-2 overflow-hidden">
